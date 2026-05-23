@@ -828,13 +828,17 @@ function highlightOriginal(line) {
 }
 
 function highlightModified(line) {
-  const { code, comment } = splitCodeComment(line);
-  let h = esc(code);
-  h = h.replace(/X(\[[^\]]+\])/gi, m => `<span class="hm-x">${esc(m)}</span>`);
-  h = h.replace(/Y(\[[^\]]+\])/gi, m => `<span class="hm-y">${esc(m)}</span>`);
-  h = h.replace(/Z(\[[^\]]+\])/gi, m => `<span class="hm-z">${esc(m)}</span>`);
-  if (comment) h += `<span class="comment">${esc(comment)}</span>`;
-  return h;
+  try {
+    const { code, comment } = splitCodeComment(line);
+    let h = esc(code);
+    h = h.replace(/X(\[\S+?\])/g, m => `<span class="hm-x">${esc(m)}</span>`);
+    h = h.replace(/Y(\[\S+?\])/g, m => `<span class="hm-y">${esc(m)}</span>`);
+    h = h.replace(/Z(\[\S+?\])/g, m => `<span class="hm-z">${esc(m)}</span>`);
+    if (comment) h += `<span class="comment">${esc(comment)}</span>`;
+    return h;
+  } catch(e) {
+    return esc(line);
+  }
 }
 
 function lineChanged(orig, mod) {
@@ -847,25 +851,32 @@ function renderPane(scrollId, lines, type, xMacro, yMacro, zMacro) {
   const frag = document.createDocumentFragment();
 
   lines.forEach((line, i) => {
-    const div = document.createElement('div');
-    div.className = 'diff-line';
+    try {
+      const div = document.createElement('div');
+      div.className = 'diff-line';
 
-    const changed = lineChanged(origLines[i] || '', lines[i] || '');
-    if (changed) {
-      div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
+      const changed = lineChanged(origLines[i] || '', lines[i] || '');
+      if (changed) {
+        div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
+      }
+
+      const ln = document.createElement('span');
+      ln.className = 'ln';
+      ln.textContent = i + 1;
+
+      const lc = document.createElement('span');
+      lc.className = 'lc';
+      lc.innerHTML = type === 'original' ? highlightOriginal(line) : highlightModified(line);
+
+      div.appendChild(ln);
+      div.appendChild(lc);
+      frag.appendChild(div);
+    } catch(e) {
+      const div = document.createElement('div');
+      div.className = 'diff-line';
+      div.textContent = (i+1) + '  ' + line;
+      frag.appendChild(div);
     }
-
-    const ln = document.createElement('span');
-    ln.className = 'ln';
-    ln.textContent = i + 1;
-
-    const lc = document.createElement('span');
-    lc.className = 'lc';
-    lc.innerHTML = type === 'original' ? highlightOriginal(line) : highlightModified(line);
-
-    div.appendChild(ln);
-    div.appendChild(lc);
-    frag.appendChild(div);
   });
 
   scroll.innerHTML = '';
