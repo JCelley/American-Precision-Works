@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Macro Tool</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap');
+
+:root {
+  --bg: #0c0e0d;
+  --surface: #131614;
+  --surface2: #1a1e1c;
+  --border: #252a27;
+  --border2: #1e2320;
+  --accent-x: #ff6b35;
+  --accent-y: #f7c59f;
+  --accent-z: #00e5a0;
+  --accent-x-dim: #ff6b3518;
+  --accent-y-dim: #f7c59f12;
+  --accent-z-dim: #00e5a018;
+  --text: #b8ccc4;
+  --text-dim: #4a5e54;
+  --text-mid: #7a9088;
+  --removed-bg: #ff3a3a14;
+  --added-bg: #00e5a012;
+  --mono: 'Share Tech Mono', monospace;
+  --sans: 'Barlow Condensed', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.logo h1 {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-z);
+}
+
+.logo sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.axis-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 10px;
+  border: 1px solid;
+  letter-spacing: 0.08em;
+}
+
+.pill-x { border-color: var(--accent-x); color: var(--accent-x); background: var(--accent-x-dim); }
+.pill-y { border-color: #f7c59f60; color: var(--accent-y); background: var(--accent-y-dim); }
+.pill-z { border-color: #00e5a060; color: var(--accent-z); background: var(--accent-z-dim); }
+.pill.inactive { opacity: 0.3; }
+
+/* ── Main ── */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px;
+  gap: 18px;
+}
+
+/* ── Drop Zone ── */
+.drop-zone {
+  border: 2px dashed var(--border2);
+  background: var(--surface);
+  padding: 52px 32px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent-z);
+  background: var(--accent-z-dim);
+}
+
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-arrow {
+  font-size: 32px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  display: block;
+  transition: color 0.2s;
+}
+
+.drop-zone:hover .drop-arrow, .drop-zone.drag-over .drop-arrow {
+  color: var(--accent-z);
+}
+
+.drop-zone h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+
+.drop-zone h2 span { color: var(--accent-z); }
+
+.drop-zone p {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 460px;
+  padding: 32px;
+  position: relative;
+  animation: modalIn 0.18s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  margin-bottom: 28px;
+}
+
+.modal-file-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent-z);
+  background: var(--accent-z-dim);
+  padding: 6px 12px;
+  margin-bottom: 24px;
+  border-left: 3px solid var(--accent-z);
+}
+
+.axis-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.axis-label {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.axis-label.x { color: var(--accent-x); }
+.axis-label.y { color: var(--accent-y); }
+.axis-label.z { color: var(--accent-z); }
+
+.axis-input-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.axis-input-wrap label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.axis-input-wrap input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.axis-input-wrap input::placeholder { color: var(--text-dim); }
+.axis-input-wrap input:focus { border-color: var(--text-mid); }
+
+.axis-preview {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 7px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  min-width: 90px;
+  text-align: center;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.axis-preview.has-val { color: var(--text); }
+
+.modal-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 13px;
+  padding: 11px 24px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-process {
+  background: var(--accent-z);
+  color: #000;
+  flex: 1;
+}
+.btn-process:hover { filter: brightness(1.15); }
+.btn-process:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.btn-cancel:hover { border-color: var(--text-mid); color: var(--text-mid); }
+
+/* ── Stats ── */
+.stats-row {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: var(--surface);
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 110px;
+}
+
+.stat-val {
+  font-size: 26px;
+  font-weight: 900;
+  font-family: var(--sans);
+}
+
+.stat-val.x-color { color: var(--accent-x); }
+.stat-val.y-color { color: var(--accent-y); }
+.stat-val.z-color { color: var(--accent-z); }
+.stat-val.neutral { color: var(--text-mid); }
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Diff ── */
+.diff-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--border);
+  min-height: 420px;
+  flex: 1;
+}
+
+.diff-pane { display: flex; flex-direction: column; overflow: hidden; }
+
+.diff-header {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+
+.diff-filename {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent-z);
+  letter-spacing: 0.05em;
+}
+
+.diff-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.diff-tag.modified {
+  border-color: #00e5a040;
+  color: var(--accent-z);
+  background: var(--accent-z-dim);
+}
+
+.diff-scroll {
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.diff-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.diff-line {
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.65;
+  padding: 0 10px;
+  gap: 10px;
+  white-space: pre;
+}
+
+.diff-line:hover { background: #ffffff04; }
+
+.diff-line.changed-orig { background: var(--removed-bg); }
+.diff-line.changed-mod  { background: var(--added-bg); }
+
+.ln {
+  color: var(--text-dim);
+  font-size: 9.5px;
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+  user-select: none;
+  padding-top: 2px;
+  opacity: 0.45;
+}
+
+.lc { flex: 1; color: var(--text); overflow-x: auto; }
+
+.hx { color: var(--accent-x); font-weight: bold; background: var(--accent-x-dim); }
+.hy { color: var(--accent-y); font-weight: bold; background: var(--accent-y-dim); }
+.hz { color: var(--accent-z); font-weight: bold; background: var(--accent-z-dim); }
+.hm-x { color: var(--accent-x); font-weight: bold; background: var(--accent-x-dim); }
+.hm-y { color: var(--accent-y); font-weight: bold; background: var(--accent-y-dim); }
+.hm-z { color: var(--accent-z); font-weight: bold; background: var(--accent-z-dim); }
+.comment { color: var(--text-dim); font-style: italic; }
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-download {
+  background: var(--accent-z);
+  color: #000;
+  padding: 11px 28px;
+}
+.btn-download:hover { filter: brightness(1.12); }
+
+.btn-reset {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.btn-reset:hover { border-color: var(--accent-x); color: var(--accent-x); }
+
+.actions-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-left: auto;
+  letter-spacing: 0.07em;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <h1>NC <span style="color:var(--text-mid)">→</span> Macro</h1>
+    <sub>Fanuc / Macro B · Axis Variable Substitution</sub>
+  </div>
+  <div class="axis-pills" id="headerPills">
+    <span class="pill pill-x inactive" id="pillX">X —</span>
+    <span class="pill pill-y inactive" id="pillY">Y —</span>
+    <span class="pill pill-z inactive" id="pillZ">Z —</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main>
+
+  <!-- Drop Zone -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept="*">
+    <span class="drop-arrow">↓</span>
+    <h2>Drop your <span>NC file</span> here</h2>
+    <p>or click to browse &nbsp;·&nbsp; .nc .txt .tap .cnc and all G-code formats</p>
+  </div>
+
+  <!-- Stats (hidden until processed) -->
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat"><span class="stat-val neutral" id="statLines">0</span><span class="stat-label">Total Lines</span></div>
+    <div class="stat"><span class="stat-val x-color" id="statX">0</span><span class="stat-label">X Replaced</span></div>
+    <div class="stat"><span class="stat-val y-color" id="statY">0</span><span class="stat-label">Y Replaced</span></div>
+    <div class="stat"><span class="stat-val z-color" id="statZ">0</span><span class="stat-label">Z Replaced</span></div>
+    <div class="stat"><span class="stat-val neutral" id="statSkipped">0</span><span class="stat-label">Comment Z/Y/X Skipped</span></div>
+  </div>
+
+  <!-- Diff View (hidden until processed) -->
+  <div class="diff-container" id="diffContainer" style="display:none">
+    <div class="diff-pane">
+      <div class="diff-header">
+        <span class="diff-filename" id="origFilename">original.nc</span>
+        <span class="diff-tag">ORIGINAL</span>
+      </div>
+      <div class="diff-scroll" id="origScroll"></div>
+    </div>
+    <div class="diff-divider"></div>
+    <div class="diff-pane">
+      <div class="diff-header">
+        <span class="diff-filename" id="modFilename">modified.nc</span>
+        <span class="diff-tag modified">MACRO B</span>
+      </div>
+      <div class="diff-scroll" id="modScroll"></div>
+    </div>
+  </div>
+
+  <!-- Actions (hidden until processed) -->
+  <div class="actions" id="actionsRow" style="display:none">
+    <button class="btn-download" id="downloadBtn">↓ Download Modified File</button>
+    <button class="btn-reset" id="resetBtn">✕ Load New File</button>
+    <span class="actions-note" id="actionsNote"></span>
+  </div>
+
+</main>
+
+<!-- Config Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Configure Variables</div>
+    <div class="modal-sub">MACRO B · AXIS OFFSET SUBSTITUTION</div>
+    <div class="modal-file-name" id="modalFileName">filename.nc</div>
+
+    <!-- X -->
+    <div class="axis-row">
+      <span class="axis-label x">X</span>
+      <div class="axis-input-wrap">
+        <label>Variable Number (leave blank to skip)</label>
+        <input type="number" id="xVar" placeholder="e.g. 100" min="1" max="999">
+      </div>
+      <div class="axis-preview" id="xPreview">—</div>
+    </div>
+
+    <!-- Y -->
+    <div class="axis-row">
+      <span class="axis-label y">Y</span>
+      <div class="axis-input-wrap">
+        <label>Variable Number (leave blank to skip)</label>
+        <input type="number" id="yVar" placeholder="e.g. 110" min="1" max="999">
+      </div>
+      <div class="axis-preview" id="yPreview">—</div>
+    </div>
+
+    <!-- Z -->
+    <div class="axis-row">
+      <span class="axis-label z">Z</span>
+      <div class="axis-input-wrap">
+        <label>Variable Number (leave blank to skip)</label>
+        <input type="number" id="zVar" placeholder="e.g. 155" min="1" max="999">
+      </div>
+      <div class="axis-preview" id="zPreview">—</div>
+    </div>
+
+    <div class="modal-hint">
+      · Leave any axis blank to skip substitution for that axis<br>
+      · Z/Y/X values inside comments <strong style="color:var(--text-mid)">( )</strong> and after <strong style="color:var(--text-mid)">;</strong> are always ignored<br>
+      · At least one variable must be set to proceed
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modalCancel">Cancel</button>
+      <button class="btn-process" id="modalProcess" disabled>Process File →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let originalContent = '';
+let modifiedContent = '';
+let outputFilename  = '';
+let currentFilename = '';
+let pendingFile     = null;
+
+// ── Drag & Drop / File Input ───────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) openModal(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) openModal(e.target.files[0]);
+  fileInput.value = '';
+});
+
+// ── Modal Logic ───────────────────────────────────────────────────────────
+const modalOverlay  = document.getElementById('modalOverlay');
+const modalFileName = document.getElementById('modalFileName');
+const xVarInput     = document.getElementById('xVar');
+const yVarInput     = document.getElementById('yVar');
+const zVarInput     = document.getElementById('zVar');
+const xPreview      = document.getElementById('xPreview');
+const yPreview      = document.getElementById('yPreview');
+const zPreview      = document.getElementById('zPreview');
+const modalProcess  = document.getElementById('modalProcess');
+
+function openModal(file) {
+  pendingFile = file;
+  modalFileName.textContent = file.name;
+  xVarInput.value = '';
+  yVarInput.value = '';
+  zVarInput.value = '';
+  updatePreviews();
+  modalOverlay.classList.add('open');
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  pendingFile = null;
+}
+
+function updatePreviews() {
+  const x = xVarInput.value.trim();
+  const y = yVarInput.value.trim();
+  const z = zVarInput.value.trim();
+
+  xPreview.textContent = x ? `X[n+#${x}]` : '—';
+  xPreview.classList.toggle('has-val', !!x);
+  yPreview.textContent = y ? `Y[n+#${y}]` : '—';
+  yPreview.classList.toggle('has-val', !!y);
+  zPreview.textContent = z ? `Z[n+#${z}]` : '—';
+  zPreview.classList.toggle('has-val', !!z);
+
+  modalProcess.disabled = !(x || y || z);
+}
+
+xVarInput.addEventListener('input', updatePreviews);
+yVarInput.addEventListener('input', updatePreviews);
+zVarInput.addEventListener('input', updatePreviews);
+
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+document.getElementById('modalProcess').addEventListener('click', () => {
+  const x = xVarInput.value.trim() || null;
+  const y = yVarInput.value.trim() || null;
+  const z = zVarInput.value.trim() || null;
+  closeModal();
+  readAndProcess(pendingFile, x, y, z);
+});
+
+// ── File Reader ───────────────────────────────────────────────────────────
+function readAndProcess(file, xNum, yNum, zNum) {
+  currentFilename = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => processFile(ev.target.result, file.name, xNum, yNum, zNum);
+  reader.readAsText(file);
+}
+
+// ── Core Parser ───────────────────────────────────────────────────────────
+// Splits a line into code part and comment part.
+// Fanuc comments: (...) and ; to end of line
+function splitCodeComment(line) {
+  let parenDepth = 0;
+  let commentStart = -1;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '(') {
+      if (parenDepth === 0 && commentStart === -1) commentStart = i;
+      parenDepth++;
+    } else if (ch === ')') {
+      parenDepth = Math.max(0, parenDepth - 1);
+    } else if (ch === ';' && parenDepth === 0) {
+      if (commentStart === -1) commentStart = i;
+      break;
+    }
+  }
+  if (commentStart === -1) return { code: line, comment: '' };
+  return { code: line.slice(0, commentStart), comment: line.slice(commentStart) };
+}
+
+function processLine(line, xMacro, yMacro, zMacro) {
+  const { code, comment } = splitCodeComment(line);
+  let replaced = { x: 0, y: 0, z: 0 };
+  let newCode = code;
+
+  if (xMacro) newCode = newCode.replace(/X([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.x++; return `X[${val}+${xMacro.slice(1,-1)}]`; });
+  if (yMacro) newCode = newCode.replace(/Y([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.y++; return `Y[${val}+${yMacro.slice(1,-1)}]`; });
+  if (zMacro) newCode = newCode.replace(/Z([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.z++; return `Z[${val}+${zMacro.slice(1,-1)}]`; });
+
+  // Count skipped (axis letters in comments)
+  let skipped = 0;
+  if (comment) {
+    skipped += (comment.match(/[XYZ]/gi) || []).length;
+  }
+
+  return { newLine: newCode + comment, replaced, skipped };
+}
+
+function buildOutputFilename(name) {
+  const dot = name.lastIndexOf('.');
+  const ext  = dot !== -1 ? name.slice(dot) : '';
+  const base = dot !== -1 ? name.slice(0, dot) : name;
+  return base + '_macro' + ext;
+}
+
+// ── Main Process ──────────────────────────────────────────────────────────
+function processFile(content, filename, xNum, yNum, zNum) {
+  originalContent = content;
+
+  const xMacro = xNum ? `[#${xNum}]` : null;
+  const yMacro = yNum ? `[#${yNum}]` : null;
+  const zMacro = zNum ? `[#${zNum}]` : null;
+
+  const lines = content.split('\n');
+  const modLines = [];
+  let totalX = 0, totalY = 0, totalZ = 0, totalSkipped = 0;
+
+  for (const line of lines) {
+    const { newLine, replaced, skipped } = processLine(line, xMacro, yMacro, zMacro);
+    totalX += replaced.x;
+    totalY += replaced.y;
+    totalZ += replaced.z;
+    totalSkipped += skipped;
+    modLines.push(newLine);
+  }
+
+  modifiedContent = modLines.join('\n');
+  outputFilename  = buildOutputFilename(filename);
+
+  // Update header pills
+  updatePill('pillX', xNum ? `X #${xNum}` : 'X —', !xNum);
+  updatePill('pillY', yNum ? `Y #${yNum}` : 'Y —', !yNum);
+  updatePill('pillZ', zNum ? `Z #${zNum}` : 'Z —', !zNum);
+
+  // Stats
+  document.getElementById('statLines').textContent   = lines.length;
+  document.getElementById('statX').textContent        = totalX;
+  document.getElementById('statY').textContent        = totalY;
+  document.getElementById('statZ').textContent        = totalZ;
+  document.getElementById('statSkipped').textContent  = totalSkipped;
+  document.getElementById('statsRow').style.display   = 'flex';
+
+  // Filenames
+  document.getElementById('origFilename').textContent = filename;
+  document.getElementById('modFilename').textContent  = outputFilename;
+
+  // Render diff panes
+  renderPane('origScroll', lines, 'original', xMacro, yMacro, zMacro);
+  renderPane('modScroll', modLines, 'modified', xMacro, yMacro, zMacro);
+
+  document.getElementById('diffContainer').style.display = 'grid';
+  document.getElementById('actionsRow').style.display    = 'flex';
+
+  const parts = [];
+  if (xMacro) parts.push(`X→[#${xNum}]`);
+  if (yMacro) parts.push(`Y→[#${yNum}]`);
+  if (zMacro) parts.push(`Z→[#${zNum}]`);
+  document.getElementById('actionsNote').textContent = parts.join('  ·  ');
+
+  dropZone.style.display = 'none';
+
+  // Sync scrolling
+  syncScroll('origScroll', 'modScroll');
+}
+
+function updatePill(id, text, inactive) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.toggle('inactive', inactive);
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightOriginal(line) {
+  const { code, comment } = splitCodeComment(line);
+  let h = esc(code);
+  h = h.replace(/X([+-]?\d*\.?\d+)/gi, m => `<span class="hx">${esc(m)}</span>`);
+  h = h.replace(/Y([+-]?\d*\.?\d+)/gi, m => `<span class="hy">${esc(m)}</span>`);
+  h = h.replace(/Z([+-]?\d*\.?\d+)/gi, m => `<span class="hz">${esc(m)}</span>`);
+  if (comment) h += `<span class="comment">${esc(comment)}</span>`;
+  return h;
+}
+
+function highlightModified(line) {
+  const { code, comment } = splitCodeComment(line);
+  let h = esc(code);
+  h = h.replace(/X(\[[^\]]+\])/gi, m => `<span class="hm-x">${esc(m)}</span>`);
+  h = h.replace(/Y(\[[^\]]+\])/gi, m => `<span class="hm-y">${esc(m)}</span>`);
+  h = h.replace(/Z(\[[^\]]+\])/gi, m => `<span class="hm-z">${esc(m)}</span>`);
+  if (comment) h += `<span class="comment">${esc(comment)}</span>`;
+  return h;
+}
+
+function lineChanged(orig, mod) {
+  return orig !== mod;
+}
+
+function renderPane(scrollId, lines, type, xMacro, yMacro, zMacro) {
+  const scroll = document.getElementById(scrollId);
+  const origLines = originalContent.split('\n');
+  const frag = document.createDocumentFragment();
+
+  lines.forEach((line, i) => {
+    const div = document.createElement('div');
+    div.className = 'diff-line';
+
+    const changed = lineChanged(origLines[i] || '', lines[i] || '');
+    if (changed) {
+      div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
+    }
+
+    const ln = document.createElement('span');
+    ln.className = 'ln';
+    ln.textContent = i + 1;
+
+    const lc = document.createElement('span');
+    lc.className = 'lc';
+    lc.innerHTML = type === 'original' ? highlightOriginal(line) : highlightModified(line);
+
+    div.appendChild(ln);
+    div.appendChild(lc);
+    frag.appendChild(div);
+  });
+
+  scroll.innerHTML = '';
+  scroll.appendChild(frag);
+}
+
+// ── Scroll Sync ───────────────────────────────────────────────────────────
+function syncScroll(id1, id2) {
+  const a = document.getElementById(id1);
+  const b = document.getElementById(id2);
+  let syncing = false;
+  a.addEventListener('scroll', () => {
+    if (syncing) return; syncing = true;
+    b.scrollTop = a.scrollTop;
+    syncing = false;
+  });
+  b.addEventListener('scroll', () => {
+    if (syncing) return; syncing = true;
+    a.scrollTop = b.scrollTop;
+    syncing = false;
+  });
+}
+
+// ── Download ──────────────────────────────────────────────────────────────
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const blob = new Blob([modifiedContent], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = outputFilename;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ── Reset ─────────────────────────────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click', () => {
+  originalContent = '';
+  modifiedContent = '';
+  outputFilename  = '';
+  currentFilename = '';
+  document.getElementById('statsRow').style.display    = 'none';
+  document.getElementById('diffContainer').style.display = 'none';
+  document.getElementById('actionsRow').style.display  = 'none';
+  dropZone.style.display = '';
+  updatePill('pillX', 'X —', true);
+  updatePill('pillY', 'Y —', true);
+  updatePill('pillZ', 'Z —', true);
+});
+</script>
+</body>
+</html>
