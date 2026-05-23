@@ -636,9 +636,9 @@ function openModal(file) {
   modalOverlay.classList.add('open');
 }
 
-function closeModal() {
+function closeModal(clearFile = true) {
   modalOverlay.classList.remove('open');
-  pendingFile = null;
+  if (clearFile) pendingFile = null;
 }
 
 function updatePreviews() {
@@ -669,8 +669,9 @@ document.getElementById('modalProcess').addEventListener('click', () => {
   const x = xVarInput.value.trim() || null;
   const y = yVarInput.value.trim() || null;
   const z = zVarInput.value.trim() || null;
-  closeModal();
+  closeModal(false);
   readAndProcess(fileToProcess, x, y, z);
+  pendingFile = null;
 });
 
 // ── File Reader ───────────────────────────────────────────────────────────
