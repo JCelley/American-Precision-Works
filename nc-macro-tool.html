@@ -355,18 +355,24 @@ button {
 /* ── Diff ── */
 .diff-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   border: 1px solid var(--border);
   min-height: 420px;
   flex: 1;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .diff-container.visible {
   display: grid !important;
 }
 
-.diff-pane { display: flex; flex-direction: column; overflow: hidden; }
+.diff-pane {
+  min-width: 0;
+  overflow: hidden;
+}
+
 
 .diff-header {
   padding: 8px 14px;
