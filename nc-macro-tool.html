@@ -12,7 +12,6 @@
   --surface: #131614;
   --surface2: #1a1e1c;
   --border: #252a27;
-  --border2: #1e2320;
   --accent-x: #ff6b35;
   --accent-y: #f7c59f;
   --accent-z: #00e5a0;
@@ -24,40 +23,50 @@
   --text-mid: #7a9088;
   --removed-bg: #ff3a3a14;
   --added-bg: #00e5a012;
+  --search-hl: #ffff0044;
+  --search-hl-active: #ffaa00bb;
   --mono: 'Share Tech Mono', monospace;
   --sans: 'Barlow Condensed', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+html, body {
+  height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
   overflow-x: hidden;
 }
 
+/* ── Layout ── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 /* ── Header ── */
-header {
+#header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+  gap: 12px;
 }
 
 .logo {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
+  white-space: nowrap;
 }
 
 .logo h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -66,56 +75,54 @@ header {
 
 .logo sub {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-dim);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.axis-pills {
-  display: flex;
-  gap: 8px;
-}
+.axis-pills { display: flex; gap: 6px; }
 
 .pill {
   font-family: var(--mono);
-  font-size: 11px;
-  padding: 3px 10px;
+  font-size: 10px;
+  padding: 2px 8px;
   border: 1px solid;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 .pill-x { border-color: var(--accent-x); color: var(--accent-x); background: var(--accent-x-dim); }
-.pill-y { border-color: #f7c59f60; color: var(--accent-y); background: var(--accent-y-dim); }
-.pill-z { border-color: #00e5a060; color: var(--accent-z); background: var(--accent-z-dim); }
-.pill.inactive { opacity: 0.3; }
+.pill-y { border-color: #f7c59f50; color: var(--accent-y); background: var(--accent-y-dim); }
+.pill-z { border-color: #00e5a050; color: var(--accent-z); background: var(--accent-z-dim); }
+.pill.inactive { opacity: 0.25; }
 
-/* ── Main ── */
-main {
+/* ── Main scrollable area ── */
+#main {
   flex: 1;
+  overflow-y: auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  padding: 24px 28px;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* ── Drop Zone ── */
-.drop-zone {
-  border: 2px dashed var(--border2);
+#dropZone {
+  border: 2px dashed var(--border);
   background: var(--surface);
-  padding: 52px 32px;
+  padding: 48px 32px;
   text-align: center;
   cursor: pointer;
   position: relative;
   transition: all 0.2s;
 }
 
-.drop-zone:hover, .drop-zone.drag-over {
+#dropZone:hover, #dropZone.drag-over {
   border-color: var(--accent-z);
   background: var(--accent-z-dim);
 }
 
-.drop-zone input[type="file"] {
+#dropZone input[type="file"] {
   position: absolute;
   inset: 0;
   opacity: 0;
@@ -124,37 +131,248 @@ main {
   height: 100%;
 }
 
-.drop-arrow {
-  font-size: 32px;
-  color: var(--text-dim);
-  margin-bottom: 12px;
-  display: block;
-  transition: color 0.2s;
+#dropZone .drop-arrow { font-size: 28px; color: var(--text-dim); margin-bottom: 10px; display: block; }
+#dropZone h2 { font-size: 18px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 4px; }
+#dropZone h2 span { color: var(--accent-z); }
+#dropZone p { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+/* ── Processing Overlay ── */
+#processingOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.drop-zone:hover .drop-arrow, .drop-zone.drag-over .drop-arrow {
+#processingOverlay.open { display: flex; }
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent-z);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.processing-text {
+  font-family: var(--mono);
+  font-size: 13px;
   color: var(--accent-z);
-}
-
-.drop-zone h2 {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-mid);
-  margin-bottom: 6px;
 }
 
-.drop-zone h2 span { color: var(--accent-z); }
+/* ── Stats ── */
+#statsRow {
+  display: none;
+  gap: 2px;
+  flex-wrap: wrap;
+}
 
-.drop-zone p {
+.stat {
+  background: var(--surface);
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.stat-val { font-size: 24px; font-weight: 900; }
+.stat-val.x-color { color: var(--accent-x); }
+.stat-val.y-color { color: var(--accent-y); }
+.stat-val.z-color { color: var(--accent-z); }
+.stat-val.neutral { color: var(--text-mid); }
+.stat-label { font-family: var(--mono); font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ── Search Bar ── */
+#searchBar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+}
+
+#searchBar input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  width: 240px;
+  transition: border-color 0.15s;
+}
+
+#searchBar input:focus { border-color: var(--text-mid); }
+
+#searchBar button {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.15s;
+}
+
+#searchBar button:hover { border-color: var(--accent-z); color: var(--accent-z); }
+
+#searchInfo {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+  margin-left: 4px;
 }
 
-/* ── Modal ── */
+/* ── Diff Section ── */
+#diffSection {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  min-height: 500px;
+}
+
+#diffSection.open { display: flex; }
+
+#diffPanes {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  width: 100%;
+  min-height: 460px;
+}
+
+.diff-pane {
+  width: 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+
+.diff-pane:last-child { border-right: none; }
+
+.diff-header {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+
+.diff-filename { font-family: var(--mono); font-size: 10px; color: var(--accent-z); }
+
+.diff-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.diff-tag.modified { border-color: #00e5a040; color: var(--accent-z); background: var(--accent-z-dim); }
+
+.diff-scroll {
+  overflow-y: auto;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.diff-line {
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  padding: 0 10px;
+  gap: 10px;
+  white-space: pre;
+  min-height: 20px;
+}
+
+.diff-line:hover { background: #ffffff04; }
+.diff-line.changed-orig { background: var(--removed-bg); }
+.diff-line.changed-mod { background: var(--added-bg); }
+
+.ln {
+  color: var(--text-dim);
+  font-size: 9px;
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+  user-select: none;
+  opacity: 0.4;
+  padding-top: 2px;
+}
+
+.lc { flex: 1; color: var(--text); min-width: 0; }
+
+.hx { color: var(--accent-x); background: var(--accent-x-dim); }
+.hy { color: var(--accent-y); background: var(--accent-y-dim); }
+.hz { color: var(--accent-z); background: var(--accent-z-dim); }
+.hm-x { color: var(--accent-x); background: var(--accent-x-dim); font-weight: bold; }
+.hm-y { color: var(--accent-y); background: var(--accent-y-dim); font-weight: bold; }
+.hm-z { color: var(--accent-z); background: var(--accent-z-dim); font-weight: bold; }
+.comment { color: var(--text-dim); font-style: italic; }
+.search-match { background: var(--search-hl); }
+.search-match.active { background: var(--search-hl-active); outline: 1px solid #ffaa00; }
+
+/* ── Actions ── */
+#actionsRow {
+  display: none;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+button {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 13px;
+  padding: 10px 22px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary { background: var(--accent-z); color: #000; }
+.btn-primary:hover { filter: brightness(1.15); }
+.btn-primary:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent-x); color: var(--accent-x); }
+.actions-note { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-left: auto; }
+
+/* ── Modal (config + warning) ── */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -172,442 +390,243 @@ main {
   border: 1px solid var(--border);
   width: 100%;
   max-width: 460px;
-  padding: 32px;
-  position: relative;
+  padding: 28px;
   animation: modalIn 0.18s ease;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes modalIn {
-  from { opacity: 0; transform: translateY(-12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.modal-title {
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 6px;
-}
+.modal-title { font-size: 20px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); margin-bottom: 4px; }
+.modal-sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 20px; }
+.modal-file { font-family: var(--mono); font-size: 11px; color: var(--accent-z); background: var(--accent-z-dim); padding: 6px 10px; margin-bottom: 20px; border-left: 3px solid var(--accent-z); }
 
-.modal-sub {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.08em;
-  margin-bottom: 28px;
-}
-
-.modal-file-name {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--accent-z);
-  background: var(--accent-z-dim);
-  padding: 6px 12px;
-  margin-bottom: 24px;
-  border-left: 3px solid var(--accent-z);
-}
-
-.axis-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.axis-label {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  width: 28px;
-  flex-shrink: 0;
-}
-
+.axis-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.axis-label { font-size: 26px; font-weight: 900; width: 26px; flex-shrink: 0; }
 .axis-label.x { color: var(--accent-x); }
 .axis-label.y { color: var(--accent-y); }
 .axis-label.z { color: var(--accent-z); }
 
-.axis-input-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.axis-input-wrap label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
+.axis-input-wrap { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.axis-input-wrap label { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
 .axis-input-wrap input {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 14px;
-  padding: 8px 12px;
-  outline: none;
-  width: 100%;
-  transition: border-color 0.15s;
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--mono); font-size: 13px; padding: 7px 10px; outline: none; width: 100%; transition: border-color 0.15s;
 }
-
 .axis-input-wrap input::placeholder { color: var(--text-dim); }
 .axis-input-wrap input:focus { border-color: var(--text-mid); }
 
 .axis-preview {
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 7px 12px;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  min-width: 90px;
-  text-align: center;
-  color: var(--text-dim);
-  letter-spacing: 0.05em;
+  font-family: var(--mono); font-size: 11px; padding: 6px 10px;
+  background: var(--surface2); border: 1px solid var(--border2); min-width: 88px;
+  text-align: center; color: var(--text-dim);
 }
-
 .axis-preview.has-val { color: var(--text); }
 
 .modal-hint {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-bottom: 24px;
-  padding: 10px 12px;
-  background: var(--bg);
-  border: 1px solid var(--border2);
-  letter-spacing: 0.06em;
-  line-height: 1.6;
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  margin-bottom: 20px; padding: 10px; background: var(--bg);
+  border: 1px solid var(--border); letter-spacing: 0.05em; line-height: 1.7;
 }
 
-.modal-actions {
-  display: flex;
-  gap: 12px;
-}
+.modal-actions { display: flex; gap: 10px; }
 
-button {
-  font-family: var(--sans);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-size: 13px;
-  padding: 11px 24px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-process {
-  background: var(--accent-z);
-  color: #000;
-  flex: 1;
-}
-.btn-process:hover { filter: brightness(1.15); }
-.btn-process:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
-
-.btn-cancel {
-  background: transparent;
-  color: var(--text-dim);
-  border: 1px solid var(--border);
-}
-.btn-cancel:hover { border-color: var(--text-mid); color: var(--text-mid); }
-
-/* ── Stats ── */
-.stats-row {
-  display: flex;
-  gap: 2px;
-  flex-wrap: wrap;
-}
-
-.stat {
-  background: var(--surface);
-  padding: 10px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 110px;
-}
-
-.stat-val {
-  font-size: 26px;
-  font-weight: 900;
-  font-family: var(--sans);
-}
-
-.stat-val.x-color { color: var(--accent-x); }
-.stat-val.y-color { color: var(--accent-y); }
-.stat-val.z-color { color: var(--accent-z); }
-.stat-val.neutral { color: var(--text-mid); }
-
-.stat-label {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* ── Diff ── */
-.diff-container {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  border: 1px solid var(--border);
-  min-height: 420px;
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.diff-container.visible {
-  display: grid !important;
-}
-
-.diff-pane {
-  min-width: 0;
-  overflow: hidden;
-}
-
-
-.diff-header {
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface);
-}
-
-.diff-filename {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--accent-z);
-  letter-spacing: 0.05em;
-}
-
-.diff-tag {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  text-transform: uppercase;
-}
-
-.diff-tag.modified {
-  border-color: #00e5a040;
-  color: var(--accent-z);
-  background: var(--accent-z-dim);
-}
-
-.diff-scroll {
-  overflow-y: auto;
-  flex: 1;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-.diff-divider {
-  width: 1px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.diff-line {
-  display: flex;
-  align-items: flex-start;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  line-height: 1.65;
-  padding: 0 10px;
-  gap: 10px;
-  white-space: pre;
-}
-
-.diff-line:hover { background: #ffffff04; }
-
-.diff-line.changed-orig { background: var(--removed-bg); }
-.diff-line.changed-mod  { background: var(--added-bg); }
-
-.ln {
-  color: var(--text-dim);
-  font-size: 9.5px;
-  width: 30px;
-  text-align: right;
-  flex-shrink: 0;
-  user-select: none;
-  padding-top: 2px;
-  opacity: 0.45;
-}
-
-.lc { flex: 1; color: var(--text); overflow-x: auto; }
-
-.hx { color: var(--accent-x); font-weight: bold; background: var(--accent-x-dim); }
-.hy { color: var(--accent-y); font-weight: bold; background: var(--accent-y-dim); }
-.hz { color: var(--accent-z); font-weight: bold; background: var(--accent-z-dim); }
-.hm-x { color: var(--accent-x); font-weight: bold; background: var(--accent-x-dim); }
-.hm-y { color: var(--accent-y); font-weight: bold; background: var(--accent-y-dim); }
-.hm-z { color: var(--accent-z); font-weight: bold; background: var(--accent-z-dim); }
-.comment { color: var(--text-dim); font-style: italic; }
-
-/* ── Actions ── */
-.actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.btn-download {
-  background: var(--accent-z);
-  color: #000;
-  padding: 11px 28px;
-}
-.btn-download:hover { filter: brightness(1.12); }
-
-.btn-reset {
-  background: transparent;
-  color: var(--text-dim);
-  border: 1px solid var(--border);
-}
-.btn-reset:hover { border-color: var(--accent-x); color: var(--accent-x); }
-
-.actions-note {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-left: auto;
-  letter-spacing: 0.07em;
-}
+/* Warning modal specific */
+.warning-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+.warning-body { font-size: 15px; line-height: 1.6; color: var(--text-mid); margin-bottom: 20px; }
+.warning-body strong { color: var(--accent-x); }
+.warning-check { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; cursor: pointer; }
+.warning-check input { margin-top: 3px; flex-shrink: 0; }
+.warning-check span { font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; line-height: 1.6; }
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- Header -->
-<header>
-  <div class="logo">
-    <h1>NC <span style="color:var(--text-mid)">→</span> Macro</h1>
-    <sub>Fanuc / Macro B · Axis Variable Substitution</sub>
-  </div>
-  <div class="axis-pills" id="headerPills">
-    <span class="pill pill-x inactive" id="pillX">X —</span>
-    <span class="pill pill-y inactive" id="pillY">Y —</span>
-    <span class="pill pill-z inactive" id="pillZ">Z —</span>
-  </div>
-</header>
-
-<!-- Main -->
-<main>
-
-  <!-- Drop Zone -->
-  <div class="drop-zone" id="dropZone">
-    <input type="file" id="fileInput" accept="*">
-    <span class="drop-arrow">↓</span>
-    <h2>Drop your <span>NC file</span> here</h2>
-    <p>or click to browse &nbsp;·&nbsp; .nc .txt .tap .cnc and all G-code formats</p>
-  </div>
-
-  <!-- Stats (hidden until processed) -->
-  <div class="stats-row" id="statsRow" style="display:none">
-    <div class="stat"><span class="stat-val neutral" id="statLines">0</span><span class="stat-label">Total Lines</span></div>
-    <div class="stat"><span class="stat-val x-color" id="statX">0</span><span class="stat-label">X Replaced</span></div>
-    <div class="stat"><span class="stat-val y-color" id="statY">0</span><span class="stat-label">Y Replaced</span></div>
-    <div class="stat"><span class="stat-val z-color" id="statZ">0</span><span class="stat-label">Z Replaced</span></div>
-    <div class="stat"><span class="stat-val neutral" id="statSkipped">0</span><span class="stat-label">Comment Z/Y/X Skipped</span></div>
-  </div>
-
-  <!-- Diff View (hidden until processed) -->
-  <div class="diff-container" id="diffContainer" style="display:none">
-    <div class="diff-pane">
-      <div class="diff-header">
-        <span class="diff-filename" id="origFilename">original.nc</span>
-        <span class="diff-tag">ORIGINAL</span>
-      </div>
-      <div class="diff-scroll" id="origScroll"></div>
+  <!-- Header -->
+  <div id="header">
+    <div class="logo">
+      <h1>NC <span style="color:var(--text-mid)">→</span> Macro</h1>
+      <sub>Fanuc / Macro B · Axis Variable Substitution</sub>
     </div>
-    <div class="diff-divider"></div>
-    <div class="diff-pane">
-      <div class="diff-header">
-        <span class="diff-filename" id="modFilename">modified.nc</span>
-        <span class="diff-tag modified">MACRO B</span>
-      </div>
-      <div class="diff-scroll" id="modScroll"></div>
+    <div class="axis-pills">
+      <span class="pill pill-x inactive" id="pillX">X —</span>
+      <span class="pill pill-y inactive" id="pillY">Y —</span>
+      <span class="pill pill-z inactive" id="pillZ">Z —</span>
     </div>
   </div>
 
-  <!-- Actions (hidden until processed) -->
-  <div class="actions" id="actionsRow" style="display:none">
-    <button class="btn-download" id="downloadBtn">↓ Download Modified File</button>
-    <button class="btn-reset" id="resetBtn">✕ Load New File</button>
-    <span class="actions-note" id="actionsNote"></span>
-  </div>
+  <!-- Main -->
+  <div id="main">
 
-</main>
+    <!-- Drop Zone -->
+    <div id="dropZone">
+      <input type="file" id="fileInput">
+      <span class="drop-arrow">↓</span>
+      <h2>Drop your <span>NC file</span> here</h2>
+      <p>or click to browse · .nc .txt .tap .cnc and all G-code formats</p>
+    </div>
+
+    <!-- Stats -->
+    <div id="statsRow">
+      <div class="stat"><span class="stat-val neutral" id="statLines">0</span><span class="stat-label">Total Lines</span></div>
+      <div class="stat"><span class="stat-val x-color" id="statX">0</span><span class="stat-label">X Replaced</span></div>
+      <div class="stat"><span class="stat-val y-color" id="statY">0</span><span class="stat-label">Y Replaced</span></div>
+      <div class="stat"><span class="stat-val z-color" id="statZ">0</span><span class="stat-label">Z Replaced</span></div>
+      <div class="stat"><span class="stat-val neutral" id="statSkipped">0</span><span class="stat-label">Comments Skipped</span></div>
+    </div>
+
+    <!-- Search Bar -->
+    <div id="searchBar">
+      <input type="text" id="searchInput" placeholder="Search input pane... (Enter to search)">
+      <button id="searchPrev">↑ Prev</button>
+      <button id="searchNext">↓ Next</button>
+      <button id="searchClear">✕</button>
+      <span id="searchInfo"></span>
+    </div>
+
+    <!-- Diff -->
+    <div id="diffSection">
+      <div id="diffPanes">
+        <div class="diff-pane">
+          <div class="diff-header">
+            <span class="diff-filename" id="origFilename">original.nc</span>
+            <span class="diff-tag">ORIGINAL</span>
+          </div>
+          <div class="diff-scroll" id="origScroll"></div>
+        </div>
+        <div class="diff-pane">
+          <div class="diff-header">
+            <span class="diff-filename" id="modFilename">modified.nc</span>
+            <span class="diff-tag modified">MACRO B</span>
+          </div>
+          <div class="diff-scroll" id="modScroll"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div id="actionsRow">
+      <button class="btn-primary" id="downloadBtn">↓ Download Modified File</button>
+      <button class="btn-secondary" id="resetBtn">✕ Load New File</button>
+      <span class="actions-note" id="actionsNote"></span>
+    </div>
+
+  </div>
+</div>
 
 <!-- Config Modal -->
-<div class="modal-overlay" id="modalOverlay">
+<div class="modal-overlay" id="configModal">
   <div class="modal">
     <div class="modal-title">Configure Variables</div>
     <div class="modal-sub">MACRO B · AXIS OFFSET SUBSTITUTION</div>
-    <div class="modal-file-name" id="modalFileName">filename.nc</div>
+    <div class="modal-file" id="modalFileName">filename.nc</div>
 
-    <!-- X -->
     <div class="axis-row">
       <span class="axis-label x">X</span>
       <div class="axis-input-wrap">
-        <label>Variable Number (leave blank to skip)</label>
+        <label>Variable # (blank to skip)</label>
         <input type="number" id="xVar" placeholder="e.g. 100" min="1" max="999">
       </div>
       <div class="axis-preview" id="xPreview">—</div>
     </div>
 
-    <!-- Y -->
     <div class="axis-row">
       <span class="axis-label y">Y</span>
       <div class="axis-input-wrap">
-        <label>Variable Number (leave blank to skip)</label>
+        <label>Variable # (blank to skip)</label>
         <input type="number" id="yVar" placeholder="e.g. 110" min="1" max="999">
       </div>
       <div class="axis-preview" id="yPreview">—</div>
     </div>
 
-    <!-- Z -->
     <div class="axis-row">
       <span class="axis-label z">Z</span>
       <div class="axis-input-wrap">
-        <label>Variable Number (leave blank to skip)</label>
+        <label>Variable # (blank to skip)</label>
         <input type="number" id="zVar" placeholder="e.g. 155" min="1" max="999">
       </div>
       <div class="axis-preview" id="zPreview">—</div>
     </div>
 
     <div class="modal-hint">
-      · Leave any axis blank to skip substitution for that axis<br>
-      · Z/Y/X values inside comments <strong style="color:var(--text-mid)">( )</strong> and after <strong style="color:var(--text-mid)">;</strong> are always ignored<br>
-      · At least one variable must be set to proceed
+      · Leave any axis blank to skip<br>
+      · Values inside ( ) comments and after ; are never touched<br>
+      · At least one variable required to proceed
     </div>
 
     <div class="modal-actions">
-      <button class="btn-cancel" id="modalCancel">Cancel</button>
-      <button class="btn-process" id="modalProcess" disabled>Process File →</button>
+      <button class="btn-secondary" id="configCancel">Cancel</button>
+      <button class="btn-primary" id="configProcess" disabled>Process File →</button>
     </div>
   </div>
 </div>
 
+<!-- Warning Modal -->
+<div class="modal-overlay" id="warningModal">
+  <div class="modal">
+    <span class="warning-icon">⚠️</span>
+    <div class="modal-title">Before You Download</div>
+    <div class="modal-sub">IMPORTANT SAFETY NOTICE</div>
+    <div class="warning-body">
+      This tool is provided as a <strong>programming aid only</strong>. Before running any modified NC code on a machine:<br><br>
+      · <strong>Prove out the program carefully</strong> with reduced feedrates and single-block mode<br>
+      · <strong>Verify all macro variable values</strong> are set correctly on the control before running<br>
+      · <strong>Check the output file thoroughly</strong> — this tool may contain bugs and substitutions should be verified line by line<br>
+      · <strong>APW and the tool author take no responsibility</strong> for machine crashes, scrapped parts, or any damage resulting from use of this tool
+    </div>
+    <label class="warning-check">
+      <input type="checkbox" id="warningCheck">
+      <span>I understand this tool may have bugs. I will prove out this program carefully before running at full speed.</span>
+    </label>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="warningCancel">Cancel</button>
+      <button class="btn-primary" id="warningConfirm" disabled>I Understand — Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Processing Overlay -->
+<div id="processingOverlay">
+  <div class="spinner"></div>
+  <div class="processing-text">Processing file...</div>
+</div>
+
 <script>
-// ── State ─────────────────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────
+let originalLines = [];
+let modifiedLines = [];
 let originalContent = '';
 let modifiedContent = '';
-let outputFilename  = '';
-let currentFilename = '';
-let pendingFile     = null;
+let outputFilename = '';
+let pendingFile = null;
+let searchMatches = [];
+let searchIndex = -1;
 
-// ── Drag & Drop / File Input ───────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function show(id, displayType) {
+  document.getElementById(id).style.display = displayType || 'flex';
+}
+
+function hide(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function pill(id, text, inactive) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.toggle('inactive', inactive);
+}
+
+// ── Drop Zone ──────────────────────────────────────────────────────────────
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
@@ -616,231 +635,190 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) openModal(file);
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) openConfigModal(f);
 });
 fileInput.addEventListener('change', e => {
-  const file = e.target.files[0];
+  const f = e.target.files && e.target.files[0];
   fileInput.value = '';
-  if (file) openModal(file);
+  if (f) openConfigModal(f);
 });
 
-// ── Modal Logic ───────────────────────────────────────────────────────────
-const modalOverlay  = document.getElementById('modalOverlay');
-const modalFileName = document.getElementById('modalFileName');
-const xVarInput     = document.getElementById('xVar');
-const yVarInput     = document.getElementById('yVar');
-const zVarInput     = document.getElementById('zVar');
-const xPreview      = document.getElementById('xPreview');
-const yPreview      = document.getElementById('yPreview');
-const zPreview      = document.getElementById('zPreview');
-const modalProcess  = document.getElementById('modalProcess');
+// ── Config Modal ───────────────────────────────────────────────────────────
+const configModal = document.getElementById('configModal');
+const xVar = document.getElementById('xVar');
+const yVar = document.getElementById('yVar');
+const zVar = document.getElementById('zVar');
+const xPreview = document.getElementById('xPreview');
+const yPreview = document.getElementById('yPreview');
+const zPreview = document.getElementById('zPreview');
+const configProcess = document.getElementById('configProcess');
 
-function openModal(file) {
-  if (!file) return;
+function openConfigModal(file) {
   pendingFile = file;
-  modalFileName.textContent = file.name;
-  xVarInput.value = '';
-  yVarInput.value = '';
-  zVarInput.value = '';
+  document.getElementById('modalFileName').textContent = file.name;
+  xVar.value = ''; yVar.value = ''; zVar.value = '';
   updatePreviews();
-  modalOverlay.classList.add('open');
+  configModal.classList.add('open');
 }
 
-function closeModal(clearFile = true) {
-  modalOverlay.classList.remove('open');
-  if (clearFile) pendingFile = null;
+function closeConfigModal() {
+  configModal.classList.remove('open');
 }
 
 function updatePreviews() {
-  const x = xVarInput.value.trim();
-  const y = yVarInput.value.trim();
-  const z = zVarInput.value.trim();
-
+  const x = xVar.value.trim();
+  const y = yVar.value.trim();
+  const z = zVar.value.trim();
   xPreview.textContent = x ? `X[n+#${x}]` : '—';
   xPreview.classList.toggle('has-val', !!x);
   yPreview.textContent = y ? `Y[n+#${y}]` : '—';
   yPreview.classList.toggle('has-val', !!y);
   zPreview.textContent = z ? `Z[n+#${z}]` : '—';
   zPreview.classList.toggle('has-val', !!z);
-
-  modalProcess.disabled = !(x || y || z);
+  configProcess.disabled = !(x || y || z);
 }
 
-xVarInput.addEventListener('input', updatePreviews);
-yVarInput.addEventListener('input', updatePreviews);
-zVarInput.addEventListener('input', updatePreviews);
+xVar.addEventListener('input', updatePreviews);
+yVar.addEventListener('input', updatePreviews);
+zVar.addEventListener('input', updatePreviews);
 
-document.getElementById('modalCancel').addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-
-document.getElementById('modalProcess').addEventListener('click', () => {
-  if (!pendingFile) { closeModal(); return; }
-  const fileToProcess = pendingFile;
-  const x = xVarInput.value.trim() || null;
-  const y = yVarInput.value.trim() || null;
-  const z = zVarInput.value.trim() || null;
-  closeModal(false);
-  readAndProcess(fileToProcess, x, y, z);
+document.getElementById('configCancel').addEventListener('click', () => {
   pendingFile = null;
+  closeConfigModal();
 });
 
-// ── File Reader ───────────────────────────────────────────────────────────
-function readAndProcess(file, xNum, yNum, zNum) {
-  if (!file) { alert('No file selected.'); return; }
-  currentFilename = file.name;
-  try {
-    const reader = new FileReader();
-    reader.onerror = () => alert('Error reading file: ' + reader.error);
-    reader.onload = ev => {
+document.getElementById('configProcess').addEventListener('click', () => {
+  if (!pendingFile) return;
+  const file = pendingFile;
+  const x = xVar.value.trim() || null;
+  const y = yVar.value.trim() || null;
+  const z = zVar.value.trim() || null;
+  pendingFile = null;
+  closeConfigModal();
+  readFile(file, x, y, z);
+});
+
+// ── Parser ─────────────────────────────────────────────────────────────────
+function splitCodeComment(line) {
+  let depth = 0, start = -1;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '(') { if (depth === 0 && start === -1) start = i; depth++; }
+    else if (c === ')') { depth = Math.max(0, depth - 1); }
+    else if (c === ';' && depth === 0) { if (start === -1) start = i; break; }
+  }
+  if (start === -1) return { code: line, comment: '' };
+  return { code: line.slice(0, start), comment: line.slice(start) };
+}
+
+function processLine(line, xM, yM, zM) {
+  const { code, comment } = splitCodeComment(line);
+  let r = { x: 0, y: 0, z: 0 };
+  let c = code;
+  if (xM) c = c.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, (_, v) => { r.x++; return `X[${v}+${xM}]`; });
+  if (yM) c = c.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g,     (_, v) => { r.y++; return `Y[${v}+${yM}]`; });
+  if (zM) c = c.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g,        (_, v) => { r.z++; return `Z[${v}+${zM}]`; });
+  let skipped = comment ? (comment.match(/[XYZ]/gi) || []).length : 0;
+  return { newLine: c + comment, replaced: r, skipped };
+}
+
+// ── Read & Process ──────────────────────────────────────────────────────────
+function readFile(file, xNum, yNum, zNum) {
+  show('processingOverlay', 'flex');
+  const reader = new FileReader();
+  reader.onerror = () => { hide('processingOverlay'); alert('Error reading file.'); };
+  reader.onload = ev => {
+    // Use setTimeout to allow the spinner to render before heavy processing
+    setTimeout(() => {
       try {
         processFile(ev.target.result, file.name, xNum, yNum, zNum);
       } catch(e) {
+        hide('processingOverlay');
         alert('Processing error: ' + e.message);
         console.error(e);
       }
-    };
-    reader.readAsText(file);
-  } catch(e) {
-    alert('FileReader error: ' + e.message);
-    console.error(e);
-  }
+    }, 50);
+  };
+  reader.readAsText(file);
 }
 
-// ── Core Parser ───────────────────────────────────────────────────────────
-// Splits a line into code part and comment part.
-// Fanuc comments: (...) and ; to end of line
-function splitCodeComment(line) {
-  let parenDepth = 0;
-  let commentStart = -1;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '(') {
-      if (parenDepth === 0 && commentStart === -1) commentStart = i;
-      parenDepth++;
-    } else if (ch === ')') {
-      parenDepth = Math.max(0, parenDepth - 1);
-    } else if (ch === ';' && parenDepth === 0) {
-      if (commentStart === -1) commentStart = i;
-      break;
-    }
-  }
-  if (commentStart === -1) return { code: line, comment: '' };
-  return { code: line.slice(0, commentStart), comment: line.slice(commentStart) };
-}
-
-function processLine(line, xMacro, yMacro, zMacro) {
-  const { code, comment } = splitCodeComment(line);
-  let replaced = { x: 0, y: 0, z: 0 };
-  let newCode = code;
-
-  // Match X/Y/Z only when NOT preceded by a letter (avoids matching mid-word)
-  // Uses a token-based approach: split on G-code word boundaries
-  if (xMacro) newCode = newCode.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, (_, val) => { replaced.x++; return `X[${val}+${xMacro.slice(1,-1)}]`; });
-  if (yMacro) newCode = newCode.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g, (_, val) => { replaced.y++; return `Y[${val}+${yMacro.slice(1,-1)}]`; });
-  if (zMacro) newCode = newCode.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g, (_, val) => { replaced.z++; return `Z[${val}+${zMacro.slice(1,-1)}]`; });
-
-  // Count skipped (axis letters in comments)
-  let skipped = 0;
-  if (comment) {
-    skipped += (comment.match(/[XYZ]/gi) || []).length;
-  }
-
-  return { newLine: newCode + comment, replaced, skipped };
-}
-
-function buildOutputFilename(name) {
-  const dot = name.lastIndexOf('.');
-  const ext  = dot !== -1 ? name.slice(dot) : '';
-  const base = dot !== -1 ? name.slice(0, dot) : name;
-  return base + '_macro' + ext;
-}
-
-// ── Main Process ──────────────────────────────────────────────────────────
 function processFile(content, filename, xNum, yNum, zNum) {
-  originalContent = content;
-
-  const xMacro = xNum ? `[#${xNum}]` : null;
-  const yMacro = yNum ? `[#${yNum}]` : null;
-  const zMacro = zNum ? `[#${zNum}]` : null;
+  const xM = xNum ? `#${xNum}` : null;
+  const yM = yNum ? `#${yNum}` : null;
+  const zM = zNum ? `#${zNum}` : null;
 
   const lines = content.split('\n');
   const modLines = [];
-  let totalX = 0, totalY = 0, totalZ = 0, totalSkipped = 0;
+  let tX = 0, tY = 0, tZ = 0, tSkip = 0;
 
   for (const line of lines) {
-    const { newLine, replaced, skipped } = processLine(line, xMacro, yMacro, zMacro);
-    totalX += replaced.x;
-    totalY += replaced.y;
-    totalZ += replaced.z;
-    totalSkipped += skipped;
+    const { newLine, replaced, skipped } = processLine(line, xM, yM, zM);
+    tX += replaced.x; tY += replaced.y; tZ += replaced.z; tSkip += skipped;
     modLines.push(newLine);
   }
 
+  originalLines = lines;
+  modifiedLines = modLines;
+  originalContent = content;
   modifiedContent = modLines.join('\n');
-  outputFilename  = buildOutputFilename(filename);
-
-  // Update header pills
-  updatePill('pillX', xNum ? `X #${xNum}` : 'X —', !xNum);
-  updatePill('pillY', yNum ? `Y #${yNum}` : 'Y —', !yNum);
-  updatePill('pillZ', zNum ? `Z #${zNum}` : 'Z —', !zNum);
+  outputFilename = (() => {
+    const dot = filename.lastIndexOf('.');
+    const ext = dot !== -1 ? filename.slice(dot) : '';
+    const base = dot !== -1 ? filename.slice(0, dot) : filename;
+    return base + '_macro' + ext;
+  })();
 
   // Stats
-  document.getElementById('statLines').textContent   = lines.length;
-  document.getElementById('statX').textContent        = totalX;
-  document.getElementById('statY').textContent        = totalY;
-  document.getElementById('statZ').textContent        = totalZ;
-  document.getElementById('statSkipped').textContent  = totalSkipped;
-  document.getElementById('statsRow').style.display   = 'flex';
+  document.getElementById('statLines').textContent  = lines.length;
+  document.getElementById('statX').textContent      = tX;
+  document.getElementById('statY').textContent      = tY;
+  document.getElementById('statZ').textContent      = tZ;
+  document.getElementById('statSkipped').textContent = tSkip;
+
+  // Pills
+  pill('pillX', xNum ? `X #${xNum}` : 'X —', !xNum);
+  pill('pillY', yNum ? `Y #${yNum}` : 'Y —', !yNum);
+  pill('pillZ', zNum ? `Z #${zNum}` : 'Z —', !zNum);
 
   // Filenames
   document.getElementById('origFilename').textContent = filename;
   document.getElementById('modFilename').textContent  = outputFilename;
 
-  // Render diff panes
-  renderPane('origScroll', lines, 'original', xMacro, yMacro, zMacro);
-  renderPane('modScroll', modLines, 'modified', xMacro, yMacro, zMacro);
+  // Render panes
+  renderPane('origScroll', lines, 'original');
+  renderPane('modScroll', modLines, 'modified');
 
-  const dc = document.getElementById('diffContainer');
-  dc.style.display = 'grid';
-  dc.classList.add('visible');
-  document.getElementById('actionsRow').style.display    = 'flex';
-
+  // Actions note
   const parts = [];
-  if (xMacro) parts.push(`X→[#${xNum}]`);
-  if (yMacro) parts.push(`Y→[#${yNum}]`);
-  if (zMacro) parts.push(`Z→[#${zNum}]`);
-  document.getElementById('actionsNote').textContent = parts.join('  ·  ');
+  if (xM) parts.push(`X→[n+#${xNum}]`);
+  if (yM) parts.push(`Y→[n+#${yNum}]`);
+  if (zM) parts.push(`Z→[n+#${zNum}]`);
+  document.getElementById('actionsNote').textContent = parts.join(' · ');
 
-  dropZone.style.display = 'none';
-  fileInput.disabled = true;
+  // Show UI
+  hide('dropZone');
+  show('statsRow', 'flex');
+  show('searchBar', 'flex');
+  document.getElementById('diffSection').classList.add('open');
+  show('actionsRow', 'flex');
+  hide('processingOverlay');
 
-  // Sync scrolling
-  syncScroll('origScroll', 'modScroll');
+  syncScroll();
 }
 
-function updatePill(id, text, inactive) {
-  const el = document.getElementById(id);
-  el.textContent = text;
-  el.classList.toggle('inactive', inactive);
-}
-
-// ── Rendering ─────────────────────────────────────────────────────────────
-function esc(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function highlightOriginal(line) {
+// ── Render Pane ─────────────────────────────────────────────────────────────
+function highlightOrig(line) {
   const { code, comment } = splitCodeComment(line);
   let h = esc(code);
-  h = h.replace(/X([+-]?\d*\.?\d+)/gi, m => `<span class="hx">${esc(m)}</span>`);
-  h = h.replace(/Y([+-]?\d*\.?\d+)/gi, m => `<span class="hy">${esc(m)}</span>`);
-  h = h.replace(/Z([+-]?\d*\.?\d+)/gi, m => `<span class="hz">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, m => `<span class="hx">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g,     m => `<span class="hy">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g,        m => `<span class="hz">${esc(m)}</span>`);
   if (comment) h += `<span class="comment">${esc(comment)}</span>`;
   return h;
 }
 
-function highlightModified(line) {
+function highlightMod(line) {
   try {
     const { code, comment } = splitCodeComment(line);
     let h = esc(code);
@@ -849,97 +827,149 @@ function highlightModified(line) {
     h = h.replace(/Z(\[\S+?\])/g, m => `<span class="hm-z">${esc(m)}</span>`);
     if (comment) h += `<span class="comment">${esc(comment)}</span>`;
     return h;
-  } catch(e) {
-    return esc(line);
-  }
+  } catch(e) { return esc(line); }
 }
 
-function lineChanged(orig, mod) {
-  return orig !== mod;
-}
-
-function renderPane(scrollId, lines, type, xMacro, yMacro, zMacro) {
+function renderPane(scrollId, lines, type) {
   const scroll = document.getElementById(scrollId);
-  const origLines = originalContent.split('\n');
   const frag = document.createDocumentFragment();
-
   lines.forEach((line, i) => {
-    try {
-      const div = document.createElement('div');
-      div.className = 'diff-line';
-
-      const changed = lineChanged(origLines[i] || '', lines[i] || '');
-      if (changed) {
-        div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
-      }
-
-      const ln = document.createElement('span');
-      ln.className = 'ln';
-      ln.textContent = i + 1;
-
-      const lc = document.createElement('span');
-      lc.className = 'lc';
-      lc.innerHTML = type === 'original' ? highlightOriginal(line) : highlightModified(line);
-
-      div.appendChild(ln);
-      div.appendChild(lc);
-      frag.appendChild(div);
-    } catch(e) {
-      const div = document.createElement('div');
-      div.className = 'diff-line';
-      div.textContent = (i+1) + '  ' + line;
-      frag.appendChild(div);
+    const div = document.createElement('div');
+    div.className = 'diff-line';
+    div.dataset.line = i;
+    if (originalLines[i] !== modifiedLines[i]) {
+      div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
     }
+    const ln = document.createElement('span');
+    ln.className = 'ln';
+    ln.textContent = i + 1;
+    const lc = document.createElement('span');
+    lc.className = 'lc';
+    lc.innerHTML = type === 'original' ? highlightOrig(line) : highlightMod(line);
+    div.appendChild(ln);
+    div.appendChild(lc);
+    frag.appendChild(div);
   });
-
   scroll.innerHTML = '';
   scroll.appendChild(frag);
 }
 
-// ── Scroll Sync ───────────────────────────────────────────────────────────
-function syncScroll(id1, id2) {
-  const a = document.getElementById(id1);
-  const b = document.getElementById(id2);
-  let syncing = false;
-  a.addEventListener('scroll', () => {
-    if (syncing) return; syncing = true;
-    b.scrollTop = a.scrollTop;
-    syncing = false;
-  });
-  b.addEventListener('scroll', () => {
-    if (syncing) return; syncing = true;
-    a.scrollTop = b.scrollTop;
-    syncing = false;
-  });
+// ── Scroll Sync ─────────────────────────────────────────────────────────────
+function syncScroll() {
+  const a = document.getElementById('origScroll');
+  const b = document.getElementById('modScroll');
+  let busy = false;
+  a.addEventListener('scroll', () => { if (busy) return; busy = true; b.scrollTop = a.scrollTop; busy = false; });
+  b.addEventListener('scroll', () => { if (busy) return; busy = true; a.scrollTop = b.scrollTop; busy = false; });
 }
 
-// ── Download ──────────────────────────────────────────────────────────────
+// ── Search ──────────────────────────────────────────────────────────────────
+const searchInput = document.getElementById('searchInput');
+const searchInfo  = document.getElementById('searchInfo');
+
+function clearSearchHighlights() {
+  document.getElementById('origScroll').querySelectorAll('.search-match').forEach(el => {
+    el.classList.remove('search-match', 'active');
+  });
+  searchMatches = [];
+  searchIndex = -1;
+  searchInfo.textContent = '';
+}
+
+function runSearch() {
+  clearSearchHighlights();
+  const query = searchInput.value.trim();
+  if (!query) return;
+
+  const scroll = document.getElementById('origScroll');
+  const lines = scroll.querySelectorAll('.diff-line');
+  const matches = [];
+
+  lines.forEach(lineEl => {
+    const lc = lineEl.querySelector('.lc');
+    if (!lc) return;
+    const text = lc.textContent;
+    if (text.toLowerCase().includes(query.toLowerCase())) {
+      lineEl.classList.add('search-match');
+      matches.push(lineEl);
+    }
+  });
+
+  searchMatches = matches;
+  searchIndex = matches.length > 0 ? 0 : -1;
+  updateSearchActive();
+}
+
+function updateSearchActive() {
+  searchMatches.forEach(el => el.classList.remove('active'));
+  if (searchIndex >= 0 && searchMatches[searchIndex]) {
+    searchMatches[searchIndex].classList.add('active');
+    searchMatches[searchIndex].scrollIntoView({ block: 'center' });
+    searchInfo.textContent = `${searchIndex + 1} / ${searchMatches.length}`;
+  } else {
+    searchInfo.textContent = searchMatches.length === 0 && searchInput.value ? 'No matches' : '';
+  }
+}
+
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+document.getElementById('searchNext').addEventListener('click', () => {
+  if (!searchMatches.length) { runSearch(); return; }
+  searchIndex = (searchIndex + 1) % searchMatches.length;
+  updateSearchActive();
+});
+document.getElementById('searchPrev').addEventListener('click', () => {
+  if (!searchMatches.length) { runSearch(); return; }
+  searchIndex = (searchIndex - 1 + searchMatches.length) % searchMatches.length;
+  updateSearchActive();
+});
+document.getElementById('searchClear').addEventListener('click', () => {
+  searchInput.value = '';
+  clearSearchHighlights();
+});
+
+// ── Download (with warning) ─────────────────────────────────────────────────
+const warningModal = document.getElementById('warningModal');
+const warningCheck = document.getElementById('warningCheck');
+const warningConfirm = document.getElementById('warningConfirm');
+
 document.getElementById('downloadBtn').addEventListener('click', () => {
+  warningCheck.checked = false;
+  warningConfirm.disabled = true;
+  warningModal.classList.add('open');
+});
+
+warningCheck.addEventListener('change', () => {
+  warningConfirm.disabled = !warningCheck.checked;
+});
+
+document.getElementById('warningCancel').addEventListener('click', () => {
+  warningModal.classList.remove('open');
+});
+
+warningConfirm.addEventListener('click', () => {
+  warningModal.classList.remove('open');
   const blob = new Blob([modifiedContent], { type: 'text/plain' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = outputFilename;
-  a.click();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = outputFilename; a.click();
   URL.revokeObjectURL(url);
 });
 
-// ── Reset ─────────────────────────────────────────────────────────────────
+// ── Reset ───────────────────────────────────────────────────────────────────
 document.getElementById('resetBtn').addEventListener('click', () => {
-  originalContent = '';
-  modifiedContent = '';
-  outputFilename  = '';
-  currentFilename = '';
-  document.getElementById('statsRow').style.display    = 'none';
-  const dcEl = document.getElementById('diffContainer');
-  dcEl.style.display = 'none';
-  dcEl.classList.remove('visible');
-  document.getElementById('actionsRow').style.display  = 'none';
-  dropZone.style.display = '';
-  fileInput.disabled = false;
-  updatePill('pillX', 'X —', true);
-  updatePill('pillY', 'Y —', true);
-  updatePill('pillZ', 'Z —', true);
+  originalLines = []; modifiedLines = [];
+  originalContent = ''; modifiedContent = ''; outputFilename = '';
+  clearSearchHighlights();
+  searchInput.value = '';
+  hide('statsRow'); hide('searchBar');
+  document.getElementById('diffSection').classList.remove('open');
+  hide('actionsRow');
+  document.getElementById('origScroll').innerHTML = '';
+  document.getElementById('modScroll').innerHTML = '';
+  show('dropZone', 'block');
+  pill('pillX', 'X —', true);
+  pill('pillY', 'Y —', true);
+  pill('pillZ', 'Z —', true);
 });
 </script>
 </body>
