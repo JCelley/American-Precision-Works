@@ -671,35 +671,58 @@ function syncScroll() {
 const searchInput = document.getElementById('searchInput');
 const searchInfo  = document.getElementById('searchInfo');
 
+// Search indexes into the raw text array — never touches the DOM until we need to highlight
+// matchIndices stores the display array indices of matching lines
+let matchIndices = [];
+
 function clearSearch() {
-  document.getElementById('origScroll').querySelectorAll('.search-match').forEach(el => el.classList.remove('search-match','active'));
-  searchMatches = []; searchIndex = -1; searchInfo.textContent = '';
+  // Only remove classes from previously highlighted lines
+  matchIndices.forEach(idx => {
+    const el = document.querySelector(`#origScroll .diff-line[data-line="${idx}"]`);
+    if (el) el.classList.remove('search-match', 'active');
+  });
+  matchIndices = []; searchIndex = -1; searchInfo.textContent = '';
 }
 
 function runSearch() {
   clearSearch();
-  const q = searchInput.value.trim();
+  const q = searchInput.value.trim().toLowerCase();
   if (!q) return;
-  const matches = [];
-  document.getElementById('origScroll').querySelectorAll('.diff-line').forEach(el => {
-    const lc = el.querySelector('.lc');
-    if (lc && lc.textContent.toLowerCase().includes(q.toLowerCase())) {
-      el.classList.add('search-match'); matches.push(el);
-    }
+
+  // Search raw text array — fast, no DOM involvement
+  const indices = [];
+  for (let i = 0; i < displayOrig.length; i++) {
+    if (displayOrig[i].toLowerCase().includes(q)) indices.push(i);
+  }
+  matchIndices = indices;
+
+  // Add highlight class only to matching DOM nodes
+  indices.forEach(idx => {
+    const el = document.querySelector(`#origScroll .diff-line[data-line="${idx}"]`);
+    if (el) el.classList.add('search-match');
   });
-  searchMatches = matches;
-  searchIndex = matches.length > 0 ? 0 : -1;
+
+  searchIndex = indices.length > 0 ? 0 : -1;
   updateSearchActive();
 }
 
 function updateSearchActive() {
-  searchMatches.forEach(el => el.classList.remove('active'));
-  if (searchIndex >= 0 && searchMatches[searchIndex]) {
-    searchMatches[searchIndex].classList.add('active');
-    searchMatches[searchIndex].scrollIntoView({ block: 'center' });
-    searchInfo.textContent = `${searchIndex + 1} / ${searchMatches.length}`;
+  // Remove active from previous
+  matchIndices.forEach(idx => {
+    const el = document.querySelector(`#origScroll .diff-line[data-line="${idx}"]`);
+    if (el) el.classList.remove('active');
+  });
+
+  if (searchIndex >= 0 && matchIndices[searchIndex] !== undefined) {
+    const idx = matchIndices[searchIndex];
+    const el  = document.querySelector(`#origScroll .diff-line[data-line="${idx}"]`);
+    if (el) {
+      el.classList.add('active');
+      el.scrollIntoView({ block: 'center' });
+    }
+    searchInfo.textContent = `${searchIndex + 1} / ${matchIndices.length}`;
   } else {
-    searchInfo.textContent = searchMatches.length === 0 && searchInput.value ? 'No matches' : '';
+    searchInfo.textContent = matchIndices.length === 0 && searchInput.value ? 'No matches' : '';
   }
 }
 
