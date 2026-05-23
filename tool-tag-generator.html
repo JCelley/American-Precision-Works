@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Tag Generator | American Precision Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --apw-blue:    #0057A8;
+      --apw-dark:    #0a0f1a;
+      --apw-mid:     #111827;
+      --apw-panel:   #1a2234;
+      --apw-border:  #243050;
+      --apw-text:    #e8edf5;
+      --apw-muted:   #6b7a99;
+      --apw-accent:  #00aaff;
+      --apw-green:   #00e676;
+      --apw-warn:    #ffaa00;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html { font-size: 16px; }
+    body {
+      background: var(--apw-dark);
+      color: var(--apw-text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .site-header a { display: flex; align-items: center; }
+    .site-header img { height: 44px; width: auto; }
+    .header-divider {
+      width: 1px; height: 36px;
+      background: var(--apw-border);
+    }
+    .header-title {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      line-height: 1;
+    }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .back-link {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--apw-accent); }
+
+    /* ── MAIN LAYOUT ── */
+    .main { max-width: 1400px; margin: 0 auto; padding: 40px 32px; }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+      border: 2px dashed var(--apw-border);
+      border-radius: 8px;
+      padding: 56px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--apw-panel);
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--apw-accent);
+      background: #1a2234cc;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .drop-title {
+      font-family: var(--display);
+      font-size: 1.8rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      margin-bottom: 6px;
+    }
+    .drop-sub {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── HIDDEN STATE ── */
+    .sheet-view { display: none; }
+    .sheet-view.visible { display: block; }
+    .drop-zone.hidden { display: none; }
+
+    /* ── ACTIONS BAR ── */
+    .actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--apw-blue);
+      color: #fff;
+    }
+    .btn-accent {
+      background: var(--apw-accent);
+      color: #000;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--apw-muted);
+      border: 1px solid var(--apw-border);
+    }
+    .btn-ghost:hover { color: var(--apw-text); border-color: var(--apw-muted); }
+
+    .tag-count-badge {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      margin-left: auto;
+    }
+    .tag-count-badge span {
+      color: var(--apw-accent);
+      font-weight: 700;
+    }
+
+    /* ── PROGRAM HEADER CARD ── */
+    .program-header {
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      border-left: 4px solid var(--apw-blue);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px 32px;
+      align-items: start;
+    }
+    .program-header-logo img {
+      height: 52px;
+      width: auto;
+      opacity: 0.9;
+    }
+    .program-meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 32px;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--apw-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+    }
+    .meta-value {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--apw-text);
+    }
+    .meta-value.highlight {
+      color: var(--apw-accent);
+      font-size: 1.1rem;
+    }
+
+    /* ── SETUP SHEET TABLE ── */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 6px;
+      border: 1px solid var(--apw-border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+    thead {
+      background: var(--apw-panel);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--apw-muted);
+      border-bottom: 1px solid var(--apw-border);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid #1e2a40;
+      transition: background 0.12s;
+    }
+    tbody tr:hover { background: #1a2234; }
+    tbody tr.tool-first-row {
+      border-top: 2px solid #243050;
+    }
+    tbody td {
+      padding: 7px 12px;
+      color: var(--apw-text);
+      white-space: nowrap;
+    }
+    .seq-num { color: var(--apw-muted); }
+    .seq-desc { 
+      color: #a0b0cc; 
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tool-assembly {
+      font-weight: 700;
+      color: var(--apw-accent);
+    }
+    .t-number {
+      display: inline-block;
+      background: var(--apw-dark);
+      border: 1px solid var(--apw-border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-weight: 700;
+      color: var(--apw-text);
+    }
+    .lc-badge {
+      display: inline-block;
+      background: var(--apw-blue);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.7rem;
+    }
+    .dim-val { color: var(--apw-warn); font-weight: 600; }
+    .d-control { color: var(--apw-green); font-weight: 600; }
+
+    /* ── PRINT LABEL STYLES ── */
+    #label-print-container { display: none; }
+
+    @media print {
+      /* Hide everything except labels */
+      body > *:not(#label-print-container) { display: none !important; }
+      #label-print-container {
+        display: block !important;
+      }
+      @page {
+        size: 3.5in 1.1in;
+        margin: 0;
+      }
+      .label-page {
+        page-break-after: always;
+        width: 3.5in;
+        height: 1.1in;
+        overflow: hidden;
+      }
+      .label-page:last-child {
+        page-break-after: avoid;
+      }
+    }
+
+    /* ── LABEL PREVIEW MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      overflow-y: auto;
+      padding: 40px 24px;
+    }
+    .modal-overlay.open { display: flex; flex-direction: column; align-items: center; }
+    .modal-header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .modal-title {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+    }
+    .modal-sub {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      margin-top: 2px;
+    }
+    .modal-actions { margin-left: auto; display: flex; gap: 10px; }
+
+    /* ── INDIVIDUAL LABEL CARD (preview) ── */
+    .labels-grid {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* The actual label — sized to 3.5" x 1.1" at 96dpi = 336 x 105.6px */
+    .label-card {
+      width: 336px;
+      height: 105.6px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .label-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 5px 6px 3px 7px;
+      gap: 4px;
+    }
+    .label-left { display: flex; flex-direction: column; gap: 1px; }
+    .label-part-num {
+      font-size: 17px;
+      font-weight: 900;
+      color: #000;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .label-row2 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8.5px;
+      color: #000;
+    }
+    .label-tool-pill {
+      border: 1.5px solid #000;
+      border-radius: 9px;
+      padding: 0px 5px;
+      font-weight: 700;
+      font-size: 8.5px;
+      white-space: nowrap;
+    }
+    .label-rta { font-weight: 400; color: #333; }
+    .label-holder-row {
+      font-size: 8px;
+      color: #000;
+    }
+    .label-holder-val { font-weight: 700; }
+    .label-dims-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 8px;
+      color: #000;
+    }
+    .label-ooh-val { font-weight: 700; font-size: 9px; }
+    .label-lc-box {
+      border: 1.5px solid #000;
+      border-radius: 2px;
+      padding: 0px 4px;
+      font-weight: 700;
+      font-size: 8.5px;
+    }
+    /* P box */
+    .label-p-box {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid #000;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: #555;
+      align-self: start;
+      margin-top: 2px;
+    }
+    /* Bottom bar */
+    .label-bottom {
+      background: #000;
+      display: flex;
+      align-items: center;
+      padding: 3px 7px;
+      gap: 7px;
+    }
+    .label-t-box {
+      background: #fff;
+      color: #000;
+      font-weight: 900;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .label-desc {
+      color: #fff;
+      font-size: 7.5px;
+      font-weight: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SITE HEADER ── -->
+<header class="site-header">
+  <a href="https://jcelley.github.io/American-Precision-Works/">
+    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked_blue.png" alt="APW Logo" />
+  </a>
+  <div class="header-divider"></div>
+  <div>
+    <div class="header-title">Tool Tag Generator</div>
+    <div class="header-sub">Setup Sheet + Label Print · Cascading Post CSV</div>
+  </div>
+  <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- DROP ZONE -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" accept=".csv" id="csvInput" />
+    <span class="drop-icon">📂</span>
+    <div class="drop-title">Drop your CSV here</div>
+    <div class="drop-sub">or click to browse · Cascading Post output · .csv</div>
+  </div>
+
+  <!-- SHEET VIEW -->
+  <div class="sheet-view" id="sheetView">
+
+    <!-- ACTIONS BAR -->
+    <div class="actions-bar">
+      <button class="btn btn-accent" id="printLabelsBtn">🏷 Print Tool Tags</button>
+      <button class="btn btn-primary" id="printSheetBtn">🖨 Print Setup Sheet</button>
+      <button class="btn btn-ghost" id="loadNewBtn">↑ Load New File</button>
+      <div class="tag-count-badge">
+        <span id="toolCount">0</span> unique tools · <span id="seqCount">0</span> sequences
+      </div>
+    </div>
+
+    <!-- PROGRAM HEADER -->
+    <div class="program-header" id="programHeader">
+      <div class="program-header-logo">
+        <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked_blue.png" alt="APW" />
+      </div>
+      <div class="program-meta-grid" id="programMeta"></div>
+    </div>
+
+    <!-- SETUP SHEET TABLE -->
+    <div class="table-wrapper">
+      <table id="setupTable">
+        <thead>
+          <tr>
+            <th>Seq #</th>
+            <th>Operation Description</th>
+            <th>Tool Assembly</th>
+            <th>T #</th>
+            <th>Holder</th>
+            <th>OOH</th>
+            <th>RTA #</th>
+            <th>H-Offset</th>
+            <th>D-Offset</th>
+            <th>Cut Ø</th>
+            <th>Gage Length</th>
+            <th>Tip / CR</th>
+            <th>Description</th>
+            <th>LC</th>
+          </tr>
+        </thead>
+        <tbody id="setupTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── LABEL PREVIEW MODAL ── -->
+<div class="modal-overlay" id="labelModal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">Tool Tags</div>
+      <div class="modal-sub" id="modalSub"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-accent" onclick="window.print()">🖨 Send to Label Printer</button>
+      <button class="btn btn-ghost" id="closeModalBtn">✕ Close</button>
+    </div>
+  </div>
+  <div class="labels-grid" id="labelsGrid"></div>
+</div>
+
+<!-- ── PRINT CONTAINER (hidden, used during print) ── -->
+<div id="label-print-container"></div>
+
+<script>
+// ── STATE ──
+let parsedData = null;
+let programMeta = {};
+let uniqueTools = [];
+
+// ── ELEMENTS ──
+const dropZone     = document.getElementById('dropZone');
+const csvInput     = document.getElementById('csvInput');
+const sheetView    = document.getElementById('sheetView');
+const tableBody    = document.getElementById('setupTableBody');
+const programMetaEl = document.getElementById('programMeta');
+const labelModal   = document.getElementById('labelModal');
+const labelsGrid   = document.getElementById('labelsGrid');
+const modalSub     = document.getElementById('modalSub');
+const printContainer = document.getElementById('label-print-container');
+
+// ── DRAG & DROP ──
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+});
+csvInput.addEventListener('change', e => {
+  if (e.target.files[0]) processFile(e.target.files[0]);
+});
+
+// ── BUTTONS ──
+document.getElementById('printLabelsBtn').addEventListener('click', openLabelModal);
+document.getElementById('printSheetBtn').addEventListener('click', () => window.print());
+document.getElementById('loadNewBtn').addEventListener('click', resetTool);
+document.getElementById('closeModalBtn').addEventListener('click', () => labelModal.classList.remove('open'));
+
+// ── CSV PARSE ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const headers = lines[0].split(',').map(h => h.trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = smartSplit(lines[i]);
+    const row = {};
+    headers.forEach((h, idx) => row[h] = (vals[idx] || '').trim());
+    rows.push(row);
+  }
+  return { headers, rows };
+}
+
+function smartSplit(line) {
+  // Handle quoted fields
+  const result = [];
+  let cur = '', inQ = false;
+  for (let c of line) {
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── PROCESS FILE ──
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const { rows } = parseCSV(text);
+
+    // Row 0 = metadata (Seq# = 0)
+    const metaRow = rows.find(r => r['Seq#'] === '0' || r['Seq#'] === '');
+    const dataRows = rows.filter(r => r['Seq#'] && r['Seq#'] !== '0' && r['Tool #']);
+
+    parsedData = dataRows;
+    programMeta = parseMetaRow(metaRow);
+    uniqueTools = deduplicateTools(dataRows);
+
+    renderProgramHeader();
+    renderTable(dataRows);
+
+    document.getElementById('toolCount').textContent = uniqueTools.length;
+    document.getElementById('seqCount').textContent = dataRows.length;
+
+    dropZone.classList.add('hidden');
+    sheetView.classList.add('visible');
+  };
+  reader.readAsText(file);
+}
+
+// ── PARSE METADATA ROW ──
+function parseMetaRow(row) {
+  if (!row) return {};
+  // Description field contains all the metadata pipe-separated
+  const desc = row['Sequence Description'] || '';
+  const meta = {};
+  desc.split('|').forEach(part => {
+    part = part.trim();
+    if (part.startsWith('NC PRG:')) meta.program = part.replace('NC PRG:', '').trim();
+    else if (part.startsWith('FILE NAME:')) meta.filename = part.replace('FILE NAME:', '').trim();
+    else if (part.startsWith('POSTED:')) meta.posted = part.replace('POSTED:', '').trim();
+    else if (part.startsWith('Est. Cycle Time:')) meta.cycleTime = part.replace('Est. Cycle Time:', '').trim();
+    else if (part.startsWith('Machine:')) meta.machine = part.replace('Machine:', '').trim();
+    else if (part.startsWith('STOCK:')) meta.stock = part.replace('STOCK:', '').trim();
+  });
+  return meta;
+}
+
+// ── RENDER PROGRAM HEADER ──
+function renderProgramHeader() {
+  const m = programMeta;
+  const items = [
+    { label: 'Program', value: m.program || '—', highlight: true },
+    { label: 'Machine', value: m.machine || '—' },
+    { label: 'Posted', value: m.posted || '—' },
+    { label: 'Cycle Time', value: m.cycleTime || '—' },
+    { label: 'Stock (X · Y · Z)', value: m.stock || '—' },
+    { label: 'File', value: m.filename || '—' },
+  ];
+  programMetaEl.innerHTML = items.map(it =>
+    `<div class="meta-item">
+      <span class="meta-label">${it.label}</span>
+      <span class="meta-value${it.highlight ? ' highlight' : ''}">${it.value}</span>
+    </div>`
+  ).join('');
+}
+
+// ── RENDER TABLE ──
+function renderTable(rows) {
+  // Track which T# we've seen to bold the first occurrence
+  const seen = new Set();
+  tableBody.innerHTML = rows.map(r => {
+    const tNum = r['G-Code Tool #'] || '';
+    const isFirst = !seen.has(tNum);
+    if (tNum) seen.add(tNum);
+    const rowClass = isFirst ? 'tool-first-row' : '';
+    return `<tr class="${rowClass}">
+      <td class="seq-num">${r['Seq#'] || ''}</td>
+      <td class="seq-desc" title="${esc(r['Sequence Description'] || '')}">${esc(r['Sequence Description'] || '')}</td>
+      <td class="tool-assembly">${esc(r['Tool #'] || '')}</td>
+      <td><span class="t-number">${esc(tNum)}</span></td>
+      <td>${esc(r['Holder'] || '')}</td>
+      <td class="dim-val">${r['OOH'] ? r['OOH'] + '"' : ''}</td>
+      <td>${esc(r['RTA #'] || '')}</td>
+      <td>${esc(r['Length control Dim'] || '')}</td>
+      <td class="d-control">${esc(r['Diameter control dim'] || '')}</td>
+      <td class="dim-val">${r['Cut Diameter'] ? r['Cut Diameter'] + '"' : ''}</td>
+      <td>${r['Gage Length'] ? r['Gage Length'] + '"' : ''}</td>
+      <td>${esc(r['Tip (CR or Angle)'] || '')}</td>
+      <td>${esc(r['T-description'] || '')}</td>
+      <td>${r['LC'] ? `<span class="lc-badge">${esc(r['LC'])}</span>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── DEDUPLICATE TOOLS ──
+function deduplicateTools(rows) {
+  const seen = new Map();
+  rows.forEach(r => {
+    const key = r['G-Code Tool #'];
+    if (key && !seen.has(key)) seen.set(key, r);
+  });
+  return Array.from(seen.values());
+}
+
+// ── OPEN LABEL MODAL ──
+function openLabelModal() {
+  const progNum = programMeta.program || 'PROGRAM';
+  modalSub.textContent = `${uniqueTools.length} unique tools · ${progNum} · ${programMeta.machine || ''}`;
+
+  labelsGrid.innerHTML = uniqueTools.map(t => buildLabelHTML(t, progNum)).join('');
+
+  // Also build print container
+  printContainer.innerHTML = uniqueTools.map(t =>
+    `<div class="label-page">${buildLabelHTML(t, progNum)}</div>`
+  ).join('');
+
+  labelModal.classList.add('open');
+}
+
+// ── BUILD A SINGLE LABEL ──
+function buildLabelHTML(t, progNum) {
+  const tNum    = t['G-Code Tool #'] || '';
+  const toolAsm = t['Tool #'] || '';
+  const holder  = t['Holder'] || '';
+  const ooh     = t['OOH'] ? t['OOH'] + '"' : '—';
+  const lc      = t['LC'] || '';
+  const desc    = t['T-description'] || '';
+
+  return `
+  <div class="label-card">
+    <div class="label-top">
+      <div class="label-left">
+        <div class="label-part-num">${esc(progNum)}</div>
+        <div class="label-row2">
+          <span class="label-tool-pill">${esc(toolAsm)}</span>
+          <span class="label-rta">RTA</span>
+        </div>
+        <div class="label-holder-row">Holder <span class="label-holder-val">${esc(holder)}</span></div>
+        <div class="label-dims-row">
+          OOH <span class="label-ooh-val">${esc(ooh)}</span>
+          ${lc ? `&nbsp;&nbsp;LC <span class="label-lc-box">${esc(lc)}</span>` : ''}
+        </div>
+      </div>
+      <div class="label-p-box">P</div>
+    </div>
+    <div class="label-bottom">
+      <span class="label-t-box">${esc(tNum)}</span>
+      <span class="label-desc">${esc(desc)}</span>
+    </div>
+  </div>`;
+}
+
+// ── RESET ──
+function resetTool() {
+  parsedData = null; programMeta = {}; uniqueTools = [];
+  tableBody.innerHTML = '';
+  programMetaEl.innerHTML = '';
+  labelsGrid.innerHTML = '';
+  printContainer.innerHTML = '';
+  csvInput.value = '';
+  dropZone.classList.remove('hidden');
+  sheetView.classList.remove('visible');
+  labelModal.classList.remove('open');
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+
+</body>
+</html>

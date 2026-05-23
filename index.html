@@ -1,498 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APW Tools | American Precision Works</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=Share+Tech+Mono&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APW Tools | American Precision Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-:root {
-  --bg: #0f0f0e;
-  --surface: #161614;
-  --surface2: #1e1e1b;
-  --border: #2a2a26;
-  --orange: #e85d04;
-  --orange-dim: #e85d0418;
-  --orange-mid: #ff7c2a;
-  --cream: #f0ebe0;
-  --cream-dim: #f0ebe020;
-  --text: #c8c4b8;
-  --text-dim: #5a5a50;
-  --text-mid: #8a8878;
-  --mono: 'Share Tech Mono', monospace;
-  --sans: 'Barlow Condensed', sans-serif;
-  --display: 'Bebas Neue', sans-serif;
-}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --apw-blue:   #0057A8;
+      --apw-dark:   #0a0f1a;
+      --apw-mid:    #111827;
+      --apw-panel:  #1a2234;
+      --apw-border: #243050;
+      --apw-text:   #e8edf5;
+      --apw-muted:  #6b7a99;
+      --apw-accent: #00aaff;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    html { font-size: 16px; }
+    body {
+      background: var(--apw-dark);
+      color: var(--apw-text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
 
-/* ── Noise texture overlay ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-}
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .site-header img { height: 56px; width: auto; }
+    .header-right { margin-left: auto; text-align: right; }
+    .header-tagline {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-link {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-accent);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+    }
+    .header-link:hover { text-decoration: underline; }
 
-/* ── Header ── */
-header {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 48px;
-  border-bottom: 1px solid var(--border);
-}
+    /* ── HERO ── */
+    .hero {
+      padding: 72px 48px 56px;
+      max-width: 900px;
+    }
+    .hero-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: var(--display);
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      letter-spacing: 0.04em;
+      color: var(--apw-text);
+      line-height: 1.0;
+      margin-bottom: 16px;
+    }
+    .hero-sub {
+      font-family: var(--sans);
+      font-size: 1rem;
+      color: var(--apw-muted);
+      max-width: 520px;
+      line-height: 1.6;
+    }
 
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+    /* ── SHOP INFO STRIP ── */
+    .shop-strip {
+      display: flex;
+      gap: 32px;
+      padding: 0 48px 48px;
+      flex-wrap: wrap;
+    }
+    .shop-chip {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+    }
+    .shop-chip span { color: var(--apw-text); }
 
-.logo-badge {
-  background: var(--orange);
-  color: #fff;
-  font-family: var(--display);
-  font-size: 22px;
-  letter-spacing: 0.05em;
-  padding: 6px 14px;
-  line-height: 1;
-}
+    /* ── SECTION LABEL ── */
+    .section-label {
+      padding: 0 48px 16px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--apw-border);
+      margin: 0 48px 32px;
+    }
+    .section-label span { color: var(--apw-accent); }
 
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
+    /* ── TOOLS GRID ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      padding: 0 48px 48px;
+    }
 
-.logo-text span:first-child {
-  font-family: var(--display);
-  font-size: 18px;
-  letter-spacing: 0.12em;
-  color: var(--cream);
-  line-height: 1;
-}
+    /* ── TOOL CARD ── */
+    .tool-card {
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      border-radius: 8px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--apw-blue);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+    .tool-card:hover::before { transform: scaleX(1); }
+    .tool-card:hover {
+      border-color: #344566;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .tool-card.coming-soon {
+      opacity: 0.45;
+      pointer-events: none;
+    }
 
-.logo-text span:last-child {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--text-dim);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .card-badge {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    .badge-live {
+      color: #00e676;
+      border-color: #00e676;
+      background: rgba(0,230,118,0.06);
+    }
+    .badge-soon {
+      color: var(--apw-muted);
+      border-color: var(--apw-border);
+    }
 
-.header-link {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  transition: color 0.2s;
-}
+    .card-title {
+      font-family: var(--display);
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      color: var(--apw-text);
+      line-height: 1.1;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--apw-muted);
+      line-height: 1.55;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+    .card-tag {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--apw-muted);
+      background: var(--apw-dark);
+      border: 1px solid var(--apw-border);
+      border-radius: 3px;
+      padding: 2px 7px;
+      letter-spacing: 0.06em;
+    }
+    .card-arrow {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-accent);
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
 
-.header-link:hover { color: var(--orange); }
-
-/* ── Hero ── */
-.hero {
-  position: relative;
-  z-index: 1;
-  padding: 80px 48px 64px;
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.hero::after {
-  content: 'APW';
-  position: absolute;
-  right: -20px;
-  top: -30px;
-  font-family: var(--display);
-  font-size: 280px;
-  color: var(--cream);
-  opacity: 0.025;
-  line-height: 1;
-  pointer-events: none;
-  letter-spacing: -0.02em;
-}
-
-.hero-eyebrow {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--orange);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.hero-eyebrow::before {
-  content: '';
-  display: inline-block;
-  width: 28px;
-  height: 1px;
-  background: var(--orange);
-}
-
-.hero h1 {
-  font-family: var(--display);
-  font-size: clamp(52px, 8vw, 100px);
-  line-height: 0.92;
-  letter-spacing: 0.03em;
-  color: var(--cream);
-  margin-bottom: 24px;
-  max-width: 800px;
-}
-
-.hero h1 span { color: var(--orange); }
-
-.hero p {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--text-mid);
-  max-width: 520px;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-}
-
-.hero-meta {
-  margin-top: 36px;
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-
-.hero-meta-item {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.1em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hero-meta-item span {
-  color: var(--text-mid);
-}
-
-/* ── Tools Section ── */
-.tools-section {
-  position: relative;
-  z-index: 1;
-  padding: 56px 48px;
-}
-
-.section-header {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  margin-bottom: 36px;
-}
-
-.section-title {
-  font-family: var(--display);
-  font-size: 36px;
-  letter-spacing: 0.08em;
-  color: var(--cream);
-}
-
-.section-count {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.12em;
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 2px;
-}
-
-.tool-card {
-  background: var(--surface);
-  padding: 32px;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.2s;
-  border: 1px solid transparent;
-}
-
-.tool-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--orange);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.25s ease;
-}
-
-.tool-card:hover {
-  background: var(--surface2);
-  border-color: var(--border);
-}
-
-.tool-card:hover::before { transform: scaleX(1); }
-
-.tool-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.tool-icon {
-  width: 44px;
-  height: 44px;
-  background: var(--orange-dim);
-  border: 1px solid #e85d0430;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.tool-tag {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  padding: 3px 8px;
-  text-transform: uppercase;
-  background: var(--surface2);
-  color: var(--text-dim);
-  border: 1px solid var(--border);
-}
-
-.tool-tag.new {
-  background: var(--orange-dim);
-  color: var(--orange);
-  border-color: #e85d0440;
-}
-
-.tool-name {
-  font-family: var(--display);
-  font-size: 28px;
-  letter-spacing: 0.06em;
-  color: var(--cream);
-  line-height: 1;
-}
-
-.tool-desc {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--text-mid);
-  line-height: 1.55;
-  letter-spacing: 0.02em;
-  flex: 1;
-}
-
-.tool-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  margin-top: auto;
-}
-
-.tool-axis-pills {
-  display: flex;
-  gap: 6px;
-}
-
-.axis-pill {
-  font-family: var(--mono);
-  font-size: 9px;
-  padding: 2px 7px;
-  letter-spacing: 0.1em;
-}
-
-.ap-x { background: #ff6b3518; color: #ff6b35; border: 1px solid #ff6b3530; }
-.ap-y { background: #f7c59f12; color: #f7c59f; border: 1px solid #f7c59f25; }
-.ap-z { background: #00e5a012; color: #00e5a0; border: 1px solid #00e5a030; }
-
-.tool-arrow {
-  font-size: 18px;
-  color: var(--text-dim);
-  transition: all 0.2s;
-}
-
-.tool-card:hover .tool-arrow {
-  color: var(--orange);
-  transform: translateX(4px);
-}
-
-/* Coming soon card */
-.tool-card.coming-soon {
-  opacity: 0.45;
-  cursor: default;
-  pointer-events: none;
-}
-
-.tool-card.coming-soon::before { display: none; }
-
-/* ── Footer ── */
-footer {
-  position: relative;
-  z-index: 1;
-  border-top: 1px solid var(--border);
-  padding: 32px 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.footer-brand {
-  font-family: var(--display);
-  font-size: 16px;
-  letter-spacing: 0.1em;
-  color: var(--cream);
-}
-
-.footer-address {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 0.08em;
-}
-
-.footer-right {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-link {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  transition: color 0.2s;
-}
-
-.footer-link:hover { color: var(--orange); }
-
-.footer-divider {
-  width: 1px;
-  height: 14px;
-  background: var(--border);
-}
-</style>
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--apw-border);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .footer-name {
+      font-family: var(--display);
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+    }
+    .footer-address {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+    }
+    .footer-links {
+      margin-left: auto;
+      display: flex;
+      gap: 20px;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--apw-accent); }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-area">
-    <img src="apw-logo-stacked_blue.png" alt="American Precision Works" style="height:64px;width:auto;display:block;">
-    <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:0.13em;text-transform:uppercase;align-self:flex-end;padding-bottom:4px;">Internal Tools &amp; Utilities</span>
+<header class="site-header">
+  <img src="apw-logo-stacked_blue.png" alt="American Precision Works" />
+  <div class="header-right">
+    <div class="header-tagline">Internal Tools &amp; Utilities</div>
+    <a href="https://www.americanprecisionworks.com" class="header-link" target="_blank">↗ americanprecisionworks.com</a>
   </div>
-  <a href="https://www.americanprecisionworks.com" target="_blank" class="header-link">↗ americanprecisionworks.com</a>
 </header>
 
 <section class="hero">
-  <div class="hero-eyebrow">Shop Tools</div>
-  <h1>Built by the <span>floor,</span><br>for the floor.</h1>
-  <p>Internal tools and utilities built at APW to make the work faster, cleaner, and smarter. No fluff — just what you need.</p>
-  <div class="hero-meta">
-    <div class="hero-meta-item">📍 <span>5400 Grays Ave, Philadelphia PA</span></div>
-    <div class="hero-meta-item">⚙ <span>Fanuc · Macro B · 5-Axis</span></div>
-    <div class="hero-meta-item">🤘 <span>People-Driven Precision Machining</span></div>
-  </div>
+  <div class="hero-label">Shop Tools</div>
+  <h1 class="hero-title">Built by the floor,<br>for the floor.</h1>
+  <p class="hero-sub">Internal tools and utilities built at APW to make the work faster, cleaner, and smarter. No fluff — just what you need.</p>
 </section>
 
-<section class="tools-section">
-  <div class="section-header">
-    <span class="section-title">Tools</span>
-    <span class="section-count">// 1 available · more coming</span>
-  </div>
+<div class="shop-strip">
+  <div class="shop-chip">📍 <span>5400 Grays Ave, Philadelphia PA</span></div>
+  <div class="shop-chip">⚙ <span>Fanuc · Macro B · 5-Axis</span></div>
+  <div class="shop-chip">🤘 <span>People-Driven Precision Machining</span></div>
+</div>
 
-  <div class="tools-grid">
+<div class="section-label">
+  Tools // <span>2 available</span> · more coming
+</div>
 
-    <!-- NC Macro Tool -->
-    <a class="tool-card" href="nc-macro-tool.html">
-      <div class="tool-card-top">
-        <div class="tool-icon">⌨</div>
-        <span class="tool-tag new">New</span>
-      </div>
-      <div class="tool-name">NC Macro Tool</div>
-      <div class="tool-desc">
-        Drag and drop any NC file and replace hardcoded X, Y, and Z coordinates with Macro B variable expressions — turning fixed values into runtime offsets.
-      </div>
-      <div class="tool-footer">
-        <div class="tool-axis-pills">
-          <span class="axis-pill ap-x">X AXIS</span>
-          <span class="axis-pill ap-y">Y AXIS</span>
-          <span class="axis-pill ap-z">Z AXIS</span>
-        </div>
-        <span class="tool-arrow">→</span>
-      </div>
-    </a>
+<div class="tools-grid">
 
-    <!-- Placeholder -->
-    <div class="tool-card coming-soon">
-      <div class="tool-card-top">
-        <div class="tool-icon" style="opacity:0.4">🔧</div>
-        <span class="tool-tag">Coming Soon</span>
-      </div>
-      <div class="tool-name">More Tools</div>
-      <div class="tool-desc">
-        More shop utilities in development. Check back soon.
-      </div>
-      <div class="tool-footer">
-        <div class="tool-axis-pills"></div>
-        <span class="tool-arrow" style="opacity:0.3">→</span>
-      </div>
+  <!-- NC MACRO TOOL -->
+  <a href="nc-macro-tool.html" class="tool-card">
+    <div class="card-top">
+      <span class="card-icon">⌨</span>
+      <span class="card-badge badge-live">Live</span>
     </div>
+    <div class="card-title">New NC Macro Tool</div>
+    <p class="card-desc">Drag and drop any NC file and replace hardcoded X, Y, and Z coordinates with Macro B variable expressions — turning fixed values into runtime offsets.</p>
+    <div class="card-tags">
+      <span class="card-tag">X AXIS</span>
+      <span class="card-tag">Y AXIS</span>
+      <span class="card-tag">Z AXIS</span>
+    </div>
+    <div class="card-arrow">→</div>
+  </a>
 
+  <!-- TOOL TAG GENERATOR -->
+  <a href="tool-tag-generator.html" class="tool-card">
+    <div class="card-top">
+      <span class="card-icon">🏷</span>
+      <span class="card-badge badge-live">Live</span>
+    </div>
+    <div class="card-title">Tool Tag Generator</div>
+    <p class="card-desc">Upload your Cascading Post CSV and get a full setup sheet plus printable 1.1" × 3.5" tool tags — ready for the Brother QL label printer. No ProShop needed.</p>
+    <div class="card-tags">
+      <span class="card-tag">Cascading Post</span>
+      <span class="card-tag">Tool Tags</span>
+      <span class="card-tag">Setup Sheet</span>
+      <span class="card-tag">Brother QL</span>
+    </div>
+    <div class="card-arrow">→</div>
+  </a>
+
+  <!-- COMING SOON PLACEHOLDER -->
+  <div class="tool-card coming-soon">
+    <div class="card-top">
+      <span class="card-icon">🔧</span>
+      <span class="card-badge badge-soon">Coming Soon</span>
+    </div>
+    <div class="card-title">More Tools</div>
+    <p class="card-desc">More shop utilities in development. Check back soon.</p>
+    <div class="card-arrow">→</div>
   </div>
-</section>
+
+</div>
 
 <footer>
-  <div class="footer-left">
-    <span class="footer-brand">American Precision Works</span>
-    <span class="footer-address">5400 Grays Ave Unit D · Philadelphia, PA 19143 · (215) 346-6499</span>
+  <div>
+    <div class="footer-name">American Precision Works</div>
+    <div class="footer-address">5400 Grays Ave Unit D · Philadelphia, PA 19143 · (215) 346-6499</div>
   </div>
-  <div class="footer-right">
-    <a href="https://www.americanprecisionworks.com" target="_blank" class="footer-link">Main Site</a>
-    <div class="footer-divider"></div>
-    <a href="mailto:info@americanprecision.works" class="footer-link">info@americanprecision.works</a>
-    <div class="footer-divider"></div>
-    <a href="https://www.linkedin.com/company/american-precision-works-inc/" target="_blank" class="footer-link">LinkedIn</a>
+  <div class="footer-links">
+    <a href="https://www.americanprecisionworks.com" target="_blank">Main Site</a>
+    <a href="mailto:info@americanprecision.works">info@americanprecision.works</a>
+    <a href="https://www.linkedin.com/company/american-precision-works-inc/" target="_blank">LinkedIn</a>
   </div>
 </footer>
 
