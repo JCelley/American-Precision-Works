@@ -467,6 +467,133 @@
       .label-page .label-t-box      { font-size: 14px; border-width: 1px; padding: 0 3px; }
       .label-page .label-desc       { font-size: 12px; }
     }
+
+    /* ── INSTRUCTIONS ── */
+    .instructions-section {
+      max-width: 860px;
+      margin: 0 auto 32px;
+    }
+    .instructions-card {
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      border-left: 4px solid var(--apw-accent);
+      border-radius: 8px;
+      padding: 24px 28px;
+    }
+    .instr-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .instr-title-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .instr-icon { font-size: 1.8rem; line-height: 1; }
+    .instr-title {
+      font-family: var(--display);
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      line-height: 1.1;
+    }
+    .instr-sub {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+      margin-top: 3px;
+    }
+    .btn-loom {
+      background: #625df5;
+      color: #fff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      padding: 10px 18px;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-loom:hover { opacity: 0.85; }
+    .btn-download {
+      background: #00875a;
+      color: #fff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      padding: 8px 16px;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+    .btn-download:hover { opacity: 0.85; }
+    .instr-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .instr-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--apw-blue);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-title {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--apw-text);
+      margin-bottom: 4px;
+    }
+    .step-desc {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      color: var(--apw-muted);
+      line-height: 1.55;
+    }
+    .step-desc strong { color: var(--apw-text); }
+    .step-desc code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: var(--apw-dark);
+      border: 1px solid var(--apw-border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--apw-accent);
+    }
+
   </style>
 </head>
 <body>
@@ -484,6 +611,52 @@
 </header>
 
 <main class="main">
+
+
+  <!-- INSTRUCTIONS SECTION -->
+  <div class="instructions-section" id="instructionsSection">
+    <div class="instructions-card">
+      <div class="instr-header">
+        <div class="instr-title-row">
+          <span class="instr-icon">📋</span>
+          <div>
+            <div class="instr-title">How to Use This Tool</div>
+            <div class="instr-sub">Fusion 360 Cascading Post → CSV → Setup Sheet + Tool Tags</div>
+          </div>
+        </div>
+        <a href="https://www.loom.com/share/d9dffadf004c4af2bbfda9d076d3b526"
+           target="_blank" class="btn btn-loom">▶ Watch Full Walkthrough</a>
+      </div>
+
+      <div class="instr-steps">
+        <div class="instr-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Download &amp; install the Cascading Post</div>
+            <div class="step-desc">Download the <code>.cps</code> file below. In Fusion 360, open your NC Program, check <strong>Use cascading post</strong>, then click the folder icon next to the <strong>Cascade</strong> field and browse to the downloaded file.</div>
+            <a href="https://jcelley.github.io/American-Precision-Works/CSV_Cascade_Post_v2_6.cps"
+               download class="btn btn-download">⬇ Download CSV_Cascade_Post_v2_6.cps</a>
+          </div>
+        </div>
+
+        <div class="instr-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Post your NC program</div>
+            <div class="step-desc">Post as normal. The cascading post will generate a <code>.csv</code> file alongside your NC file in your output folder.</div>
+          </div>
+        </div>
+
+        <div class="instr-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Upload the CSV here</div>
+            <div class="step-desc">Drag and drop the <code>.csv</code> file into the upload area below — or click to browse. Your full Sequence Detail and Tool Tags will generate instantly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- DROP ZONE -->
   <div class="drop-zone" id="dropZone">
@@ -533,10 +706,10 @@
               <th>Holder</th>
               <th>OOH</th>
               <th>RTA #</th>
-              <th>H-Offset</th>
+              <th>Gage Length</th>
               <th>D-Offset</th>
               <th>Cut Ø</th>
-              <th>Gage Length</th>
+              <th>H-Offset</th>
               <th>Tip / CR</th>
               <th>Description</th>
               <th>LC</th>
@@ -731,10 +904,10 @@ function renderSeqTable(rows) {
       <td>${esc(r['Holder']||'')}</td>
       <td class="dim-val">${r['OOH'] ? r['OOH']+'"' : ''}</td>
       <td>${esc(r['RTA #']||'')}</td>
-      <td>${esc(r['Length control Dim']||'')}</td>
+      <td>${r['Gage Length'] ? r['Gage Length']+'"' : ''}</td>
       <td class="d-control">${esc(r['Diameter control dim']||'')}</td>
       <td class="dim-val">${r['Cut Diameter'] ? r['Cut Diameter']+'"' : ''}</td>
-      <td>${r['Gage Length'] ? r['Gage Length']+'"' : ''}</td>
+      <td>${esc(r['Length control Dim']||'')}</td>
       <td>${esc(r['Tip (CR or Angle)']||'')}</td>
       <td>${esc(r['T-description']||'')}</td>
       <td>${r['LC'] ? `<span class="lc-badge">${esc(r['LC'])}</span>` : ''}</td>
@@ -752,10 +925,10 @@ function renderToolList() {
       <td>${esc(t['Holder']||'')}</td>
       <td class="dim-val">${t['OOH'] ? t['OOH']+'"' : ''}</td>
       <td>${esc(t['RTA #']||'')}</td>
-      <td>${t['Gage Length'] ? t['Gage Length']+'"' : ''}</td>
+      <td>${esc(t['Length control Dim']||'')}</td>
       <td class="dim-val">${t['Cut Diameter'] ? t['Cut Diameter']+'"' : ''}</td>
       <td>${esc(t['Tip (CR or Angle)']||'')}</td>
-      <td>${esc(t['Length control Dim']||'')}</td>
+      <td>${t['Gage Length'] ? t['Gage Length']+'"' : ''}</td>
       <td class="d-control">${esc(t['Diameter control dim']||'')}</td>
       <td>${t['LC'] ? `<span class="lc-badge">${esc(t['LC'])}</span>` : ''}</td>
     </tr>`;
