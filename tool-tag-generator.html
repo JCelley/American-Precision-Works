@@ -325,8 +325,8 @@
        separate row — not pushed to the right edge.
     ───────────────────────────────────────────────────── */
     .label-card {
-      width: 420px;
-      height: 211px;
+      width: 500px;
+      height: 260px;
       background: #fff;
       border: 1px solid #bbb;
       border-radius: 3px;
@@ -362,11 +362,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 24px;
       font-weight: 700;
       color: #555;
       flex-shrink: 0;
-      margin-left: 8px;
+      margin-left: 40px;
     }
 
     .label-row-tool {
@@ -379,29 +379,29 @@
       border-radius: 12px;
       padding: 0px 8px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 26px;
       color: #000;
       white-space: nowrap;
     }
-    .label-rta { font-size: 12px; color: #333; }
+    .label-rta { font-size: 24px; color: #333; }
 
-    .label-holder-row { font-size: 12px; color: #000; }
+    .label-holder-row { font-size: 24px; color: #000; }
     .label-holder-val { font-weight: 700; }
 
     .label-dims-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 12px;
+      font-size: 24px;
       color: #000;
     }
-    .label-ooh-val { font-weight: 700; font-size: 14px; }
+    .label-ooh-val { font-weight: 700; font-size: 28px; }
     .label-lc-box {
       border: 2px solid #000;
       border-radius: 3px;
       padding: 0 5px;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 24px;
     }
 
     .label-t-row {
@@ -414,13 +414,13 @@
       border-radius: 3px;
       padding: 1px 6px;
       font-weight: 900;
-      font-size: 14px;
+      font-size: 28px;
       color: #000;
       flex-shrink: 0;
     }
     /* Description — same dark color and weight as other label text */
     .label-desc {
-      font-size: 12px;
+      font-size: 24px;
       font-weight: 700;
       color: #000;
       overflow: hidden;
@@ -456,16 +456,16 @@
         border: none;
       }
       .label-page .label-part-num   { font-size: 14px; }
-      .label-page .label-p-box      { width: 17px; height: 17px; font-size: 6px; border-width: 1px; margin-left: 4px; }
-      .label-page .label-tool-pill  { font-size: 6.5px; border-width: 1px; border-radius: 6px; padding: 0 4px; }
-      .label-page .label-rta        { font-size: 6px; }
-      .label-page .label-holder-row { font-size: 6px; }
-      .label-page .label-dims-row   { font-size: 6px; gap: 6px; }
-      .label-page .label-ooh-val    { font-size: 7px; }
-      .label-page .label-lc-box     { font-size: 6px; border-width: 1px; padding: 0 3px; }
+      .label-page .label-p-box      { width: 22px; height: 22px; font-size: 12px; border-width: 1px; margin-left: 20px; }
+      .label-page .label-tool-pill  { font-size: 13px; border-width: 1px; border-radius: 6px; padding: 0 4px; }
+      .label-page .label-rta        { font-size: 12px; }
+      .label-page .label-holder-row { font-size: 12px; }
+      .label-page .label-dims-row   { font-size: 12px; gap: 6px; }
+      .label-page .label-ooh-val    { font-size: 14px; }
+      .label-page .label-lc-box     { font-size: 12px; border-width: 1px; padding: 0 3px; }
       .label-page .label-t-row      { gap: 4px; }
-      .label-page .label-t-box      { font-size: 7px; border-width: 1px; padding: 0 3px; }
-      .label-page .label-desc       { font-size: 6px; }
+      .label-page .label-t-box      { font-size: 14px; border-width: 1px; padding: 0 3px; }
+      .label-page .label-desc       { font-size: 12px; }
     }
   </style>
 </head>
@@ -684,6 +684,7 @@ function processFile(file) {
 function parseMetaRow(row) {
   if (!row) return {};
   const meta = {};
+  const stockParts = [];
   (row['Sequence Description'] || '').split('|').forEach(part => {
     part = part.trim();
     if      (part.startsWith('NC PRG:'))          meta.program   = part.replace('NC PRG:','').trim();
@@ -691,8 +692,10 @@ function parseMetaRow(row) {
     else if (part.startsWith('POSTED:'))          meta.posted    = part.replace('POSTED:','').trim();
     else if (part.startsWith('Est. Cycle Time:')) meta.cycleTime = part.replace('Est. Cycle Time:','').trim();
     else if (part.startsWith('Machine:'))         meta.machine   = part.replace('Machine:','').trim();
-    else if (part.startsWith('STOCK:'))           meta.stock     = part.replace('STOCK:','').trim();
+    else if (part.startsWith('STOCK:'))           stockParts.push(part.replace('STOCK:','').trim());
+    else if (part.startsWith('Y =') || part.startsWith('Z =')) stockParts.push(part);
   });
+  if (stockParts.length) meta.stock = stockParts.join(' · ');
   return meta;
 }
 
