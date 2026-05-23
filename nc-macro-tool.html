@@ -605,11 +605,13 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) openModal(e.dataTransfer.files[0]);
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) openModal(file);
 });
 fileInput.addEventListener('change', e => {
-  if (e.target.files[0]) openModal(e.target.files[0]);
+  const file = e.target.files[0];
   fileInput.value = '';
+  if (file) openModal(file);
 });
 
 // ── Modal Logic ───────────────────────────────────────────────────────────
@@ -624,6 +626,7 @@ const zPreview      = document.getElementById('zPreview');
 const modalProcess  = document.getElementById('modalProcess');
 
 function openModal(file) {
+  if (!file) return;
   pendingFile = file;
   modalFileName.textContent = file.name;
   xVarInput.value = '';
@@ -661,6 +664,7 @@ document.getElementById('modalCancel').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 
 document.getElementById('modalProcess').addEventListener('click', () => {
+  if (!pendingFile) { closeModal(); return; }
   const x = xVarInput.value.trim() || null;
   const y = yVarInput.value.trim() || null;
   const z = zVarInput.value.trim() || null;
@@ -670,10 +674,24 @@ document.getElementById('modalProcess').addEventListener('click', () => {
 
 // ── File Reader ───────────────────────────────────────────────────────────
 function readAndProcess(file, xNum, yNum, zNum) {
+  if (!file) { alert('No file selected.'); return; }
   currentFilename = file.name;
-  const reader = new FileReader();
-  reader.onload = ev => processFile(ev.target.result, file.name, xNum, yNum, zNum);
-  reader.readAsText(file);
+  try {
+    const reader = new FileReader();
+    reader.onerror = () => alert('Error reading file: ' + reader.error);
+    reader.onload = ev => {
+      try {
+        processFile(ev.target.result, file.name, xNum, yNum, zNum);
+      } catch(e) {
+        alert('Processing error: ' + e.message);
+        console.error(e);
+      }
+    };
+    reader.readAsText(file);
+  } catch(e) {
+    alert('FileReader error: ' + e.message);
+    console.error(e);
+  }
 }
 
 // ── Core Parser ───────────────────────────────────────────────────────────
@@ -778,6 +796,7 @@ function processFile(content, filename, xNum, yNum, zNum) {
   document.getElementById('actionsNote').textContent = parts.join('  ·  ');
 
   dropZone.style.display = 'none';
+  fileInput.disabled = true;
 
   // Sync scrolling
   syncScroll('origScroll', 'modScroll');
@@ -887,6 +906,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('diffContainer').style.display = 'none';
   document.getElementById('actionsRow').style.display  = 'none';
   dropZone.style.display = '';
+  fileInput.disabled = false;
   updatePill('pillX', 'X —', true);
   updatePill('pillY', 'Y —', true);
   updatePill('pillZ', 'Z —', true);
