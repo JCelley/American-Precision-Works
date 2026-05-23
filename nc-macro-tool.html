@@ -665,11 +665,12 @@ modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) clo
 
 document.getElementById('modalProcess').addEventListener('click', () => {
   if (!pendingFile) { closeModal(); return; }
+  const fileToProcess = pendingFile;
   const x = xVarInput.value.trim() || null;
   const y = yVarInput.value.trim() || null;
   const z = zVarInput.value.trim() || null;
   closeModal();
-  readAndProcess(pendingFile, x, y, z);
+  readAndProcess(fileToProcess, x, y, z);
 });
 
 // ── File Reader ───────────────────────────────────────────────────────────
