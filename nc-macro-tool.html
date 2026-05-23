@@ -723,9 +723,11 @@ function processLine(line, xMacro, yMacro, zMacro) {
   let replaced = { x: 0, y: 0, z: 0 };
   let newCode = code;
 
-  if (xMacro) newCode = newCode.replace(/X([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.x++; return `X[${val}+${xMacro.slice(1,-1)}]`; });
-  if (yMacro) newCode = newCode.replace(/Y([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.y++; return `Y[${val}+${yMacro.slice(1,-1)}]`; });
-  if (zMacro) newCode = newCode.replace(/Z([+-]?\d*\.?\d+)/gi, (_, val) => { replaced.z++; return `Z[${val}+${zMacro.slice(1,-1)}]`; });
+  // Match X/Y/Z only when NOT preceded by a letter (avoids matching mid-word)
+  // Uses a token-based approach: split on G-code word boundaries
+  if (xMacro) newCode = newCode.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, (_, val) => { replaced.x++; return `X[${val}+${xMacro.slice(1,-1)}]`; });
+  if (yMacro) newCode = newCode.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g, (_, val) => { replaced.y++; return `Y[${val}+${yMacro.slice(1,-1)}]`; });
+  if (zMacro) newCode = newCode.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g, (_, val) => { replaced.z++; return `Z[${val}+${zMacro.slice(1,-1)}]`; });
 
   // Count skipped (axis letters in comments)
   let skipped = 0;
