@@ -9,20 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── RESET & BASE ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --apw-blue:    #0057A8;
-      --apw-dark:    #0a0f1a;
-      --apw-mid:     #111827;
-      --apw-panel:   #1a2234;
-      --apw-border:  #243050;
-      --apw-text:    #e8edf5;
-      --apw-muted:   #6b7a99;
-      --apw-accent:  #00aaff;
-      --apw-green:   #00e676;
-      --apw-warn:    #ffaa00;
+      --apw-blue:   #0057A8;
+      --apw-dark:   #0a0f1a;
+      --apw-mid:    #111827;
+      --apw-panel:  #1a2234;
+      --apw-border: #243050;
+      --apw-text:   #e8edf5;
+      --apw-muted:  #6b7a99;
+      --apw-accent: #00aaff;
+      --apw-green:  #00e676;
+      --apw-warn:   #ffaa00;
       --mono: 'IBM Plex Mono', monospace;
       --sans: 'IBM Plex Sans', sans-serif;
       --display: 'Bebas Neue', sans-serif;
@@ -48,10 +47,7 @@
     }
     .site-header a { display: flex; align-items: center; }
     .site-header img { height: 44px; width: auto; }
-    .header-divider {
-      width: 1px; height: 36px;
-      background: var(--apw-border);
-    }
+    .header-divider { width: 1px; height: 36px; background: var(--apw-border); }
     .header-title {
       font-family: var(--display);
       font-size: 1.6rem;
@@ -78,7 +74,7 @@
     }
     .back-link:hover { color: var(--apw-accent); }
 
-    /* ── MAIN LAYOUT ── */
+    /* ── MAIN ── */
     .main { max-width: 1400px; margin: 0 auto; padding: 40px 32px; }
 
     /* ── DROP ZONE ── */
@@ -99,11 +95,7 @@
     .drop-zone input[type="file"] {
       position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
     }
-    .drop-icon {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-      display: block;
-    }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
     .drop-title {
       font-family: var(--display);
       font-size: 1.8rem;
@@ -118,7 +110,6 @@
       letter-spacing: 0.06em;
     }
 
-    /* ── HIDDEN STATE ── */
     .sheet-view { display: none; }
     .sheet-view.visible { display: block; }
     .drop-zone.hidden { display: none; }
@@ -127,32 +118,27 @@
     .actions-bar {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 28px;
       flex-wrap: wrap;
     }
     .btn {
       font-family: var(--mono);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       border: none;
       border-radius: 4px;
-      padding: 10px 20px;
+      padding: 10px 18px;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
     }
-    .btn:hover { opacity: 0.88; }
+    .btn:hover { opacity: 0.85; }
     .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: var(--apw-blue);
-      color: #fff;
-    }
-    .btn-accent {
-      background: var(--apw-accent);
-      color: #000;
-    }
+    .btn-primary  { background: var(--apw-blue);   color: #fff; }
+    .btn-accent   { background: var(--apw-accent);  color: #000; }
+    .btn-green    { background: #00875a;             color: #fff; }
     .btn-ghost {
       background: transparent;
       color: var(--apw-muted);
@@ -166,12 +152,9 @@
       color: var(--apw-muted);
       margin-left: auto;
     }
-    .tag-count-badge span {
-      color: var(--apw-accent);
-      font-weight: 700;
-    }
+    .tag-count-badge span { color: var(--apw-accent); font-weight: 700; }
 
-    /* ── PROGRAM HEADER CARD ── */
+    /* ── PROGRAM HEADER ── */
     .program-header {
       background: var(--apw-panel);
       border: 1px solid var(--apw-border);
@@ -184,20 +167,9 @@
       gap: 16px 32px;
       align-items: start;
     }
-    .program-header-logo img {
-      height: 52px;
-      width: auto;
-      opacity: 0.9;
-    }
-    .program-meta-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 32px;
-    }
-    .meta-item {
-      display: flex;
-      flex-direction: column;
-    }
+    .program-header-logo img { height: 52px; width: auto; opacity: 0.9; }
+    .program-meta-grid { display: flex; flex-wrap: wrap; gap: 8px 32px; }
+    .meta-item { display: flex; flex-direction: column; }
     .meta-label {
       font-family: var(--mono);
       font-size: 0.62rem;
@@ -206,18 +178,21 @@
       letter-spacing: 0.1em;
       margin-bottom: 2px;
     }
-    .meta-value {
-      font-family: var(--mono);
-      font-size: 0.9rem;
-      font-weight: 600;
+    .meta-value { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; color: var(--apw-text); }
+    .meta-value.highlight { color: var(--apw-accent); font-size: 1.1rem; }
+
+    /* ── SECTION HEADING ── */
+    .section-heading {
+      font-family: var(--display);
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
       color: var(--apw-text);
-    }
-    .meta-value.highlight {
-      color: var(--apw-accent);
-      font-size: 1.1rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--apw-border);
     }
 
-    /* ── SETUP SHEET TABLE ── */
+    /* ── TABLE ── */
     .table-wrapper {
       overflow-x: auto;
       border-radius: 6px;
@@ -246,31 +221,19 @@
       border-bottom: 1px solid var(--apw-border);
       white-space: nowrap;
     }
-    tbody tr {
-      border-bottom: 1px solid #1e2a40;
-      transition: background 0.12s;
-    }
+    tbody tr { border-bottom: 1px solid #1e2a40; transition: background 0.12s; }
     tbody tr:hover { background: #1a2234; }
-    tbody tr.tool-first-row {
-      border-top: 2px solid #243050;
-    }
-    tbody td {
-      padding: 7px 12px;
-      color: var(--apw-text);
-      white-space: nowrap;
-    }
-    .seq-num { color: var(--apw-muted); }
-    .seq-desc { 
-      color: #a0b0cc; 
+    tbody tr.tool-first-row { border-top: 2px solid #243050; }
+    tbody td { padding: 7px 12px; color: var(--apw-text); white-space: nowrap; }
+    .seq-num { color: var(--apw-muted); font-weight: 600; }
+    .seq-desc {
+      color: #a0b0cc;
       max-width: 280px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .tool-assembly {
-      font-weight: 700;
-      color: var(--apw-accent);
-    }
+    .tool-assembly { font-weight: 700; color: var(--apw-accent); }
     .t-number {
       display: inline-block;
       background: var(--apw-dark);
@@ -278,7 +241,6 @@
       border-radius: 3px;
       padding: 1px 6px;
       font-weight: 700;
-      color: var(--apw-text);
     }
     .lc-badge {
       display: inline-block;
@@ -289,39 +251,15 @@
       color: #fff;
       font-size: 0.7rem;
     }
-    .dim-val { color: var(--apw-warn); font-weight: 600; }
-    .d-control { color: var(--apw-green); font-weight: 600; }
+    .dim-val  { color: var(--apw-warn);  font-weight: 600; }
+    .d-control{ color: var(--apw-green); font-weight: 600; }
 
-    /* ── PRINT LABEL STYLES ── */
-    #label-print-container { display: none; }
-
-    @media print {
-      /* Hide everything except labels */
-      body > *:not(#label-print-container) { display: none !important; }
-      #label-print-container {
-        display: block !important;
-      }
-      @page {
-        size: 3.5in 1.1in;
-        margin: 0;
-      }
-      .label-page {
-        page-break-after: always;
-        width: 3.5in;
-        height: 1.1in;
-        overflow: hidden;
-      }
-      .label-page:last-child {
-        page-break-after: avoid;
-      }
-    }
-
-    /* ── LABEL PREVIEW MODAL ── */
+    /* ── MODAL ── */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.88);
       z-index: 100;
       overflow-y: auto;
       padding: 40px 24px;
@@ -329,9 +267,9 @@
     .modal-overlay.open { display: flex; flex-direction: column; align-items: center; }
     .modal-header {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -341,145 +279,209 @@
       letter-spacing: 0.06em;
       color: var(--apw-text);
     }
-    .modal-sub {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--apw-muted);
-      margin-top: 2px;
-    }
-    .modal-actions { margin-left: auto; display: flex; gap: 10px; }
+    .modal-sub { font-family: var(--mono); font-size: 0.72rem; color: var(--apw-muted); margin-top: 3px; }
+    .modal-actions { margin-left: auto; display: flex; gap: 10px; flex-shrink: 0; }
 
-    /* ── INDIVIDUAL LABEL CARD (preview) ── */
+    /* ── LABELS GRID ── */
     .labels-grid {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 14px;
     }
 
-    /* The actual label — sized to 3.5" x 1.1" at 96dpi = 336 x 105.6px */
+    /* ─────────────────────────────────────────────
+       LABEL CARD
+       Physical label: 3.1" wide × 1.1" tall
+       Printable area: 2.19" wide (label printer margins)
+       At 96dpi: 2.19" = 210px wide, 1.1" = 105.6px tall
+       We render at 2x for screen clarity: 420 × 211px
+       Print CSS scales back to physical size
+    ───────────────────────────────────────────── */
     .label-card {
-      width: 336px;
-      height: 105.6px;
+      width: 420px;
+      height: 211px;
       background: #fff;
-      border: 1px solid #ccc;
+      border: 1px solid #bbb;
       border-radius: 3px;
-      display: grid;
-      grid-template-rows: 1fr auto;
+      display: flex;
+      flex-direction: column;
       font-family: Arial, Helvetica, sans-serif;
       overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      padding: 10px 12px 8px 14px;
+      gap: 3px;
     }
-    .label-top {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      padding: 5px 6px 3px 7px;
-      gap: 4px;
-    }
-    .label-left { display: flex; flex-direction: column; gap: 1px; }
     .label-part-num {
-      font-size: 17px;
+      font-size: 30px;
       font-weight: 900;
       color: #000;
       letter-spacing: -0.02em;
-      line-height: 1.1;
+      line-height: 1.05;
     }
-    .label-row2 {
+    .label-row-tool {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 8.5px;
-      color: #000;
+      gap: 10px;
     }
     .label-tool-pill {
-      border: 1.5px solid #000;
-      border-radius: 9px;
-      padding: 0px 5px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 1px 8px;
       font-weight: 700;
-      font-size: 8.5px;
+      font-size: 14px;
       white-space: nowrap;
+      color: #000;
     }
-    .label-rta { font-weight: 400; color: #333; }
+    .label-rta {
+      font-size: 13px;
+      color: #444;
+      font-weight: 400;
+    }
+    .label-p-box-inline {
+      margin-left: auto;
+      width: 38px;
+      height: 38px;
+      border: 2px solid #000;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #666;
+      flex-shrink: 0;
+    }
     .label-holder-row {
-      font-size: 8px;
+      font-size: 13px;
       color: #000;
     }
     .label-holder-val { font-weight: 700; }
     .label-dims-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 8px;
+      gap: 14px;
+      font-size: 13px;
       color: #000;
     }
-    .label-ooh-val { font-weight: 700; font-size: 9px; }
+    .label-ooh-val { font-weight: 700; font-size: 15px; }
     .label-lc-box {
-      border: 1.5px solid #000;
-      border-radius: 2px;
-      padding: 0px 4px;
+      border: 2px solid #000;
+      border-radius: 3px;
+      padding: 0 5px;
       font-weight: 700;
-      font-size: 8.5px;
+      font-size: 13px;
     }
-    /* P box */
-    .label-p-box {
-      width: 28px;
-      height: 28px;
-      border: 1.5px solid #000;
-      border-radius: 2px;
+    .label-t-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 700;
-      color: #555;
-      align-self: start;
+      gap: 8px;
       margin-top: 2px;
     }
-    /* Bottom bar */
-    .label-bottom {
-      background: #000;
-      display: flex;
-      align-items: center;
-      padding: 3px 7px;
-      gap: 7px;
-    }
     .label-t-box {
-      background: #fff;
-      color: #000;
+      border: 2px solid #000;
+      border-radius: 3px;
+      padding: 1px 6px;
       font-weight: 900;
-      font-size: 10px;
-      padding: 1px 5px;
-      border-radius: 2px;
-      white-space: nowrap;
+      font-size: 15px;
+      color: #000;
       flex-shrink: 0;
     }
     .label-desc {
-      color: #fff;
-      font-size: 7.5px;
-      font-weight: 400;
+      font-size: 11px;
+      color: #222;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    /* ── TOOL LIST MODAL TABLE ── */
+    .tool-list-table {
+      width: 100%;
+      max-width: 960px;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: var(--apw-panel);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--apw-border);
+    }
+    .tool-list-table thead th {
+      background: #0f1825;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--apw-muted);
+      border-bottom: 1px solid var(--apw-border);
+      white-space: nowrap;
+    }
+    .tool-list-table tbody tr { border-bottom: 1px solid #1e2a40; }
+    .tool-list-table tbody tr:hover { background: #1f2e45; }
+    .tool-list-table tbody td { padding: 8px 12px; color: var(--apw-text); white-space: nowrap; }
+
+    /* ── PRINT — LABEL MODE ── */
+    #label-print-container { display: none; }
+
+    @media print {
+      body > *:not(#label-print-container) { display: none !important; }
+      #label-print-container { display: block !important; }
+
+      @page {
+        size: 3.1in 1.1in;
+        margin: 0;
+      }
+
+      .label-page {
+        page-break-after: always;
+        width: 2.19in;
+        height: 1.1in;
+        overflow: hidden;
+      }
+      .label-page:last-child { page-break-after: avoid; }
+
+      /* Scale the 2x preview card back down to physical size */
+      .label-page .label-card {
+        width: 2.19in;
+        height: 1.1in;
+        box-shadow: none;
+        border: none;
+        padding: 5px 6px 4px 7px;
+        gap: 1px;
+      }
+      .label-page .label-part-num  { font-size: 15px; }
+      .label-page .label-tool-pill { font-size: 7px; border-width: 1px; padding: 0 4px; border-radius: 6px; }
+      .label-page .label-rta       { font-size: 6.5px; }
+      .label-page .label-p-box-inline { width: 19px; height: 19px; font-size: 6.5px; border-width: 1px; }
+      .label-page .label-holder-row{ font-size: 6.5px; }
+      .label-page .label-holder-val{ font-size: 6.5px; }
+      .label-page .label-dims-row  { font-size: 6.5px; gap: 7px; }
+      .label-page .label-ooh-val   { font-size: 7.5px; }
+      .label-page .label-lc-box    { font-size: 6.5px; border-width: 1px; padding: 0 3px; }
+      .label-page .label-t-row     { gap: 4px; margin-top: 1px; }
+      .label-page .label-t-box     { font-size: 7.5px; border-width: 1px; padding: 0 3px; }
+      .label-page .label-desc      { font-size: 5.5px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── SITE HEADER ── -->
 <header class="site-header">
   <a href="https://jcelley.github.io/American-Precision-Works/">
-    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked_blue.png" alt="APW Logo" />
+    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked%E2%80%93blue.png" alt="APW Logo" />
   </a>
   <div class="header-divider"></div>
   <div>
     <div class="header-title">Tool Tag Generator</div>
-    <div class="header-sub">Setup Sheet + Label Print · Cascading Post CSV</div>
+    <div class="header-sub">Sequence Detail + Label Print · Cascading Post CSV</div>
   </div>
   <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
 </header>
 
-<!-- ── MAIN ── -->
 <main class="main">
 
   <!-- DROP ZONE -->
@@ -495,28 +497,30 @@
 
     <!-- ACTIONS BAR -->
     <div class="actions-bar">
-      <button class="btn btn-accent" id="printLabelsBtn">🏷 Print Tool Tags</button>
-      <button class="btn btn-primary" id="printSheetBtn">🖨 Print Setup Sheet</button>
-      <button class="btn btn-ghost" id="loadNewBtn">↑ Load New File</button>
+      <button class="btn btn-accent"  id="printLabelsBtn">🏷 Print Tool Tags</button>
+      <button class="btn btn-green"   id="toolListBtn">🔧 Tool List</button>
+      <button class="btn btn-primary" id="printSheetBtn">🖨 Print Sequence Detail</button>
+      <button class="btn btn-ghost"   id="loadNewBtn">↑ Load New File</button>
       <div class="tag-count-badge">
-        <span id="toolCount">0</span> unique tools · <span id="seqCount">0</span> sequences
+        <span id="toolCount">0</span> unique tools &nbsp;·&nbsp; <span id="seqCount">0</span> sequences
       </div>
     </div>
 
     <!-- PROGRAM HEADER -->
     <div class="program-header" id="programHeader">
       <div class="program-header-logo">
-        <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked_blue.png" alt="APW" />
+        <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked%E2%80%93blue.png" alt="APW" />
       </div>
       <div class="program-meta-grid" id="programMeta"></div>
     </div>
 
-    <!-- SETUP SHEET TABLE -->
+    <!-- SEQUENCE DETAIL TABLE -->
+    <div class="section-heading">Sequence Detail</div>
     <div class="table-wrapper">
       <table id="setupTable">
         <thead>
           <tr>
-            <th>Seq #</th>
+            <th>N#</th>
             <th>Operation Description</th>
             <th>Tool Assembly</th>
             <th>T #</th>
@@ -539,80 +543,105 @@
 
 </main>
 
-<!-- ── LABEL PREVIEW MODAL ── -->
+<!-- ── LABEL MODAL ── -->
 <div class="modal-overlay" id="labelModal">
   <div class="modal-header">
     <div>
       <div class="modal-title">Tool Tags</div>
-      <div class="modal-sub" id="modalSub"></div>
+      <div class="modal-sub" id="labelModalSub"></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-accent" onclick="window.print()">🖨 Send to Label Printer</button>
-      <button class="btn btn-ghost" id="closeModalBtn">✕ Close</button>
+      <button class="btn btn-ghost"  id="closeLabelModalBtn">✕ Close</button>
     </div>
   </div>
   <div class="labels-grid" id="labelsGrid"></div>
 </div>
 
-<!-- ── PRINT CONTAINER (hidden, used during print) ── -->
+<!-- ── TOOL LIST MODAL ── -->
+<div class="modal-overlay" id="toolListModal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">Tool List</div>
+      <div class="modal-sub" id="toolListModalSub"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="closeToolListModalBtn">✕ Close</button>
+    </div>
+  </div>
+  <table class="tool-list-table" id="toolListTable">
+    <thead>
+      <tr>
+        <th>T #</th>
+        <th>Tool Assembly</th>
+        <th>Description</th>
+        <th>Holder</th>
+        <th>OOH</th>
+        <th>RTA #</th>
+        <th>Gage Length</th>
+        <th>Cut Ø</th>
+        <th>Tip / CR</th>
+        <th>H-Offset</th>
+        <th>D-Offset</th>
+        <th>LC</th>
+      </tr>
+    </thead>
+    <tbody id="toolListBody"></tbody>
+  </table>
+</div>
+
+<!-- PRINT CONTAINER -->
 <div id="label-print-container"></div>
 
 <script>
-// ── STATE ──
-let parsedData = null;
-let programMeta = {};
-let uniqueTools = [];
+let parsedData   = null;
+let programMeta  = {};
+let uniqueTools  = [];
 
-// ── ELEMENTS ──
-const dropZone     = document.getElementById('dropZone');
-const csvInput     = document.getElementById('csvInput');
-const sheetView    = document.getElementById('sheetView');
-const tableBody    = document.getElementById('setupTableBody');
+const dropZone      = document.getElementById('dropZone');
+const csvInput      = document.getElementById('csvInput');
+const sheetView     = document.getElementById('sheetView');
+const tableBody     = document.getElementById('setupTableBody');
 const programMetaEl = document.getElementById('programMeta');
-const labelModal   = document.getElementById('labelModal');
-const labelsGrid   = document.getElementById('labelsGrid');
-const modalSub     = document.getElementById('modalSub');
-const printContainer = document.getElementById('label-print-container');
+const labelModal    = document.getElementById('labelModal');
+const toolListModal = document.getElementById('toolListModal');
+const labelsGrid    = document.getElementById('labelsGrid');
+const toolListBody  = document.getElementById('toolListBody');
+const printContainer= document.getElementById('label-print-container');
 
-// ── DRAG & DROP ──
+// Drag & drop
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) processFile(file);
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
 });
-csvInput.addEventListener('change', e => {
-  if (e.target.files[0]) processFile(e.target.files[0]);
-});
+csvInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
 
-// ── BUTTONS ──
+// Buttons
 document.getElementById('printLabelsBtn').addEventListener('click', openLabelModal);
+document.getElementById('toolListBtn').addEventListener('click', openToolListModal);
 document.getElementById('printSheetBtn').addEventListener('click', () => window.print());
 document.getElementById('loadNewBtn').addEventListener('click', resetTool);
-document.getElementById('closeModalBtn').addEventListener('click', () => labelModal.classList.remove('open'));
+document.getElementById('closeLabelModalBtn').addEventListener('click', () => labelModal.classList.remove('open'));
+document.getElementById('closeToolListModalBtn').addEventListener('click', () => toolListModal.classList.remove('open'));
 
-// ── CSV PARSE ──
+// CSV parse
 function parseCSV(text) {
-  const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l.length);
   const headers = lines[0].split(',').map(h => h.trim());
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const vals = smartSplit(lines[i]);
+  return lines.slice(1).map(line => {
+    const vals = smartSplit(line);
     const row = {};
-    headers.forEach((h, idx) => row[h] = (vals[idx] || '').trim());
-    rows.push(row);
-  }
-  return { headers, rows };
+    headers.forEach((h, i) => row[h] = (vals[i] || '').trim());
+    return row;
+  });
 }
 
 function smartSplit(line) {
-  // Handle quoted fields
-  const result = [];
-  let cur = '', inQ = false;
-  for (let c of line) {
-    if (c === '"') { inQ = !inQ; }
+  const result = []; let cur = '', inQ = false;
+  for (const c of line) {
+    if (c === '"') inQ = !inQ;
     else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
     else cur += c;
   }
@@ -620,18 +649,14 @@ function smartSplit(line) {
   return result;
 }
 
-// ── PROCESS FILE ──
 function processFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
-    const text = e.target.result;
-    const { rows } = parseCSV(text);
-
-    // Row 0 = metadata (Seq# = 0)
+    const rows    = parseCSV(e.target.result);
     const metaRow = rows.find(r => r['Seq#'] === '0' || r['Seq#'] === '');
-    const dataRows = rows.filter(r => r['Seq#'] && r['Seq#'] !== '0' && r['Tool #']);
+    const dataRows= rows.filter(r => r['Seq#'] && r['Seq#'] !== '0' && r['Tool #']);
 
-    parsedData = dataRows;
+    parsedData  = dataRows;
     programMeta = parseMetaRow(metaRow);
     uniqueTools = deduplicateTools(dataRows);
 
@@ -639,7 +664,7 @@ function processFile(file) {
     renderTable(dataRows);
 
     document.getElementById('toolCount').textContent = uniqueTools.length;
-    document.getElementById('seqCount').textContent = dataRows.length;
+    document.getElementById('seqCount').textContent  = dataRows.length;
 
     dropZone.classList.add('hidden');
     sheetView.classList.add('visible');
@@ -647,34 +672,30 @@ function processFile(file) {
   reader.readAsText(file);
 }
 
-// ── PARSE METADATA ROW ──
 function parseMetaRow(row) {
   if (!row) return {};
-  // Description field contains all the metadata pipe-separated
-  const desc = row['Sequence Description'] || '';
   const meta = {};
-  desc.split('|').forEach(part => {
+  (row['Sequence Description'] || '').split('|').forEach(part => {
     part = part.trim();
-    if (part.startsWith('NC PRG:')) meta.program = part.replace('NC PRG:', '').trim();
-    else if (part.startsWith('FILE NAME:')) meta.filename = part.replace('FILE NAME:', '').trim();
-    else if (part.startsWith('POSTED:')) meta.posted = part.replace('POSTED:', '').trim();
-    else if (part.startsWith('Est. Cycle Time:')) meta.cycleTime = part.replace('Est. Cycle Time:', '').trim();
-    else if (part.startsWith('Machine:')) meta.machine = part.replace('Machine:', '').trim();
-    else if (part.startsWith('STOCK:')) meta.stock = part.replace('STOCK:', '').trim();
+    if      (part.startsWith('NC PRG:'))         meta.program   = part.replace('NC PRG:','').trim();
+    else if (part.startsWith('FILE NAME:'))      meta.filename  = part.replace('FILE NAME:','').trim();
+    else if (part.startsWith('POSTED:'))         meta.posted    = part.replace('POSTED:','').trim();
+    else if (part.startsWith('Est. Cycle Time:'))meta.cycleTime = part.replace('Est. Cycle Time:','').trim();
+    else if (part.startsWith('Machine:'))        meta.machine   = part.replace('Machine:','').trim();
+    else if (part.startsWith('STOCK:'))          meta.stock     = part.replace('STOCK:','').trim();
   });
   return meta;
 }
 
-// ── RENDER PROGRAM HEADER ──
 function renderProgramHeader() {
   const m = programMeta;
   const items = [
-    { label: 'Program', value: m.program || '—', highlight: true },
-    { label: 'Machine', value: m.machine || '—' },
-    { label: 'Posted', value: m.posted || '—' },
-    { label: 'Cycle Time', value: m.cycleTime || '—' },
-    { label: 'Stock (X · Y · Z)', value: m.stock || '—' },
-    { label: 'File', value: m.filename || '—' },
+    { label: 'Program',          value: m.program   || '—', highlight: true },
+    { label: 'Machine',          value: m.machine   || '—' },
+    { label: 'Posted',           value: m.posted    || '—' },
+    { label: 'Cycle Time',       value: m.cycleTime || '—' },
+    { label: 'Stock (X · Y · Z)',value: m.stock     || '—' },
+    { label: 'File',             value: m.filename  || '—' },
   ];
   programMetaEl.innerHTML = items.map(it =>
     `<div class="meta-item">
@@ -684,113 +705,133 @@ function renderProgramHeader() {
   ).join('');
 }
 
-// ── RENDER TABLE ──
 function renderTable(rows) {
-  // Track which T# we've seen to bold the first occurrence
   const seen = new Set();
   tableBody.innerHTML = rows.map(r => {
-    const tNum = r['G-Code Tool #'] || '';
-    const isFirst = !seen.has(tNum);
+    const tNum   = r['G-Code Tool #'] || '';
+    const isFirst= !seen.has(tNum);
     if (tNum) seen.add(tNum);
-    const rowClass = isFirst ? 'tool-first-row' : '';
-    return `<tr class="${rowClass}">
-      <td class="seq-num">${r['Seq#'] || ''}</td>
-      <td class="seq-desc" title="${esc(r['Sequence Description'] || '')}">${esc(r['Sequence Description'] || '')}</td>
-      <td class="tool-assembly">${esc(r['Tool #'] || '')}</td>
+    return `<tr class="${isFirst ? 'tool-first-row' : ''}">
+      <td class="seq-num">N${esc(r['Seq#'] || '')}</td>
+      <td class="seq-desc" title="${esc(r['Sequence Description']||'')}">${esc(r['Sequence Description']||'')}</td>
+      <td class="tool-assembly">${esc(r['Tool #']||'')}</td>
       <td><span class="t-number">${esc(tNum)}</span></td>
-      <td>${esc(r['Holder'] || '')}</td>
-      <td class="dim-val">${r['OOH'] ? r['OOH'] + '"' : ''}</td>
-      <td>${esc(r['RTA #'] || '')}</td>
-      <td>${esc(r['Length control Dim'] || '')}</td>
-      <td class="d-control">${esc(r['Diameter control dim'] || '')}</td>
-      <td class="dim-val">${r['Cut Diameter'] ? r['Cut Diameter'] + '"' : ''}</td>
-      <td>${r['Gage Length'] ? r['Gage Length'] + '"' : ''}</td>
-      <td>${esc(r['Tip (CR or Angle)'] || '')}</td>
-      <td>${esc(r['T-description'] || '')}</td>
+      <td>${esc(r['Holder']||'')}</td>
+      <td class="dim-val">${r['OOH'] ? r['OOH']+'"' : ''}</td>
+      <td>${esc(r['RTA #']||'')}</td>
+      <td>${esc(r['Length control Dim']||'')}</td>
+      <td class="d-control">${esc(r['Diameter control dim']||'')}</td>
+      <td class="dim-val">${r['Cut Diameter'] ? r['Cut Diameter']+'"' : ''}</td>
+      <td>${r['Gage Length'] ? r['Gage Length']+'"' : ''}</td>
+      <td>${esc(r['Tip (CR or Angle)']||'')}</td>
+      <td>${esc(r['T-description']||'')}</td>
       <td>${r['LC'] ? `<span class="lc-badge">${esc(r['LC'])}</span>` : ''}</td>
     </tr>`;
   }).join('');
 }
 
-// ── DEDUPLICATE TOOLS ──
 function deduplicateTools(rows) {
   const seen = new Map();
   rows.forEach(r => {
     const key = r['G-Code Tool #'];
     if (key && !seen.has(key)) seen.set(key, r);
   });
-  return Array.from(seen.values());
+  // Sort by G-code T number numerically
+  return Array.from(seen.values()).sort((a, b) => {
+    const na = parseInt((a['G-Code Tool #'] || '').replace(/\D/g,'')) || 0;
+    const nb = parseInt((b['G-Code Tool #'] || '').replace(/\D/g,'')) || 0;
+    return na - nb;
+  });
 }
 
-// ── OPEN LABEL MODAL ──
+// ── LABEL MODAL ──
 function openLabelModal() {
-  const progNum = programMeta.program || 'PROGRAM';
-  modalSub.textContent = `${uniqueTools.length} unique tools · ${progNum} · ${programMeta.machine || ''}`;
+  const prog = programMeta.program || 'PROGRAM';
+  document.getElementById('labelModalSub').textContent =
+    `${uniqueTools.length} unique tools · ${prog} · ${programMeta.machine || ''}`;
 
-  labelsGrid.innerHTML = uniqueTools.map(t => buildLabelHTML(t, progNum)).join('');
+  labelsGrid.innerHTML = uniqueTools.map(t => buildLabelHTML(t, prog)).join('');
 
-  // Also build print container
   printContainer.innerHTML = uniqueTools.map(t =>
-    `<div class="label-page">${buildLabelHTML(t, progNum)}</div>`
+    `<div class="label-page">${buildLabelHTML(t, prog)}</div>`
   ).join('');
 
   labelModal.classList.add('open');
 }
 
-// ── BUILD A SINGLE LABEL ──
 function buildLabelHTML(t, progNum) {
   const tNum    = t['G-Code Tool #'] || '';
-  const toolAsm = t['Tool #'] || '';
-  const holder  = t['Holder'] || '';
-  const ooh     = t['OOH'] ? t['OOH'] + '"' : '—';
-  const lc      = t['LC'] || '';
+  const toolAsm = t['Tool #']        || '';
+  const holder  = t['Holder']        || '';
+  const ooh     = t['OOH']  ? t['OOH'] + '"' : '—';
+  const lc      = t['LC']            || '';
   const desc    = t['T-description'] || '';
 
   return `
   <div class="label-card">
-    <div class="label-top">
-      <div class="label-left">
-        <div class="label-part-num">${esc(progNum)}</div>
-        <div class="label-row2">
-          <span class="label-tool-pill">${esc(toolAsm)}</span>
-          <span class="label-rta">RTA</span>
-        </div>
-        <div class="label-holder-row">Holder <span class="label-holder-val">${esc(holder)}</span></div>
-        <div class="label-dims-row">
-          OOH <span class="label-ooh-val">${esc(ooh)}</span>
-          ${lc ? `&nbsp;&nbsp;LC <span class="label-lc-box">${esc(lc)}</span>` : ''}
-        </div>
-      </div>
-      <div class="label-p-box">P</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+      <div class="label-part-num">${esc(progNum)}</div>
+      <div class="label-p-box-inline">P</div>
     </div>
-    <div class="label-bottom">
+    <div class="label-row-tool">
+      <span class="label-tool-pill">${esc(toolAsm)}</span>
+      <span class="label-rta">RTA</span>
+    </div>
+    <div class="label-holder-row">Holder <span class="label-holder-val">${esc(holder)}</span></div>
+    <div class="label-dims-row">
+      OOH <span class="label-ooh-val">${esc(ooh)}</span>
+      ${lc ? `&nbsp;LC <span class="label-lc-box">${esc(lc)}</span>` : ''}
+    </div>
+    <div class="label-t-row">
       <span class="label-t-box">${esc(tNum)}</span>
       <span class="label-desc">${esc(desc)}</span>
     </div>
   </div>`;
 }
 
-// ── RESET ──
+// ── TOOL LIST MODAL ──
+function openToolListModal() {
+  const prog = programMeta.program || 'PROGRAM';
+  document.getElementById('toolListModalSub').textContent =
+    `${uniqueTools.length} tools · sorted by T# · ${prog}`;
+
+  toolListBody.innerHTML = uniqueTools.map(t => {
+    const tNum = t['G-Code Tool #'] || '';
+    return `<tr>
+      <td><span class="t-number">${esc(tNum)}</span></td>
+      <td class="tool-assembly">${esc(t['Tool #']||'')}</td>
+      <td>${esc(t['T-description']||'')}</td>
+      <td>${esc(t['Holder']||'')}</td>
+      <td class="dim-val">${t['OOH'] ? t['OOH']+'"' : ''}</td>
+      <td>${esc(t['RTA #']||'')}</td>
+      <td>${t['Gage Length'] ? t['Gage Length']+'"' : ''}</td>
+      <td class="dim-val">${t['Cut Diameter'] ? t['Cut Diameter']+'"' : ''}</td>
+      <td>${esc(t['Tip (CR or Angle)']||'')}</td>
+      <td>${esc(t['Length control Dim']||'')}</td>
+      <td class="d-control">${esc(t['Diameter control dim']||'')}</td>
+      <td>${t['LC'] ? `<span class="lc-badge">${esc(t['LC'])}</span>` : ''}</td>
+    </tr>`;
+  }).join('');
+
+  toolListModal.classList.add('open');
+}
+
 function resetTool() {
   parsedData = null; programMeta = {}; uniqueTools = [];
-  tableBody.innerHTML = '';
-  programMetaEl.innerHTML = '';
-  labelsGrid.innerHTML = '';
-  printContainer.innerHTML = '';
-  csvInput.value = '';
+  tableBody.innerHTML = ''; programMetaEl.innerHTML = '';
+  labelsGrid.innerHTML = ''; toolListBody.innerHTML = '';
+  printContainer.innerHTML = ''; csvInput.value = '';
   dropZone.classList.remove('hidden');
   sheetView.classList.remove('visible');
   labelModal.classList.remove('open');
+  toolListModal.classList.remove('open');
 }
 
 function esc(str) {
   return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
-
 </body>
 </html>
