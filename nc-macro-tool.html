@@ -80,7 +80,16 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .stat-val.neutral { color: var(--text-mid); }
 .stat-label { font-family: var(--mono); font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
 
-#searchBar { display: none; align-items: center; gap: 10px; background: var(--surface); padding: 8px 14px; border: 1px solid var(--border); flex-wrap: wrap; }
+#searchBar {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
 #searchBar input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; outline: none; width: 240px; transition: border-color 0.15s; }
 #searchBar input:focus { border-color: var(--text-mid); }
 #searchBar button { font-family: var(--mono); font-size: 11px; padding: 5px 12px; background: transparent; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; letter-spacing: 0.08em; transition: all 0.15s; }
@@ -174,6 +183,14 @@ button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text
     </div>
   </div>
 
+  <div id="searchBar">
+    <input type="text" id="searchInput" placeholder="Search input pane... (Enter to search)">
+    <button id="searchPrev">↑ Prev</button>
+    <button id="searchNext">↓ Next</button>
+    <button id="searchClear">✕ Clear</button>
+    <span id="searchInfo"></span>
+  </div>
+
   <div id="main">
 
     <div id="dropZone">
@@ -190,14 +207,6 @@ button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text
       <div class="stat"><span class="stat-val y-color" id="statY">0</span><span class="stat-label">Y Replaced</span></div>
       <div class="stat"><span class="stat-val z-color" id="statZ">0</span><span class="stat-label">Z Replaced</span></div>
       <div class="stat"><span class="stat-val neutral" id="statSkipped">0</span><span class="stat-label">Lines Skipped</span></div>
-    </div>
-
-    <div id="searchBar">
-      <input type="text" id="searchInput" placeholder="Search input pane... (Enter to search)">
-      <button id="searchPrev">↑ Prev</button>
-      <button id="searchNext">↓ Next</button>
-      <button id="searchClear">✕ Clear</button>
-      <span id="searchInfo"></span>
     </div>
 
     <div id="diffSection">
