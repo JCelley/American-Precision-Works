@@ -102,6 +102,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .diff-line.changed-orig { background: var(--removed-bg); }
 .diff-line.changed-mod { background: var(--added-bg); }
 .diff-line.inserted { background: #00e5a008; border-left: 2px solid #00e5a040; }
+.diff-line.inserted-cancel { background: #ff6b3508; border-left: 2px solid #ff6b3540; }
 .ln { color: var(--text-dim); font-size: 9px; width: 32px; text-align: right; flex-shrink: 0; user-select: none; opacity: 0.4; padding-top: 2px; }
 .lc { flex: 1; color: var(--text); min-width: 0; }
 .hx { color: var(--accent-x); background: var(--accent-x-dim); }
@@ -111,19 +112,15 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .hm-y { color: var(--accent-y); background: var(--accent-y-dim); font-weight: bold; }
 .hm-z { color: var(--accent-z); background: var(--accent-z-dim); font-weight: bold; }
 .comment { color: var(--text-dim); font-style: italic; }
-.reset-line { color: #00e5a0; font-style: italic; opacity: 0.8; }
+.shift-line  { color: #00e5a0; font-style: italic; }
+.cancel-line { color: #ff6b35; font-style: italic; }
 .search-match { background: var(--search-hl); }
 .search-match.active { background: var(--search-hl-active); outline: 1px solid #ffaa00; }
 
 #actionsRow {
-  display: none;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-  padding: 12px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
+  display: none; gap: 10px; align-items: center; flex-wrap: wrap;
+  flex-shrink: 0; padding: 12px 20px;
+  border-top: 1px solid var(--border); background: var(--surface);
 }
 button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 13px; padding: 10px 22px; border: none; cursor: pointer; transition: all 0.15s; }
 .btn-primary { background: var(--accent-z); color: #000; }
@@ -263,9 +260,9 @@ button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text
       <div class="axis-preview" id="zPreview">—</div>
     </div>
     <div class="modal-hint">
-      · Variables are only added inside operation blocks (OP ##)<br>
+      · Variables only added inside operations (detected by M6/M06/G100+T)<br>
+      · Reset lines inserted before tool change (shift) and at op end (cancel)<br>
       · Homing lines (G28, G49, G91) are never touched<br>
-      · Reset lines are inserted at start and end of each operation<br>
       · Values inside ( ) comments and after ; are never touched
     </div>
     <div class="modal-actions">
@@ -286,11 +283,11 @@ button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text
       · <strong>Prove out carefully</strong> with reduced feedrates and single-block mode<br>
       · <strong>Verify all macro variable values</strong> are set correctly on the control<br>
       · <strong>Check the output file thoroughly</strong> — this tool may contain bugs<br>
-      · <strong>APW takes no responsibility</strong> for machine crashes, scrapped parts, or damage resulting from use of this tool
+      · <strong>APW takes no responsibility</strong> for machine crashes, scrapped parts, or damage
     </div>
     <label class="warning-check">
       <input type="checkbox" id="warningCheck">
-      <span>I understand this tool may have bugs. I will prove out this program carefully before running at full speed.</span>
+      <span>I understand this tool may have bugs. I will prove out carefully before running at full speed.</span>
     </label>
     <div class="modal-actions">
       <button class="btn-secondary" id="warningCancel">Cancel</button>
@@ -307,23 +304,24 @@ button { font-family: var(--sans); font-weight: 700; letter-spacing: 0.1em; text
 
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
-let originalLines = [];
-let modifiedLines = [];
+let displayOrig = [];
+let displayMod  = [];
+let displayMeta = []; // 'normal' | 'shift' | 'cancel'
 let modifiedContent = '';
-let outputFilename = '';
-let pendingFile = null;
-let searchMatches = [];
-let searchIndex = -1;
+let outputFilename  = '';
+let pendingFile     = null;
+let searchMatches   = [];
+let searchIndex     = -1;
 
 // ── Utilities ──────────────────────────────────────────────────────────────
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function show(id, d) { document.getElementById(id).style.display = d || 'flex'; }
-function hide(id)    { document.getElementById(id).style.display = 'none'; }
-function setPill(id, text, inactive) {
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const show = (id, d) => { document.getElementById(id).style.display = d || 'flex'; };
+const hide = id => { document.getElementById(id).style.display = 'none'; };
+const setPill = (id, text, inactive) => {
   const el = document.getElementById(id);
   el.textContent = text;
   el.classList.toggle('inactive', inactive);
-}
+};
 
 // ── Drop / File Input ──────────────────────────────────────────────────────
 const dropZone = document.getElementById('dropZone');
@@ -332,8 +330,7 @@ const fileInput = document.getElementById('fileInput');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
+  e.preventDefault(); dropZone.classList.remove('drag-over');
   const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
   if (f) openConfig(f);
 });
@@ -376,7 +373,6 @@ zVar.addEventListener('input', updatePreviews);
 document.getElementById('configCancel').addEventListener('click', () => {
   pendingFile = null; configModal.classList.remove('open');
 });
-
 document.getElementById('configProcess').addEventListener('click', () => {
   if (!pendingFile) return;
   const file = pendingFile;
@@ -388,9 +384,8 @@ document.getElementById('configProcess').addEventListener('click', () => {
   readFile(file, x, y, z);
 });
 
-// ── Parser ─────────────────────────────────────────────────────────────────
+// ── G-code Helpers ─────────────────────────────────────────────────────────
 
-// Split line into code and comment portions
 function splitCodeComment(line) {
   let depth = 0, start = -1;
   for (let i = 0; i < line.length; i++) {
@@ -403,49 +398,46 @@ function splitCodeComment(line) {
   return { code: line.slice(0, start), comment: line.slice(start) };
 }
 
-// Is this an operation header? e.g. (OP 50 - ...)
-function isOpHeader(line) {
-  return /^\s*\(\s*OP\s+\d+/i.test(line);
-}
-
-// Is this a line we should never touch (homing/setup)?
-function isHomingLine(line) {
+// Detect tool change — M6/M06 on its own line, or G100 with a T word
+function isToolChange(line) {
   const code = line.trim().toUpperCase();
-  // G28 reference return
-  if (/\bG28\b/.test(code)) return true;
-  // G49 tool length cancel
-  if (/\bG49\b/.test(code)) return true;
-  // G91 incremental (homing moves)
-  if (/\bG91\b/.test(code)) return true;
-  // Pure modal/setup lines with no coordinates
-  if (/^(G90|G94|G17|G40|G80|G97|G69|M30|M02|M05|M09|M141|M442|M443|M444|M445|M494|%)/.test(code)) return true;
-  // End of program
-  if (/^(M30|M02|%)\s*$/.test(code)) return true;
+  // Standard M6 tool change
+  if (/\bM0?6\b/.test(code)) return true;
+  // Brother G100 tool call (has both G100 and T##)
+  if (/\bG100\b/.test(code) && /\bT\d+\b/.test(code)) return true;
   return false;
 }
 
-// Is this an end-of-program line?
-function isEndOfProgram(line) {
-  return /^\s*(M30|M02|%)\s*$/.test(line.trim());
+// Lines that should never get variables added
+function isHomingLine(line) {
+  const code = line.trim().toUpperCase();
+  if (/\bG28\b/.test(code)) return true;
+  if (/\bG49\b/.test(code)) return true;
+  if (/\bG91\b/.test(code)) return true;
+  return false;
 }
 
-// Substitute axis values in a single line's code portion
+// End of program
+function isEndOfProgram(line) {
+  return /^\s*(M30|M02|%)\s*(\(.*\))?\s*$/.test(line.trim());
+}
+
+// Substitute axis values
 function substituteAxes(code, xM, yM, zM) {
-  let r = { x: 0, y: 0, z: 0 };
-  let c = code;
+  let r = { x: 0, y: 0, z: 0 }, c = code;
   if (xM) c = c.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, (_, v) => { r.x++; return `X[${v}+#${xM}]`; });
   if (yM) c = c.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g,     (_, v) => { r.y++; return `Y[${v}+#${yM}]`; });
   if (zM) c = c.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g,        (_, v) => { r.z++; return `Z[${v}+#${zM}]`; });
   return { result: c, replaced: r };
 }
 
-// Build reset lines for start/end of operation
-function buildResetLines(xM, yM, zM, cancel) {
-  const suffix = cancel ? ' CANCEL' : '';
+// Build shift or cancel reset lines
+function buildResets(xM, yM, zM, cancel) {
+  const label = cancel ? 'CANCEL' : 'SHIFT';
   const lines = [];
-  if (xM) lines.push(`#${xM}=0. (X SHIFT${suffix})`);
-  if (yM) lines.push(`#${yM}=0. (Y SHIFT${suffix})`);
-  if (zM) lines.push(`#${zM}=0. (Z SHIFT${suffix})`);
+  if (xM) lines.push({ text: `#${xM}=0. (X ${label})`, meta: cancel ? 'cancel' : 'shift' });
+  if (yM) lines.push({ text: `#${yM}=0. (Y ${label})`, meta: cancel ? 'cancel' : 'shift' });
+  if (zM) lines.push({ text: `#${zM}=0. (Z ${label})`, meta: cancel ? 'cancel' : 'shift' });
   return lines;
 }
 
@@ -456,102 +448,89 @@ function processFile(content, filename, xNum, yNum, zNum) {
   const zM = zNum || null;
 
   const inputLines = content.split('\n');
-  const outputLines = []; // modified output lines (may have insertions)
-  const displayOrig = []; // original lines mirrored for diff (with blank placeholders for inserted lines)
-  const displayMod  = []; // modified lines for diff
+
+  // Output arrays
+  const outLines  = []; // final text lines for download
+  const dOrig     = []; // display: original side ('' for inserted lines)
+  const dMod      = []; // display: modified side
+  const dMeta     = []; // display: line type for styling
 
   let insideOp = false;
   let tX = 0, tY = 0, tZ = 0, tSkip = 0, opCount = 0;
 
-  // We need to look ahead to know when an op ends, so we process line by line
-  // and handle op boundaries by detecting the next op header or end-of-program
+  const pushInserted = (text, meta) => {
+    outLines.push(text);
+    dOrig.push('');
+    dMod.push(text);
+    dMeta.push(meta);
+  };
+
+  const pushLine = (orig, mod, meta) => {
+    outLines.push(mod);
+    dOrig.push(orig);
+    dMod.push(mod);
+    dMeta.push(meta || 'normal');
+  };
 
   for (let i = 0; i < inputLines.length; i++) {
     const line = inputLines[i];
-    const trimmed = line.trim();
-
-    // ── Detect end of current op (next op header or end of program) ──
-    if (insideOp && (isOpHeader(line) || isEndOfProgram(line))) {
-      // Insert cancel resets before this line
-      const cancelLines = buildResetLines(xM, yM, zM, true);
-      for (const cl of cancelLines) {
-        outputLines.push(cl);
-        displayOrig.push('');   // blank placeholder in orig
-        displayMod.push(cl);
-      }
-      insideOp = false;
-    }
-
-    // ── Detect start of new op ──
-    if (isOpHeader(line)) {
-      insideOp = true;
-      opCount++;
-
-      // Pass through the op header comment unchanged
-      outputLines.push(line);
-      displayOrig.push(line);
-      displayMod.push(line);
-
-      // Insert start resets right after the op header
-      const startLines = buildResetLines(xM, yM, zM, false);
-      for (const sl of startLines) {
-        outputLines.push(sl);
-        displayOrig.push('');
-        displayMod.push(sl);
-      }
-      continue;
-    }
 
     // ── End of program ──
     if (isEndOfProgram(line)) {
-      // Insert final cancel resets before M30/%
-      // (already inserted above if we were in an op, but handle case where
-      //  we hit M30 without being in an op)
-      outputLines.push(line);
-      displayOrig.push(line);
-      displayMod.push(line);
+      if (insideOp) {
+        // Insert cancel resets before M30
+        for (const r of buildResets(xM, yM, zM, true)) pushInserted(r.text, r.meta);
+        insideOp = false;
+      }
+      pushLine(line, line, 'normal');
+      continue;
+    }
+
+    // ── Tool change detected ──
+    if (isToolChange(line)) {
+      if (insideOp) {
+        // End previous op — insert cancel resets
+        for (const r of buildResets(xM, yM, zM, true)) pushInserted(r.text, r.meta);
+      }
+      // Insert shift resets before the tool change line
+      for (const r of buildResets(xM, yM, zM, false)) pushInserted(r.text, r.meta);
+
+      // The tool change line itself — pass through unchanged
+      pushLine(line, line, 'normal');
+
+      insideOp = true;
+      opCount++;
       continue;
     }
 
     // ── Inside an operation ──
     if (insideOp) {
       if (isHomingLine(line)) {
-        // Pass through unchanged, count as skipped
         tSkip++;
-        outputLines.push(line);
-        displayOrig.push(line);
-        displayMod.push(line);
+        pushLine(line, line, 'normal');
       } else {
         const { code, comment } = splitCodeComment(line);
         const { result, replaced } = substituteAxes(code, xM, yM, zM);
         tX += replaced.x; tY += replaced.y; tZ += replaced.z;
         const newLine = result + comment;
-        outputLines.push(newLine);
-        displayOrig.push(line);
-        displayMod.push(newLine);
+        pushLine(line, newLine, 'normal');
       }
     } else {
       // Outside any op — pass through untouched
-      outputLines.push(line);
-      displayOrig.push(line);
-      displayMod.push(line);
+      pushLine(line, line, 'normal');
     }
   }
 
-  // If file ends while still inside an op (no M30), insert cancel at end
+  // If file ends while still in an op with no M30
   if (insideOp) {
-    const cancelLines = buildResetLines(xM, yM, zM, true);
-    for (const cl of cancelLines) {
-      outputLines.push(cl);
-      displayOrig.push('');
-      displayMod.push(cl);
-    }
+    for (const r of buildResets(xM, yM, zM, true)) pushInserted(r.text, r.meta);
   }
 
-  originalLines = displayOrig;
-  modifiedLines = displayMod;
-  modifiedContent = outputLines.join('\n');
-  outputFilename = (() => {
+  displayOrig     = dOrig;
+  displayMod      = dMod;
+  displayMeta     = dMeta;
+  modifiedContent = outLines.join('\n');
+  outputFilename  = (() => {
     const dot = filename.lastIndexOf('.');
     const ext  = dot !== -1 ? filename.slice(dot) : '';
     const base = dot !== -1 ? filename.slice(0, dot) : filename;
@@ -566,7 +545,6 @@ function processFile(content, filename, xNum, yNum, zNum) {
   document.getElementById('statZ').textContent       = tZ;
   document.getElementById('statSkipped').textContent = tSkip;
 
-  // Pills
   setPill('pillX', xM ? `X #${xM}` : 'X —', !xM);
   setPill('pillY', yM ? `Y #${yM}` : 'Y —', !yM);
   setPill('pillZ', zM ? `Z #${zM}` : 'Z —', !zM);
@@ -574,8 +552,8 @@ function processFile(content, filename, xNum, yNum, zNum) {
   document.getElementById('origFilename').textContent = filename;
   document.getElementById('modFilename').textContent  = outputFilename;
 
-  renderPane('origScroll', displayOrig, 'original');
-  renderPane('modScroll',  displayMod,  'modified');
+  renderPane('origScroll', dOrig, dMod, dMeta, 'original');
+  renderPane('modScroll',  dOrig, dMod, dMeta, 'modified');
 
   const parts = [];
   if (xM) parts.push(`X→[n+#${xM}]`);
@@ -589,7 +567,6 @@ function processFile(content, filename, xNum, yNum, zNum) {
   document.getElementById('diffSection').classList.add('open');
   show('actionsRow', 'flex');
   hide('processingOverlay');
-
   syncScroll();
 }
 
@@ -605,11 +582,11 @@ function highlightOrig(line) {
   return h;
 }
 
-function highlightMod(line) {
+function highlightMod(line, meta) {
   if (!line) return '';
   try {
-    // Reset lines
-    if (/^#\d+=0\.\s*\(/.test(line)) return `<span class="reset-line">${esc(line)}</span>`;
+    if (meta === 'shift')  return `<span class="shift-line">${esc(line)}</span>`;
+    if (meta === 'cancel') return `<span class="cancel-line">${esc(line)}</span>`;
     const { code, comment } = splitCodeComment(line);
     let h = esc(code);
     h = h.replace(/X(\[\S+?\])/g, m => `<span class="hm-x">${esc(m)}</span>`);
@@ -620,18 +597,24 @@ function highlightMod(line) {
   } catch(e) { return esc(line); }
 }
 
-function renderPane(scrollId, lines, type) {
+function renderPane(scrollId, dOrig, dMod, dMeta, type) {
   const scroll = document.getElementById(scrollId);
-  const frag = document.createDocumentFragment();
-  lines.forEach((line, i) => {
+  const frag   = document.createDocumentFragment();
+  const len    = dOrig.length;
+
+  for (let i = 0; i < len; i++) {
+    const orig = dOrig[i];
+    const mod  = dMod[i];
+    const meta = dMeta[i];
+    const isInserted = (orig === '' && mod !== '');
+
     const div = document.createElement('div');
     div.className = 'diff-line';
     div.dataset.line = i;
 
-    const isInserted = (originalLines[i] === '' && modifiedLines[i] !== '');
     if (isInserted) {
-      div.classList.add('inserted');
-    } else if (originalLines[i] !== modifiedLines[i]) {
+      div.classList.add(meta === 'cancel' ? 'inserted-cancel' : 'inserted');
+    } else if (orig !== mod) {
       div.classList.add(type === 'original' ? 'changed-orig' : 'changed-mod');
     }
 
@@ -641,12 +624,13 @@ function renderPane(scrollId, lines, type) {
 
     const lc = document.createElement('span');
     lc.className = 'lc';
-    lc.innerHTML = type === 'original' ? highlightOrig(line) : highlightMod(line);
+    lc.innerHTML  = type === 'original' ? highlightOrig(orig) : highlightMod(mod, meta);
 
     div.appendChild(ln);
     div.appendChild(lc);
     frag.appendChild(div);
-  });
+  }
+
   scroll.innerHTML = '';
   scroll.appendChild(frag);
 }
@@ -656,15 +640,10 @@ function readFile(file, xNum, yNum, zNum) {
   show('processingOverlay', 'flex');
   const reader = new FileReader();
   reader.onerror = () => { hide('processingOverlay'); alert('Error reading file.'); };
-  reader.onload = ev => {
+  reader.onload  = ev => {
     setTimeout(() => {
-      try {
-        processFile(ev.target.result, file.name, xNum, yNum, zNum);
-      } catch(e) {
-        hide('processingOverlay');
-        alert('Processing error: ' + e.message);
-        console.error(e);
-      }
+      try { processFile(ev.target.result, file.name, xNum, yNum, zNum); }
+      catch(e) { hide('processingOverlay'); alert('Processing error: ' + e.message); console.error(e); }
     }, 50);
   };
   reader.readAsText(file);
@@ -684,9 +663,7 @@ const searchInput = document.getElementById('searchInput');
 const searchInfo  = document.getElementById('searchInfo');
 
 function clearSearch() {
-  document.getElementById('origScroll').querySelectorAll('.search-match').forEach(el => {
-    el.classList.remove('search-match', 'active');
-  });
+  document.getElementById('origScroll').querySelectorAll('.search-match').forEach(el => el.classList.remove('search-match','active'));
   searchMatches = []; searchIndex = -1; searchInfo.textContent = '';
 }
 
@@ -696,9 +673,9 @@ function runSearch() {
   if (!q) return;
   const matches = [];
   document.getElementById('origScroll').querySelectorAll('.diff-line').forEach(el => {
-    if (el.querySelector('.lc') && el.querySelector('.lc').textContent.toLowerCase().includes(q.toLowerCase())) {
-      el.classList.add('search-match');
-      matches.push(el);
+    const lc = el.querySelector('.lc');
+    if (lc && lc.textContent.toLowerCase().includes(q.toLowerCase())) {
+      el.classList.add('search-match'); matches.push(el);
     }
   });
   searchMatches = matches;
@@ -720,19 +697,15 @@ function updateSearchActive() {
 searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
 document.getElementById('searchNext').addEventListener('click', () => {
   if (!searchMatches.length) { runSearch(); return; }
-  searchIndex = (searchIndex + 1) % searchMatches.length;
-  updateSearchActive();
+  searchIndex = (searchIndex + 1) % searchMatches.length; updateSearchActive();
 });
 document.getElementById('searchPrev').addEventListener('click', () => {
   if (!searchMatches.length) { runSearch(); return; }
-  searchIndex = (searchIndex - 1 + searchMatches.length) % searchMatches.length;
-  updateSearchActive();
+  searchIndex = (searchIndex - 1 + searchMatches.length) % searchMatches.length; updateSearchActive();
 });
-document.getElementById('searchClear').addEventListener('click', () => {
-  searchInput.value = ''; clearSearch();
-});
+document.getElementById('searchClear').addEventListener('click', () => { searchInput.value = ''; clearSearch(); });
 
-// ── Download ───────────────────────────────────────────────────────────────
+// ── Download with Warning ──────────────────────────────────────────────────
 const warningModal   = document.getElementById('warningModal');
 const warningCheck   = document.getElementById('warningCheck');
 const warningConfirm = document.getElementById('warningConfirm');
@@ -742,25 +715,26 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   warningModal.classList.add('open');
 });
 warningCheck.addEventListener('change', () => { warningConfirm.disabled = !warningCheck.checked; });
-document.getElementById('warningCancel').addEventListener('click', () => { warningModal.classList.remove('open'); });
+document.getElementById('warningCancel').addEventListener('click', () => warningModal.classList.remove('open'));
 warningConfirm.addEventListener('click', () => {
   warningModal.classList.remove('open');
   const blob = new Blob([modifiedContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   a.href = url; a.download = outputFilename; a.click();
   URL.revokeObjectURL(url);
 });
 
 // ── Reset ──────────────────────────────────────────────────────────────────
 document.getElementById('resetBtn').addEventListener('click', () => {
-  originalLines = []; modifiedLines = []; modifiedContent = ''; outputFilename = '';
+  displayOrig = []; displayMod = []; displayMeta = [];
+  modifiedContent = ''; outputFilename = '';
   clearSearch(); searchInput.value = '';
   hide('statsRow'); hide('searchBar');
   document.getElementById('diffSection').classList.remove('open');
   hide('actionsRow');
   document.getElementById('origScroll').innerHTML = '';
-  document.getElementById('modScroll').innerHTML = '';
+  document.getElementById('modScroll').innerHTML  = '';
   show('dropZone', 'block');
   setPill('pillX', 'X —', true);
   setPill('pillY', 'Y —', true);
