@@ -359,6 +359,11 @@ button {
   border: 1px solid var(--border);
   min-height: 420px;
   flex: 1;
+  width: 100%;
+}
+
+.diff-container.visible {
+  display: grid !important;
 }
 
 .diff-pane { display: flex; flex-direction: column; overflow: hidden; }
@@ -790,7 +795,9 @@ function processFile(content, filename, xNum, yNum, zNum) {
   renderPane('origScroll', lines, 'original', xMacro, yMacro, zMacro);
   renderPane('modScroll', modLines, 'modified', xMacro, yMacro, zMacro);
 
-  document.getElementById('diffContainer').style.display = 'grid';
+  const dc = document.getElementById('diffContainer');
+  dc.style.display = 'grid';
+  dc.classList.add('visible');
   document.getElementById('actionsRow').style.display    = 'flex';
 
   const parts = [];
@@ -918,7 +925,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   outputFilename  = '';
   currentFilename = '';
   document.getElementById('statsRow').style.display    = 'none';
-  document.getElementById('diffContainer').style.display = 'none';
+  const dcEl = document.getElementById('diffContainer');
+  dcEl.style.display = 'none';
+  dcEl.classList.remove('visible');
   document.getElementById('actionsRow').style.display  = 'none';
   dropZone.style.display = '';
   fileInput.disabled = false;
