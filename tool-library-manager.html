@@ -10,275 +10,280 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:      #0a0f1a;
-      --mid:     #111827;
-      --panel:   #1a2234;
-      --panel2:  #1e2840;
-      --border:  #243050;
-      --border2: #2d3f5e;
-      --text:    #e8edf5;
-      --muted:   #6b7a99;
-      --accent:  #00aaff;
-      --green:   #00e676;
-      --warn:    #ffaa00;
-      --blue:    #0057A8;
-      --red:     #ff4444;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'IBM Plex Sans', sans-serif;
-      --display: 'Bebas Neue', sans-serif;
+      --bg:#0a0f1a; --mid:#111827; --panel:#1a2234; --panel2:#1e2840;
+      --border:#243050; --border2:#2d3f5e; --text:#e8edf5; --muted:#6b7a99;
+      --accent:#00aaff; --green:#00e676; --warn:#ffaa00; --blue:#0057A8; --red:#ff4444;
+      --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --display:'Bebas Neue',sans-serif;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);}
 
-    /* ── TOP BAR ── */
-    .topbar {
-      height: 56px; background: var(--mid); border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0;
-      position: sticky; top: 0; z-index: 100;
+    /* EXPORT BANNER */
+    .export-banner{display:none;background:#7c3600;border-bottom:2px solid var(--warn);padding:10px 20px;
+      display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:0.78rem;}
+    .export-banner.show{display:flex;}
+    .export-banner-text{color:#ffe0b2;flex:1;}
+    .export-banner-text strong{color:var(--warn);}
+    .export-banner-btn{background:var(--warn);color:#000;border:none;border-radius:4px;padding:7px 16px;
+      font-family:var(--mono);font-size:0.75rem;font-weight:700;cursor:pointer;letter-spacing:0.06em;white-space:nowrap;}
+
+    /* TOP BAR */
+    .topbar{height:56px;background:var(--mid);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:100;}
+    .topbar-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--text);white-space:nowrap;}
+    .topbar-logo span{color:var(--accent);}
+    .topbar-divider{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+    .unit-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+    .unit-btn{font-family:var(--mono);font-size:0.7rem;padding:5px 12px;cursor:pointer;border:none;background:transparent;color:var(--muted);letter-spacing:0.06em;transition:all 0.15s;}
+    .unit-btn.active{background:var(--accent);color:#000;font-weight:700;}
+    .topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+    .tb-btn{font-family:var(--mono);font-size:0.7rem;padding:6px 12px;border-radius:4px;border:1px solid var(--border);
+      background:transparent;color:var(--muted);cursor:pointer;letter-spacing:0.06em;transition:all 0.15s;white-space:nowrap;}
+    .tb-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .tb-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+    .tb-btn.primary:hover{filter:brightness(1.15);}
+    .tb-btn.warn{background:var(--warn);color:#000;border-color:var(--warn);font-weight:700;}
+    .tb-btn.warn:hover{filter:brightness(1.1);}
+
+    /* APP */
+    .app{display:flex;height:calc(100vh - 56px);overflow:hidden;}
+
+    /* SIDEBAR */
+    .sidebar{width:220px;flex-shrink:0;background:var(--mid);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+    .sidebar-section{padding:16px 14px 8px;}
+    .sidebar-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+    .filter-btn{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:4px;
+      font-family:var(--mono);font-size:0.75rem;color:var(--muted);background:transparent;
+      border:none;cursor:pointer;letter-spacing:0.04em;transition:all 0.15s;margin-bottom:2px;}
+    .filter-btn:hover{background:var(--panel);color:var(--text);}
+    .filter-btn.active{background:var(--panel2);color:var(--accent);border-left:2px solid var(--accent);}
+    .filter-count{float:right;font-size:0.65rem;color:var(--muted);margin-top:1px;}
+    .sidebar-divider{border:none;border-top:1px solid var(--border);margin:8px 14px;}
+    .feat-filter{display:flex;flex-direction:column;gap:6px;padding:0 14px 12px;}
+    .feat-row{display:flex;align-items:center;gap:8px;cursor:pointer;}
+    .feat-row input[type="checkbox"]{accent-color:var(--accent);width:13px;height:13px;}
+    .feat-row label{font-family:var(--mono);font-size:0.72rem;color:var(--muted);cursor:pointer;letter-spacing:0.04em;}
+    .feat-row input:checked+label{color:var(--accent);}
+    .range-filter{padding:0 14px 16px;}
+    .range-row{display:flex;gap:6px;align-items:center;margin-top:6px;}
+    .range-input{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:5px 8px;border-radius:3px;width:70px;outline:none;}
+    .range-input:focus{border-color:var(--accent);}
+    .range-sep{font-family:var(--mono);font-size:0.7rem;color:var(--muted);}
+
+    /* MAIN */
+    .main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .content-toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--mid);}
+    .search-wrap{position:relative;flex:1;max-width:320px;}
+    .search-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.82rem;padding:7px 10px 7px 32px;border-radius:4px;outline:none;transition:border-color 0.15s;}
+    .search-wrap input:focus{border-color:var(--accent);}
+    .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.8rem;pointer-events:none;}
+    .tool-count-badge{font-family:var(--mono);font-size:0.72rem;color:var(--muted);}
+    .tool-count-badge span{color:var(--accent);font-weight:700;}
+    .view-tabs{display:flex;gap:2px;margin-left:auto;}
+    .view-tab{font-family:var(--mono);font-size:0.7rem;padding:5px 12px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:3px;transition:all 0.15s;letter-spacing:0.05em;}
+    .view-tab:hover{color:var(--text);}
+    .view-tab.active{background:var(--panel2);color:var(--accent);border-color:var(--accent);}
+
+    /* TOOLS GRID */
+    .tools-grid{flex:1;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-content:start;}
+    .tool-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px;cursor:pointer;transition:border-color 0.15s,transform 0.1s,box-shadow 0.15s;position:relative;overflow:hidden;}
+    .tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 0.2s;}
+    .tool-card:hover::before{transform:scaleX(1);}
+    .tool-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+    .tc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+    .tc-id{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;}
+    .tc-type-badge{font-family:var(--mono);font-size:0.6rem;padding:2px 7px;border-radius:3px;border:1px solid var(--border2);color:var(--accent);background:rgba(0,170,255,0.08);letter-spacing:0.06em;white-space:nowrap;}
+    .tc-photo{width:100%;height:80px;background:var(--bg);border-radius:4px;margin-bottom:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);}
+    .tc-photo img{max-width:100%;max-height:100%;object-fit:contain;}
+    .tc-photo-placeholder{font-size:1.8rem;opacity:0.2;}
+    .tc-name{font-family:var(--sans);font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
+    .tc-meta{font-family:var(--mono);font-size:0.68rem;color:var(--muted);line-height:1.6;}
+    .tc-meta span{color:var(--text);}
+    .tc-footer{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+    .tc-loc{font-family:var(--mono);font-size:0.68rem;color:var(--muted);flex:1;}
+    .tc-loc span{color:var(--warn);font-weight:600;}
+    .tc-print-btn{font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:3px;cursor:pointer;transition:all 0.15s;}
+    .tc-print-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;}
+    .empty-state-icon{font-size:3rem;opacity:0.2;display:block;margin-bottom:12px;}
+    .empty-state-text{font-family:var(--mono);font-size:0.82rem;color:var(--muted);margin-bottom:16px;}
+
+    /* JOB VIEW */
+    .job-view{flex:1;overflow-y:auto;padding:20px;}
+    .job-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+    .job-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;}
+    .job-card:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+    .job-card-num{font-family:var(--display);font-size:1.4rem;letter-spacing:0.06em;color:var(--accent);margin-bottom:4px;}
+    .job-card-count{font-family:var(--mono);font-size:0.72rem;color:var(--muted);}
+
+    /* JOB DETAIL VIEW */
+    .job-detail-view{flex:1;overflow-y:auto;padding:20px;}
+    .job-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+    .job-detail-back{font-family:var(--mono);font-size:0.75rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:6px 12px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+    .job-detail-back:hover{color:var(--accent);border-color:var(--accent);}
+    .job-detail-title{font-family:var(--display);font-size:1.6rem;letter-spacing:0.06em;color:var(--text);flex:1;}
+    .job-detail-count{font-family:var(--mono);font-size:0.72rem;color:var(--muted);}
+    .setup-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.75rem;}
+    .setup-table thead{background:var(--panel);position:sticky;top:0;z-index:2;}
+    .setup-table th{padding:9px 12px;text-align:left;font-size:0.62rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+    .setup-table tbody tr{border-bottom:1px solid var(--border);}
+    .setup-table tbody tr:hover{background:var(--panel);}
+    .setup-table td{padding:8px 12px;color:var(--text);white-space:nowrap;}
+    .setup-table td.dim{color:var(--warn);font-weight:600;}
+    .setup-table td.id{color:var(--accent);font-weight:700;}
+
+    /* DETAIL PANEL */
+    .detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;}
+    .detail-overlay.open{display:block;}
+    .detail-panel{position:fixed;right:0;top:0;bottom:0;width:580px;background:var(--mid);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.25s ease;overflow:hidden;}
+    .detail-panel.open{transform:translateX(0);}
+    .dp-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+    .dp-title{font-family:var(--display);font-size:1.3rem;letter-spacing:0.06em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .dp-id-badge{font-family:var(--mono);font-size:0.7rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:3px 8px;border-radius:3px;white-space:nowrap;}
+    .dp-close{background:transparent;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:0.9rem;transition:all 0.15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .dp-close:hover{border-color:var(--red);color:var(--red);}
+    .dp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .dp-tab{font-family:var(--mono);font-size:0.72rem;padding:10px 16px;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:0.06em;transition:all 0.15s;}
+    .dp-tab:hover{color:var(--text);}
+    .dp-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .dp-body{flex:1;overflow-y:auto;padding:20px;}
+    .detail-photo{width:100%;height:160px;background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;}
+    .detail-photo img{max-width:100%;max-height:100%;object-fit:contain;padding:8px;}
+    .detail-photo-placeholder{font-size:3rem;opacity:0.15;}
+    .detail-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    .detail-field{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 12px;}
+    .detail-field-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+    .detail-field-value{font-family:var(--mono);font-size:0.83rem;color:var(--text);font-weight:600;}
+    .detail-field.full{grid-column:1/-1;}
+    .detail-field.highlight .detail-field-value{color:var(--accent);}
+    .detail-section-title{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+    .rta-list-item{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:6px;font-family:var(--mono);font-size:0.78rem;}
+    .rta-list-item-top{color:var(--accent);font-weight:700;margin-bottom:3px;}
+    .rta-list-item-sub{color:var(--muted);font-size:0.7rem;}
+    .jobs-list{display:flex;flex-wrap:wrap;gap:6px;}
+    .job-tag-item{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-family:var(--mono);font-size:0.75rem;color:var(--text);}
+    .job-remove{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;transition:color 0.15s;padding:0;}
+    .job-remove:hover{color:var(--red);}
+    .job-add-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+    .job-type-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:7px 10px;border-radius:4px;outline:none;}
+    .job-type-input:focus{border-color:var(--accent);}
+    .dp-actions{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+    .dp-btn{font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;border:none;border-radius:4px;padding:9px 14px;cursor:pointer;transition:opacity 0.2s;flex:1;}
+    .dp-btn:hover{opacity:0.85;}
+    .dp-btn.blue{background:var(--blue);color:#fff;}
+    .dp-btn.green{background:#00875a;color:#fff;}
+    .dp-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+    .dp-btn.ghost:hover{color:var(--text);border-color:var(--muted);}
+    .dp-btn.danger{background:transparent;color:var(--red);border:1px solid var(--red);}
+    .dp-btn.danger:hover{background:var(--red);color:#fff;opacity:1;}
+
+    /* EDIT FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-group{display:flex;flex-direction:column;gap:5px;}
+    .form-group.full{grid-column:1/-1;}
+    .form-label{font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
+    .form-input{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.82rem;padding:8px 10px;border-radius:4px;outline:none;width:100%;transition:border-color 0.15s;}
+    .form-input:focus{border-color:var(--accent);}
+    .form-input::placeholder{color:var(--muted);}
+    select.form-input{cursor:pointer;}
+    textarea.form-input{resize:vertical;min-height:64px;font-size:0.8rem;line-height:1.5;}
+    .photo-upload-area{border:2px dashed var(--border);border-radius:6px;padding:20px;text-align:center;cursor:pointer;position:relative;transition:all 0.2s;background:var(--bg);}
+    .photo-upload-area:hover,.photo-upload-area.drag-over{border-color:var(--accent);background:rgba(0,170,255,0.04);}
+    .photo-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .photo-upload-text{font-family:var(--mono);font-size:0.7rem;color:var(--muted);}
+    .photo-preview-wrap{position:relative;display:inline-block;}
+    .photo-preview{max-height:80px;max-width:100%;border-radius:4px;display:block;margin:0 auto;}
+    .photo-clear{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .form-section-title{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;grid-column:1/-1;padding-top:8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+    .edp-form-list{display:flex;flex-direction:column;gap:6px;}
+    .edp-form-row{display:flex;gap:8px;align-items:center;}
+    .edp-form-row .form-input{flex:1;}
+    .edp-rm{background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8rem;transition:all 0.15s;flex-shrink:0;}
+    .edp-rm:hover{border-color:var(--red);color:var(--red);}
+    .btn-add-edp-form{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:transparent;border:1px dashed var(--border);border-radius:4px;padding:6px 10px;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;text-align:left;margin-top:4px;}
+    .btn-add-edp-form:hover{border-color:var(--accent);}
+    .holder-row{display:flex;gap:6px;align-items:center;}
+    .holder-row select{flex:1;}
+    .holder-add-btn{font-family:var(--mono);font-size:0.7rem;padding:8px 10px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+    .holder-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* MODALS */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--mid);border:1px solid var(--border);border-radius:8px;width:460px;max-height:85vh;display:flex;flex-direction:column;animation:modalIn 0.18s ease;}
+    .modal.wide{width:580px;}
+    @keyframes modalIn{from{opacity:0;transform:scale(0.96) translateY(-8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .modal-title{font-family:var(--display);font-size:1.2rem;letter-spacing:0.06em;}
+    .modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+    .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;}
+
+    /* BACKUP WARNING MODAL */
+    .backup-modal-icon{font-size:3rem;text-align:center;display:block;margin-bottom:12px;}
+    .backup-modal-msg{font-family:var(--sans);font-size:0.95rem;color:var(--text);line-height:1.6;margin-bottom:16px;text-align:center;}
+    .backup-modal-msg strong{color:var(--warn);}
+    .backup-modal-days{font-family:var(--display);font-size:2.5rem;letter-spacing:0.06em;color:var(--warn);text-align:center;display:block;margin-bottom:4px;}
+    .backup-modal-sub{font-family:var(--mono);font-size:0.72rem;color:var(--muted);text-align:center;display:block;margin-bottom:20px;}
+
+    .list-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-family:var(--mono);font-size:0.8rem;color:var(--text);}
+    .list-item-name{flex:1;}
+    .list-item-rm{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:3px;transition:all 0.15s;}
+    .list-item-rm:hover{color:var(--red);background:rgba(255,68,68,0.1);}
+    .add-form-row{display:flex;gap:8px;margin-top:10px;}
+
+    /* RTA BUILDER */
+    .rta-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+    .rta-form .form-group.full{grid-column:1/-1;}
+    .rta-preview{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin-top:4px;}
+    .rta-preview strong{color:var(--accent);}
+
+    /* CSV IMPORT */
+    .csv-drop{border:2px dashed var(--border);border-radius:6px;padding:28px;text-align:center;cursor:pointer;position:relative;transition:all 0.2s;background:var(--bg);margin-bottom:12px;}
+    .csv-drop:hover,.csv-drop.drag-over{border-color:var(--accent);background:rgba(0,170,255,0.04);}
+    .csv-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .csv-drop-text{font-family:var(--mono);font-size:0.75rem;color:var(--muted);}
+
+    /* PRINT */
+    #print-container{display:none;}
+    @media print{
+      body>*:not(#print-container){display:none!important;}
+      #print-container{display:block!important;}
+      @page{size:3.5in 1.1in;margin:0;}
+      .print-page{page-break-after:always;width:3.5in;height:1.1in;overflow:hidden;}
+      .print-page:last-child{page-break-after:avoid;}
+      .print-page .label-card{width:3.5in;height:1.1in;border:none;border-radius:0;box-shadow:none;}
+      .print-page .label-left{padding:5px 6px;}
+      .print-page .label-lc{font-size:16px;border-width:1.5px;padding:0 4px;min-width:22px;}
+      .print-page .label-tool-id{font-size:14px;border-width:1.5px;border-radius:25px;padding:0 7px;}
+      .print-page .label-top-row{gap:5px;}
+      .print-page .label-desc{font-size:9px;padding:2px 0;}
+      .print-page .label-edps{font-size:8px;}
+      .print-page .label-img-area{width:1.4in;border-left-width:1px;}
     }
-    .topbar-logo { font-family: var(--display); font-size: 1.4rem; letter-spacing: 0.08em; color: var(--text); white-space: nowrap; }
-    .topbar-logo span { color: var(--accent); }
-    .topbar-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+    .label-card{width:630px;height:198px;background:#fff;border:1px solid #ccc;border-radius:4px;display:flex;flex-direction:row;align-items:stretch;font-family:Arial,Helvetica,sans-serif;overflow:hidden;}
+    .label-left{flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden;}
+    .label-top-row{display:flex;align-items:center;gap:10px;}
+    .label-lc{font-size:32px;font-weight:900;color:#000;border:3px solid #000;border-radius:4px;padding:0 8px;line-height:1.1;min-width:44px;text-align:center;flex-shrink:0;}
+    .label-tool-id{font-size:28px;font-weight:900;color:#000;border:3px solid #000;border-radius:50px;padding:1px 14px;white-space:nowrap;line-height:1.2;}
+    .label-desc{font-size:18px;font-weight:700;color:#000;line-height:1.25;flex:1;display:flex;align-items:center;padding:4px 0;overflow:hidden;word-break:break-word;min-width:0;}
+    .label-desc span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;word-wrap:break-word;width:100%;}
+    .label-edps{font-size:15px;font-weight:600;color:#000;line-height:1.3;}
+    .label-img-area{width:252px;flex-shrink:0;border-left:2px solid #000;display:flex;align-items:center;justify-content:center;background:#f5f5f5;overflow:hidden;}
+    .label-img-area img{width:100%;height:100%;object-fit:contain;padding:6px;}
+    .label-img-placeholder{font-size:11px;color:#bbb;text-align:center;font-family:Arial,sans-serif;padding:8px;}
 
-    /* unit toggle */
-    .unit-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-    .unit-btn { font-family: var(--mono); font-size: 0.7rem; padding: 5px 12px; cursor: pointer; border: none; background: transparent; color: var(--muted); letter-spacing: 0.06em; transition: all 0.15s; }
-    .unit-btn.active { background: var(--accent); color: #000; font-weight: 700; }
-
-    /* export/import */
-    .topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-    .tb-btn { font-family: var(--mono); font-size: 0.7rem; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; letter-spacing: 0.06em; transition: all 0.15s; white-space: nowrap; }
-    .tb-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .tb-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .tb-btn.primary:hover { filter: brightness(1.15); }
-    .export-badge { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
-    .export-badge.warn { color: var(--warn); }
-
-    /* ── APP LAYOUT ── */
-    .app { display: flex; height: calc(100vh - 56px); overflow: hidden; }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 220px; flex-shrink: 0; background: var(--mid); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; overflow-y: auto;
-    }
-    .sidebar-section { padding: 16px 14px 8px; }
-    .sidebar-label { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
-    .filter-btn {
-      display: block; width: 100%; text-align: left; padding: 7px 10px; border-radius: 4px;
-      font-family: var(--mono); font-size: 0.75rem; color: var(--muted); background: transparent;
-      border: none; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; margin-bottom: 2px;
-    }
-    .filter-btn:hover { background: var(--panel); color: var(--text); }
-    .filter-btn.active { background: var(--panel2); color: var(--accent); border-left: 2px solid var(--accent); }
-    .filter-count { float: right; font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
-
-    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 8px 14px; }
-
-    /* feature filters */
-    .feat-filter { display: flex; flex-direction: column; gap: 6px; padding: 0 14px 12px; }
-    .feat-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .feat-row input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; }
-    .feat-row label { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); cursor: pointer; letter-spacing: 0.04em; }
-    .feat-row input:checked + label { color: var(--accent); }
-
-    /* diameter range */
-    .range-filter { padding: 0 14px 16px; }
-    .range-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
-    .range-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 5px 8px; border-radius: 3px; width: 70px; outline: none; }
-    .range-input:focus { border-color: var(--accent); }
-    .range-sep { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
-
-    /* ── MAIN CONTENT ── */
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-    /* toolbar */
-    .content-toolbar {
-      padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; background: var(--mid);
-    }
-    .search-wrap { position: relative; flex: 1; max-width: 320px; }
-    .search-wrap input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.82rem; padding: 7px 10px 7px 32px; border-radius: 4px; outline: none; transition: border-color 0.15s; }
-    .search-wrap input:focus { border-color: var(--accent); }
-    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.8rem; pointer-events: none; }
-    .tool-count-badge { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
-    .tool-count-badge span { color: var(--accent); font-weight: 700; }
-
-    /* grid */
-    .tools-grid { flex: 1; overflow-y: auto; padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; align-content: start; }
-
-    /* tool card */
-    .tool-card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
-      padding: 14px; cursor: pointer; transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
-      position: relative; overflow: hidden;
-    }
-    .tool-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.2s; }
-    .tool-card:hover::before { transform: scaleX(1); }
-    .tool-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-
-    .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-    .tc-id { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
-    .tc-type-badge { font-family: var(--mono); font-size: 0.6rem; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--border2); color: var(--accent); background: rgba(0,170,255,0.08); letter-spacing: 0.06em; white-space: nowrap; }
-
-    .tc-photo { width: 100%; height: 80px; background: var(--bg); border-radius: 4px; margin-bottom: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
-    .tc-photo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .tc-photo-placeholder { font-size: 1.8rem; opacity: 0.2; }
-
-    .tc-name { font-family: var(--sans); font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
-    .tc-meta { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); line-height: 1.6; }
-    .tc-meta span { color: var(--text); }
-
-    .tc-footer { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
-    .tc-loc { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); flex: 1; }
-    .tc-loc span { color: var(--warn); font-weight: 600; }
-    .tc-print-btn { font-family: var(--mono); font-size: 0.62rem; padding: 3px 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 3px; cursor: pointer; transition: all 0.15s; }
-    .tc-print-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; }
-    .empty-state-icon { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
-    .empty-state-text { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
-
-    /* ── DETAIL / EDIT PANEL ── */
-    .detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; }
-    .detail-overlay.open { display: block; }
-    .detail-panel {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 560px; background: var(--mid);
-      border-left: 1px solid var(--border); z-index: 201; display: flex; flex-direction: column;
-      transform: translateX(100%); transition: transform 0.25s ease;
-      overflow: hidden;
-    }
-    .detail-panel.open { transform: translateX(0); }
-
-    .dp-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-    .dp-title { font-family: var(--display); font-size: 1.3rem; letter-spacing: 0.06em; flex: 1; }
-    .dp-id-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 3px; }
-    .dp-close { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 30px; height: 30px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
-    .dp-close:hover { border-color: var(--red); color: var(--red); }
-
-    .dp-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .dp-tab { font-family: var(--mono); font-size: 0.72rem; padding: 10px 16px; cursor: pointer; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; letter-spacing: 0.06em; transition: all 0.15s; }
-    .dp-tab:hover { color: var(--text); }
-    .dp-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .dp-body { flex: 1; overflow-y: auto; padding: 20px; }
-
-    /* view mode */
-    .detail-photo { width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; overflow: hidden; }
-    .detail-photo img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
-    .detail-photo-placeholder { font-size: 3rem; opacity: 0.15; }
-
-    .detail-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .detail-field { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
-    .detail-field-label { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
-    .detail-field-value { font-family: var(--mono); font-size: 0.85rem; color: var(--text); font-weight: 600; }
-    .detail-field.full { grid-column: 1/-1; }
-    .detail-field.highlight .detail-field-value { color: var(--accent); }
-
-    .detail-section-title { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin: 16px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-
-    .jobs-list { display: flex; flex-direction: column; gap: 6px; }
-    .job-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-family: var(--mono); font-size: 0.78rem; color: var(--text); }
-    .job-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; padding: 0; transition: color 0.15s; }
-    .job-remove:hover { color: var(--red); }
-    .job-add-row { display: flex; gap: 8px; margin-top: 8px; }
-    .job-select { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.78rem; padding: 7px 10px; border-radius: 4px; outline: none; }
-    .job-select:focus { border-color: var(--accent); }
-
-    .dp-actions { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; }
-    .dp-btn { font-family: var(--mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; border: none; border-radius: 4px; padding: 10px 16px; cursor: pointer; transition: opacity 0.2s; flex: 1; }
-    .dp-btn:hover { opacity: 0.85; }
-    .dp-btn.blue { background: var(--blue); color: #fff; }
-    .dp-btn.green { background: #00875a; color: #fff; }
-    .dp-btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-    .dp-btn.ghost:hover { color: var(--text); border-color: var(--muted); }
-    .dp-btn.danger { background: transparent; color: var(--red); border: 1px solid var(--red); }
-    .dp-btn.danger:hover { background: var(--red); color: #fff; opacity: 1; }
-
-    /* ── EDIT FORM ── */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-group.full { grid-column: 1/-1; }
-    .form-label { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-    .form-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 0.82rem; padding: 8px 10px; border-radius: 4px; outline: none; width: 100%; transition: border-color 0.15s; }
-    .form-input:focus { border-color: var(--accent); }
-    .form-input::placeholder { color: var(--muted); }
-    select.form-input { cursor: pointer; }
-    textarea.form-input { resize: vertical; min-height: 64px; font-size: 0.8rem; line-height: 1.5; }
-
-    /* photo upload in form */
-    .photo-upload-area { border: 2px dashed var(--border); border-radius: 6px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s; background: var(--bg); }
-    .photo-upload-area:hover, .photo-upload-area.drag-over { border-color: var(--accent); background: rgba(0,170,255,0.04); }
-    .photo-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-    .photo-upload-text { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
-    .photo-preview-wrap { position: relative; display: inline-block; }
-    .photo-preview { max-height: 80px; max-width: 100%; border-radius: 4px; display: block; margin: 0 auto; }
-    .photo-clear { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--red); color: #fff; border: none; border-radius: 50%; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-    .form-section-title { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; grid-column: 1/-1; padding-top: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
-
-    /* EDP in form */
-    .edp-form-list { display: flex; flex-direction: column; gap: 6px; }
-    .edp-form-row { display: flex; gap: 8px; align-items: center; }
-    .edp-form-row .form-input { flex: 1; }
-    .edp-rm { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.15s; flex-shrink: 0; }
-    .edp-rm:hover { border-color: var(--red); color: var(--red); }
-    .btn-add-edp-form { font-family: var(--mono); font-size: 0.68rem; color: var(--accent); background: transparent; border: 1px dashed var(--border); border-radius: 4px; padding: 6px 10px; cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s; text-align: left; margin-top: 4px; }
-    .btn-add-edp-form:hover { border-color: var(--accent); background: rgba(0,170,255,0.05); }
-
-    /* ── JOBS MANAGER MODAL ── */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 300; align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--mid); border: 1px solid var(--border); border-radius: 8px; width: 420px; max-height: 80vh; display: flex; flex-direction: column; animation: modalIn 0.18s ease; }
-    @keyframes modalIn { from { opacity:0; transform: scale(0.96) translateY(-8px); } to { opacity:1; transform: scale(1) translateY(0); } }
-    .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-family: var(--display); font-size: 1.1rem; letter-spacing: 0.06em; }
-    .modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
-    .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-
-    .job-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; font-family: var(--mono); font-size: 0.8rem; color: var(--text); }
-    .job-list-item-name { flex: 1; }
-    .job-list-rm { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: all 0.15s; }
-    .job-list-rm:hover { color: var(--red); background: rgba(255,68,68,0.1); }
-    .job-add-form { display: flex; gap: 8px; margin-top: 12px; }
-
-    /* ── PRINT ── */
-    #print-container { display: none; }
-    @media print {
-      body > *:not(#print-container) { display: none !important; }
-      #print-container { display: block !important; }
-      @page { size: 3.5in 1.1in; margin: 0; }
-      .print-page { page-break-after: always; width: 3.5in; height: 1.1in; overflow: hidden; }
-      .print-page:last-child { page-break-after: avoid; }
-      .print-page .label-card { width: 3.5in; height: 1.1in; border: none; border-radius: 0; box-shadow: none; }
-      .print-page .label-left { padding: 5px 6px; }
-      .print-page .label-lc { font-size: 16px; border-width: 1.5px; padding: 0 4px; min-width: 22px; }
-      .print-page .label-tool-id { font-size: 14px; border-width: 1.5px; border-radius: 25px; padding: 0 7px; }
-      .print-page .label-top-row { gap: 5px; }
-      .print-page .label-desc { font-size: 9px; padding: 2px 0; }
-      .print-page .label-edps { font-size: 8px; }
-      .print-page .label-img-area { width: 1.4in; border-left-width: 1px; }
-    }
-
-    /* label card (for print) */
-    .label-card { width: 630px; height: 198px; background: #fff; border: 1px solid #ccc; border-radius: 4px; display: flex; flex-direction: row; align-items: stretch; font-family: Arial, Helvetica, sans-serif; overflow: hidden; }
-    .label-left { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden; }
-    .label-top-row { display: flex; align-items: center; gap: 10px; }
-    .label-lc { font-size: 32px; font-weight: 900; color: #000; border: 3px solid #000; border-radius: 4px; padding: 0px 8px; line-height: 1.1; min-width: 44px; text-align: center; flex-shrink: 0; }
-    .label-tool-id { font-size: 28px; font-weight: 900; color: #000; border: 3px solid #000; border-radius: 50px; padding: 1px 14px; white-space: nowrap; line-height: 1.2; }
-    .label-desc { font-size: 18px; font-weight: 700; color: #000; line-height: 1.25; flex: 1; display: flex; align-items: center; padding: 4px 0; overflow: hidden; word-break: break-word; min-width: 0; }
-    .label-desc span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; word-wrap: break-word; width: 100%; }
-    .label-edps { font-size: 15px; font-weight: 600; color: #000; line-height: 1.3; }
-    .label-img-area { width: 252px; flex-shrink: 0; border-left: 2px solid #000; display: flex; align-items: center; justify-content: center; background: #f5f5f5; overflow: hidden; }
-    .label-img-area img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
-    .label-img-placeholder { font-size: 11px; color: #bbb; text-align: center; font-family: Arial, sans-serif; padding: 8px; }
-
-    /* scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
   </style>
 </head>
 <body>
+
+<!-- EXPORT BANNER -->
+<div class="export-banner" id="exportBanner">
+  <span class="export-banner-text">⚠ <strong>Backup Reminder:</strong> Your last export was <span id="bannerDays"></span> — export your library now to avoid losing data.</span>
+  <button class="export-banner-btn" onclick="exportLibrary()">⬇ Export Backup Now</button>
+  <button style="background:transparent;border:none;color:#ffe0b2;cursor:pointer;font-size:1rem;padding:0 4px;" onclick="document.getElementById('exportBanner').style.display='none'">✕</button>
+</div>
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -289,18 +294,22 @@
     <button class="unit-btn" id="unitMm" onclick="setUnit('mm')">MM</button>
   </div>
   <div class="topbar-right">
-    <span class="export-badge" id="exportBadge"></span>
+    <button class="tb-btn warn" id="exportBtn" onclick="exportLibrary()">⬇ Export Backup</button>
     <button class="tb-btn" onclick="document.getElementById('importInput').click()">⬆ Import</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importLibrary(event)" />
-    <button class="tb-btn" onclick="exportLibrary()">⬇ Export Backup</button>
-    <button class="tb-btn" onclick="openJobsModal()">⚙ Manage Jobs</button>
+    <button class="tb-btn" onclick="document.getElementById('csvTemplateLink').click()">⬇ CSV Template</button>
+    <a id="csvTemplateLink" style="display:none"></a>
+    <button class="tb-btn" onclick="document.getElementById('csvImportInput').click()">📋 Import CSV</button>
+    <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(event)" />
+    <button class="tb-btn" onclick="openModal('holdersModal')">⚙ Holders</button>
+    <button class="tb-btn" onclick="openModal('jobsModal')">⚙ Part Numbers</button>
+    <button class="tb-btn" onclick="openModal('rtaModal')">🔩 Build RTA</button>
     <button class="tb-btn primary" onclick="openAddTool()">+ Add Tool</button>
   </div>
 </div>
 
 <!-- APP -->
 <div class="app">
-
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-section">
@@ -322,33 +331,23 @@
       <button class="filter-btn" data-type="Boring Bar" onclick="setTypeFilter('Boring Bar')">Boring Bar <span class="filter-count" id="cnt-Boring Bar">0</span></button>
       <button class="filter-btn" data-type="Saw" onclick="setTypeFilter('Saw')">Saw / Slitting Saw <span class="filter-count" id="cnt-Saw">0</span></button>
     </div>
-
-    <hr class="sidebar-divider" />
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Features</div>
-    </div>
+    <hr class="sidebar-divider"/>
+    <div class="sidebar-section"><div class="sidebar-label">Features</div></div>
     <div class="feat-filter">
       <div class="feat-row"><input type="checkbox" id="f-tsc" onchange="applyFilters()"><label for="f-tsc">TSC Only</label></div>
       <div class="feat-row"><input type="checkbox" id="f-bc" onchange="applyFilters()"><label for="f-bc">Bottom Cutting</label></div>
       <div class="feat-row"><input type="checkbox" id="f-reduced" onchange="applyFilters()"><label for="f-reduced">Reduced Shank</label></div>
     </div>
-
-    <hr class="sidebar-divider" />
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Diameter Range <span style="color:var(--accent);font-size:0.6rem" id="diam-unit-label">(in)</span></div>
-    </div>
+    <hr class="sidebar-divider"/>
+    <div class="sidebar-section"><div class="sidebar-label">Diameter Range <span style="color:var(--accent);font-size:0.6rem" id="diam-unit-label">(in)</span></div></div>
     <div class="range-filter">
       <div class="range-row">
-        <input class="range-input" type="number" id="diam-min" placeholder="Min" step="0.001" oninput="applyFilters()" />
+        <input class="range-input" type="number" id="diam-min" placeholder="Min" step="0.001" oninput="applyFilters()"/>
         <span class="range-sep">—</span>
-        <input class="range-input" type="number" id="diam-max" placeholder="Max" step="0.001" oninput="applyFilters()" />
+        <input class="range-input" type="number" id="diam-max" placeholder="Max" step="0.001" oninput="applyFilters()"/>
       </div>
     </div>
-
-    <hr class="sidebar-divider" />
-
+    <hr class="sidebar-divider"/>
     <div class="sidebar-section">
       <div class="sidebar-label">Job / Part #</div>
       <select id="job-filter" class="form-input" style="margin-top:4px;font-size:0.72rem" onchange="applyFilters()">
@@ -357,24 +356,27 @@
     </div>
   </div>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <div class="main-content">
     <div class="content-toolbar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search tools..." oninput="applyFilters()" />
+        <input type="text" id="searchInput" placeholder="Search tools..." oninput="applyFilters()"/>
       </div>
-      <div class="tool-count-badge"><span id="visibleCount">0</span> tools shown</div>
+      <div class="tool-count-badge"><span id="visibleCount">0</span> shown</div>
+      <div class="view-tabs">
+        <button class="view-tab active" id="vt-tools" onclick="setView('tools')">Tools</button>
+        <button class="view-tab" id="vt-jobs" onclick="setView('jobs')">Jobs</button>
+      </div>
     </div>
-    <div class="tools-grid" id="toolsGrid"></div>
+    <div id="toolsGrid" class="tools-grid"></div>
+    <div id="jobView" class="job-view" style="display:none"></div>
+    <div id="jobDetailView" class="job-detail-view" style="display:none"></div>
   </div>
-
 </div>
 
-<!-- DETAIL PANEL OVERLAY -->
+<!-- DETAIL OVERLAY -->
 <div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
-
-<!-- DETAIL / EDIT PANEL -->
 <div class="detail-panel" id="detailPanel">
   <div class="dp-header">
     <div class="dp-title" id="dpTitle">Tool Detail</div>
@@ -383,6 +385,7 @@
   </div>
   <div class="dp-tabs">
     <button class="dp-tab active" onclick="switchDpTab('detail')">Detail</button>
+    <button class="dp-tab" onclick="switchDpTab('rtas')">RTAs</button>
     <button class="dp-tab" onclick="switchDpTab('jobs')">Jobs</button>
     <button class="dp-tab" onclick="switchDpTab('edit')">Edit</button>
   </div>
@@ -390,22 +393,86 @@
   <div class="dp-actions" id="dpActions"></div>
 </div>
 
+<!-- BACKUP WARNING MODAL -->
+<div class="modal-overlay" id="backupModal">
+  <div class="modal">
+    <div class="modal-body" style="text-align:center;padding:28px 24px;">
+      <span class="backup-modal-icon">⚠️</span>
+      <div class="backup-modal-msg">Your library hasn't been backed up in a while.<br>If your browser data is cleared, <strong>you will lose all your tools.</strong></div>
+      <span class="backup-modal-days" id="backupDays">—</span>
+      <span class="backup-modal-sub">days since last export</span>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+        <button class="dp-btn green" style="flex:0;padding:10px 24px;font-size:0.82rem" onclick="exportLibrary();closeModal('backupModal')">⬇ Export Backup Now</button>
+        <button class="dp-btn ghost" style="flex:0;padding:10px 16px;font-size:0.78rem" onclick="closeModal('backupModal')">Remind me later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- JOBS MODAL -->
 <div class="modal-overlay" id="jobsModal">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Manage Part Numbers</div>
-      <button class="dp-close" onclick="closeJobsModal()">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Part Numbers</div><button class="dp-close" onclick="closeModal('jobsModal')">✕</button></div>
     <div class="modal-body">
       <div id="jobListContainer"></div>
-      <div class="job-add-form">
-        <input class="form-input" id="newJobInput" placeholder="Enter part number..." style="flex:1" onkeydown="if(event.key==='Enter')addJob()" />
+      <div class="add-form-row">
+        <input class="form-input" id="newJobInput" placeholder="Enter part number..." style="flex:1" onkeydown="if(event.key==='Enter')addJob()"/>
         <button class="tb-btn primary" onclick="addJob()">Add</button>
       </div>
     </div>
+    <div class="modal-footer"><button class="dp-btn ghost" style="flex:0;padding:8px 20px" onclick="closeModal('jobsModal')">Done</button></div>
+  </div>
+</div>
+
+<!-- HOLDERS MODAL -->
+<div class="modal-overlay" id="holdersModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Holders</div><button class="dp-close" onclick="closeModal('holdersModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="holderListContainer"></div>
+      <div class="add-form-row">
+        <input class="form-input" id="newHolderInput" placeholder="e.g. NBT30-SK13C-120" style="flex:1" onkeydown="if(event.key==='Enter')addHolder()"/>
+        <button class="tb-btn primary" onclick="addHolder()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="dp-btn ghost" style="flex:0;padding:8px 20px" onclick="closeModal('holdersModal')">Done</button></div>
+  </div>
+</div>
+
+<!-- RTA BUILDER MODAL -->
+<div class="modal-overlay" id="rtaModal">
+  <div class="modal wide">
+    <div class="modal-header"><div class="modal-title">Build RTA</div><button class="dp-close" onclick="closeModal('rtaModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="rta-form">
+        <div class="form-group full">
+          <label class="form-label">Tool</label>
+          <select class="form-input" id="rta-tool" onchange="updateRtaPreview()"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Holder</label>
+          <select class="form-input" id="rta-holder" onchange="updateRtaPreview()">
+            <option value="">Select holder...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">OOH (inches)</label>
+          <input class="form-input" id="rta-ooh" type="number" step="0.001" placeholder="e.g. 1.30" oninput="updateRtaPreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">RTA Name / ID</label>
+          <input class="form-input" id="rta-name" type="text" placeholder="e.g. R-19" oninput="updateRtaPreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input class="form-input" id="rta-notes" type="text" placeholder="Optional notes"/>
+        </div>
+      </div>
+      <div class="rta-preview" id="rtaPreview">Fill in the fields above to preview the RTA.</div>
+    </div>
     <div class="modal-footer">
-      <button class="dp-btn ghost" style="flex:0;padding:8px 20px" onclick="closeJobsModal()">Done</button>
+      <button class="dp-btn blue" onclick="saveRTA()">💾 Save RTA</button>
+      <button class="dp-btn ghost" onclick="closeModal('rtaModal')">Cancel</button>
     </div>
   </div>
 </div>
@@ -414,819 +481,808 @@
 <div id="print-container"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════
-let library     = { tools: [], jobs: [], nextId: 1, lastExport: null };
+// ═══════════════════════════════════════════
+let library = { tools:[], jobs:[], holders:[], rtas:[], nextId:1, lastExport:null };
 let currentUnit = 'in';
 let typeFilter  = 'ALL';
 let activeTool  = null;
-let dpMode      = 'detail'; // 'detail' | 'jobs' | 'edit'
-let editPhoto   = null;     // base64 for current edit session
+let dpMode      = 'detail';
+let editPhoto   = null;
+let currentView = 'tools';
+let currentJob  = null;
 
-const TOOL_TYPES = [
-  'Endmill','Ball Mill','Bull Nose Mill','Chamfer Mill','Corner Rounding',
+const TOOL_TYPES=['Endmill','Ball Mill','Bull Nose Mill','Chamfer Mill','Corner Rounding',
   'Thread Mill','Insert Mill Body','Insert','Drill','Spot Drill','Center Drill',
-  'Tap','Reamer','Boring Bar','Saw'
-];
+  'Tap','Reamer','Boring Bar','Saw'];
+const COATINGS=['None','TiN','TiAlN','AlTiN','ZrN','DLC','TiCN','TiB2','Diamond','Other'];
+const TAP_TYPES=['Bottoming','Spiral Cut','Straight Cut','Form/Roll'];
+const THREAD_STDS=['UNC','UNF','UNEF','Metric','BSPP','BSPT','NPT','Other'];
+const DRILL_TYPES=['Twist','Indexable','Spade','Gun','Step'];
+const REAMER_TYPES=['Machine','Hand','Adjustable'];
+const CD_TYPES=['Type A','Type B','Type R'];
+const BC_TYPES=['Full Center Cutting','Partial Center Cutting','Non Center Cutting'];
 
-const COATINGS = ['None','TiN','TiAlN','AlTiN','ZrN','DLC','TiCN','TiB2','Diamond','Other'];
-const TAP_TYPES = ['Bottoming','Spiral Cut','Straight Cut','Form/Roll'];
-const THREAD_STDS = ['UNC','UNF','UNEF','Metric','BSPP','BSPT','NPT','Other'];
-const DRILL_TYPES = ['Twist','Indexable','Spade','Gun','Step'];
-const REAMER_TYPES = ['Machine','Hand','Adjustable'];
-const CD_TYPES = ['Type A','Type B','Type R'];
-const BC_TYPES = ['Full Center Cutting','Partial Center Cutting','Non Center Cutting'];
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // PERSISTENCE
-// ═══════════════════════════════════════════════════════
-function saveLibrary() {
-  localStorage.setItem('apw_tool_library', JSON.stringify(library));
-  updateExportBadge();
+// ═══════════════════════════════════════════
+function saveLibrary(){
+  localStorage.setItem('apw_tool_library_v2',JSON.stringify(library));
+  updateExportUI();
 }
-
-function loadLibrary() {
-  const raw = localStorage.getItem('apw_tool_library');
-  if (raw) {
-    try { library = JSON.parse(raw); }
-    catch(e) { console.error('Failed to load library', e); }
-  }
-  updateExportBadge();
+function loadLibrary(){
+  const raw=localStorage.getItem('apw_tool_library_v2');
+  if(raw){try{library=JSON.parse(raw);}catch(e){}}
+  if(!library.holders) library.holders=[];
+  if(!library.rtas) library.rtas=[];
+  updateExportUI();
+  checkBackupReminder();
 }
-
-function exportLibrary() {
-  library.lastExport = new Date().toISOString();
+function exportLibrary(){
+  library.lastExport=new Date().toISOString();
   saveLibrary();
-  const blob = new Blob([JSON.stringify(library, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = 'tool-library-backup.json'; a.click();
+  const blob=new Blob([JSON.stringify(library,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='tool-library-backup.json'; a.click();
   URL.revokeObjectURL(url);
-  updateExportBadge();
+  updateExportUI();
+  document.getElementById('exportBanner').style.display='none';
 }
-
-function importLibrary(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (data.tools && Array.isArray(data.tools)) {
-        library = data;
-        saveLibrary();
-        renderAll();
-        alert('Library imported successfully — ' + library.tools.length + ' tools loaded.');
-      } else { alert('Invalid library file.'); }
-    } catch(err) { alert('Could not read file: ' + err.message); }
+function importLibrary(e){
+  const file=e.target.files[0]; if(!file) return;
+  if(!confirm('This will replace your current library. Export first if you have unsaved changes. Continue?')) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(data.tools&&Array.isArray(data.tools)){
+        library=data;
+        if(!library.holders) library.holders=[];
+        if(!library.rtas) library.rtas=[];
+        saveLibrary(); renderAll();
+        alert('Imported '+library.tools.length+' tools successfully.');
+      } else alert('Invalid library file.');
+    } catch(err){ alert('Could not read file: '+err.message); }
   };
   reader.readAsText(file);
-  e.target.value = '';
+  e.target.value='';
+}
+function updateExportUI(){
+  const days=library.lastExport ? Math.floor((Date.now()-new Date(library.lastExport))/86400000) : 999;
+  const btn=document.getElementById('exportBtn');
+  const banner=document.getElementById('exportBanner');
+  const bannerDays=document.getElementById('bannerDays');
+  if(days===0){ btn.textContent='⬇ Exported Today'; btn.className='tb-btn'; }
+  else if(days<=7){ btn.textContent='⬇ Export ('+days+'d ago)'; btn.className='tb-btn'; }
+  else { btn.textContent='⚠ Export Now! ('+days+'d)'; btn.className='tb-btn warn'; }
+  if(days>=3){
+    banner.classList.add('show');
+    bannerDays.textContent=days===999?'never':days+'d ago';
+  }
+}
+function checkBackupReminder(){
+  if(!library.tools.length) return;
+  const days=library.lastExport ? Math.floor((Date.now()-new Date(library.lastExport))/86400000) : 999;
+  if(days>=7){
+    document.getElementById('backupDays').textContent=days===999?'Never':days;
+    openModal('backupModal');
+  }
+}
+function downloadCSVTemplate(){
+  const headers=['type','description','toolIdNum','location','holder','diameter','loc','reach','reducedShank',
+    'coating','tsc','flutes','helixAngle','cornerRadius','bottomCutting','includedAngle','tipDiameter',
+    'tipFlatDiam','radius','pitchMin','pitchMax','teethCount','tipToThread','tipFlatLen','threadIntExt',
+    'pointAngle','splitPoint','drillType','tipFlat','cdType','pitch','tapType','threadStd','reamType',
+    'minBore','maxBore','kerfWidth','arborDiam','maxRPM','arborBore','insertDesig','insertGeom',
+    'insertGrade','qtyOnHand','reorderQty','vendor','orderNum','edps','notes'];
+  const csv=headers.join(',')+'\n';
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='tool-library-template.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importCSV(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const lines=ev.target.result.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length<2){alert('CSV appears empty.');return;}
+    const headers=lines[0].split(',').map(h=>h.trim());
+    let imported=0;
+    for(let i=1;i<lines.length;i++){
+      const vals=lines[i].split(',');
+      const obj={id:String(library.nextId||1).padStart(3,'0'),jobs:[],edps:[]};
+      library.nextId=(library.nextId||1)+1;
+      headers.forEach((h,idx)=>{
+        const v=(vals[idx]||'').trim();
+        if(h==='edps') obj.edps=v?v.split(';').map(x=>x.trim()):[];
+        else obj[h]=v;
+      });
+      if(obj.type&&TOOL_TYPES.includes(obj.type)){library.tools.push(obj);imported++;}
+    }
+    saveLibrary(); renderAll();
+    alert('Imported '+imported+' tools from CSV.');
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 
-function updateExportBadge() {
-  const badge = document.getElementById('exportBadge');
-  if (!library.lastExport) { badge.textContent = 'Never exported'; badge.className = 'export-badge warn'; return; }
-  const days = Math.floor((Date.now() - new Date(library.lastExport)) / 86400000);
-  if (days === 0) { badge.textContent = 'Exported today'; badge.className = 'export-badge'; }
-  else if (days <= 7) { badge.textContent = `Exported ${days}d ago`; badge.className = 'export-badge'; }
-  else { badge.textContent = `⚠ Exported ${days}d ago`; badge.className = 'export-badge warn'; }
-}
-
-// ═══════════════════════════════════════════════════════
-// UNIT TOGGLE
-// ═══════════════════════════════════════════════════════
-function setUnit(u) {
-  currentUnit = u;
-  document.getElementById('unitIn').classList.toggle('active', u === 'in');
-  document.getElementById('unitMm').classList.toggle('active', u === 'mm');
-  document.getElementById('diam-unit-label').textContent = '(' + u + ')';
+// ═══════════════════════════════════════════
+// UNIT
+// ═══════════════════════════════════════════
+function setUnit(u){
+  currentUnit=u;
+  document.getElementById('unitIn').classList.toggle('active',u==='in');
+  document.getElementById('unitMm').classList.toggle('active',u==='mm');
+  document.getElementById('diam-unit-label').textContent='('+u+')';
   renderAll();
 }
+function displayDiam(val){
+  if(!val&&val!==0) return '—';
+  const n=parseFloat(val); if(isNaN(n)) return val;
+  return currentUnit==='mm'?(n*25.4).toFixed(3)+' mm':n.toFixed(4)+'"';
+}
+function displayLen(val){return displayDiam(val);}
 
-function displayDiam(val) {
-  if (!val && val !== 0) return '—';
-  const n = parseFloat(val);
-  if (isNaN(n)) return val;
-  if (currentUnit === 'mm') return (n * 25.4).toFixed(3) + ' mm';
-  return n.toFixed(4) + '"';
+// ═══════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════
+function setView(v){
+  currentView=v;
+  document.getElementById('vt-tools').classList.toggle('active',v==='tools');
+  document.getElementById('vt-jobs').classList.toggle('active',v==='jobs');
+  document.getElementById('toolsGrid').style.display=v==='tools'?'':'none';
+  document.getElementById('jobView').style.display=v==='jobs'?'block':'none';
+  document.getElementById('jobDetailView').style.display='none';
+  if(v==='jobs') renderJobView();
+  if(v==='tools') applyFilters();
 }
 
-function displayLen(val) { return displayDiam(val); }
-
-// ═══════════════════════════════════════════════════════
-// TOOL ID
-// ═══════════════════════════════════════════════════════
-function nextToolId() {
-  const id = library.nextId || 1;
-  library.nextId = id + 1;
-  return String(id).padStart(3, '0');
-}
-
-// ═══════════════════════════════════════════════════════
-// FILTERS & RENDER
-// ═══════════════════════════════════════════════════════
-function setTypeFilter(type) {
-  typeFilter = type;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
-  applyFilters();
-}
-
-function applyFilters() {
-  const q       = document.getElementById('searchInput').value.trim().toLowerCase();
-  const tsc     = document.getElementById('f-tsc').checked;
-  const bc      = document.getElementById('f-bc').checked;
-  const reduced = document.getElementById('f-reduced').checked;
-  const dMin    = parseFloat(document.getElementById('diam-min').value);
-  const dMax    = parseFloat(document.getElementById('diam-max').value);
-  const jobF    = document.getElementById('job-filter').value;
-
-  const filtered = library.tools.filter(t => {
-    if (typeFilter !== 'ALL' && t.type !== typeFilter) return false;
-    if (tsc && t.tsc !== 'Yes') return false;
-    if (bc  && t.bottomCutting === 'Non Center Cutting') return false;
-    if (reduced && t.reducedShank !== 'Yes') return false;
-    if (!isNaN(dMin)) {
-      const dv = currentUnit === 'mm' ? (parseFloat(t.diameter||0)*25.4) : parseFloat(t.diameter||0);
-      if (isNaN(dv) || dv < dMin) return false;
-    }
-    if (!isNaN(dMax)) {
-      const dv = currentUnit === 'mm' ? (parseFloat(t.diameter||0)*25.4) : parseFloat(t.diameter||0);
-      if (isNaN(dv) || dv > dMax) return false;
-    }
-    if (jobF && !(t.jobs||[]).includes(jobF)) return false;
-    if (q) {
-      const hay = [t.id,t.type,t.description,t.proShopNum,t.rtaNum,t.location,
-                   t.vendor,t.edps||'',(t.jobs||[]).join(' ')].join(' ').toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-
-  renderGrid(filtered);
-  document.getElementById('visibleCount').textContent = filtered.length;
-}
-
-function renderAll() {
-  updateTypeCounts();
-  updateJobFilter();
-  applyFilters();
-}
-
-function updateTypeCounts() {
-  const counts = {};
-  TOOL_TYPES.forEach(t => counts[t] = 0);
-  library.tools.forEach(t => { if (counts[t.type] !== undefined) counts[t.type]++; });
-  const total = library.tools.length;
-  const allEl = document.getElementById('cnt-ALL');
-  if (allEl) allEl.textContent = total;
-  TOOL_TYPES.forEach(t => {
-    const el = document.getElementById('cnt-' + t);
-    if (el) el.textContent = counts[t] || 0;
-  });
-}
-
-function updateJobFilter() {
-  const sel = document.getElementById('job-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All Jobs</option>';
-  (library.jobs||[]).forEach(j => {
-    const o = document.createElement('option');
-    o.value = j; o.textContent = j;
-    if (j === cur) o.selected = true;
-    sel.appendChild(o);
-  });
-}
-
-function renderGrid(tools) {
-  const grid = document.getElementById('toolsGrid');
-  if (!tools.length) {
-    grid.innerHTML = `<div class="empty-state">
-      <span class="empty-state-icon">🔧</span>
-      <div class="empty-state-text">No tools found. Add your first tool or adjust filters.</div>
-      <button class="tb-btn primary" onclick="openAddTool()">+ Add Tool</button>
-    </div>`;
+function renderJobView(){
+  const jv=document.getElementById('jobView');
+  if(!library.jobs||!library.jobs.length){
+    jv.innerHTML='<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-text">No part numbers yet. Add them via ⚙ Part Numbers.</div></div>';
     return;
   }
-  grid.innerHTML = tools.map(t => buildToolCard(t)).join('');
+  jv.innerHTML='<div style="margin-bottom:16px;font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Part Numbers — click to view tools</div>'
+    +'<div class="job-cards">'
+    +library.jobs.map(j=>{
+      const count=library.tools.filter(t=>(t.jobs||[]).includes(j)).length;
+      return `<div class="job-card" onclick="openJobDetail('${esc(j)}')">
+        <div class="job-card-num">${esc(j)}</div>
+        <div class="job-card-count">${count} tool${count!==1?'s':''} linked</div>
+      </div>`;
+    }).join('')+'</div>';
 }
 
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function openJobDetail(jobNum){
+  currentJob=jobNum;
+  document.getElementById('jobView').style.display='none';
+  const jdv=document.getElementById('jobDetailView');
+  jdv.style.display='block';
+  const tools=library.tools.filter(t=>(t.jobs||[]).includes(jobNum));
+  jdv.innerHTML=`<div class="job-detail-header">
+    <button class="job-detail-back" onclick="backToJobs()">← All Jobs</button>
+    <div class="job-detail-title">${esc(jobNum)}</div>
+    <div class="job-detail-count">${tools.length} tool${tools.length!==1?'s':''}</div>
+    <button class="tb-btn" onclick="printJobSetupSheet('${esc(jobNum)}')">🖨 Print Setup Sheet</button>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="setup-table">
+    <thead><tr>
+      <th>#</th><th>Tool ID</th><th>Type</th><th>Description</th><th>Holder</th>
+      <th>OOH</th><th>Gage Length</th><th>Cut Ø</th><th>LOC</th><th>Coating</th><th>TSC</th><th>Location</th>
+    </tr></thead>
+    <tbody>${tools.map((t,i)=>`<tr onclick="openDetail('${t.id}')" style="cursor:pointer">
+      <td class="seq-num">${i+1}</td>
+      <td class="id">${esc(t.toolIdNum||t.id)}</td>
+      <td>${esc(t.type||'')}</td>
+      <td>${esc(t.description||'')}</td>
+      <td>${esc(t.holder||'')}</td>
+      <td class="dim">${t.reach?displayLen(t.reach):'—'}</td>
+      <td class="dim">${t.loc?displayLen(t.loc):'—'}</td>
+      <td class="dim">${t.diameter?displayDiam(t.diameter):'—'}</td>
+      <td>${t.loc?displayLen(t.loc):'—'}</td>
+      <td>${esc(t.coating||'')}</td>
+      <td>${t.tsc==='Yes'?'<span style="color:var(--green)">✓</span>':''}</td>
+      <td><span style="color:var(--warn);font-weight:600">${esc(t.location||'—')}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
 }
 
-function buildToolCard(t) {
-  const photoHTML = t.photo
-    ? `<img src="${t.photo}" alt="tool" />`
-    : `<span class="tc-photo-placeholder">🔧</span>`;
+function backToJobs(){
+  document.getElementById('jobDetailView').style.display='none';
+  document.getElementById('jobView').style.display='block';
+}
 
-  const metaLines = [];
-  if (t.diameter) metaLines.push(`Ø <span>${displayDiam(t.diameter)}</span>`);
-  if (t.flutes)   metaLines.push(`Flutes <span>${esc(t.flutes)}</span>`);
-  if (t.loc)      metaLines.push(`LOC <span>${displayLen(t.loc)}</span>`);
-  if (t.coating && t.coating !== 'None') metaLines.push(`Coating <span>${esc(t.coating)}</span>`);
-  if (t.tsc === 'Yes') metaLines.push(`<span style="color:var(--green)">TSC</span>`);
-  if (t.bottomCutting && t.bottomCutting !== 'Non Center Cutting') metaLines.push(`<span style="color:var(--accent)">Center Cut</span>`);
+function printJobSetupSheet(jobNum){
+  const tools=library.tools.filter(t=>(t.jobs||[]).includes(jobNum));
+  const rows=tools.map((t,i)=>`<tr>
+    <td>${i+1}</td><td>${esc(t.toolIdNum||t.id)}</td><td>${esc(t.type||'')}</td>
+    <td>${esc(t.description||'')}</td><td>${esc(t.holder||'')}</td>
+    <td>${t.reach?displayLen(t.reach):'—'}</td><td>${t.loc?displayLen(t.loc):'—'}</td>
+    <td>${t.diameter?displayDiam(t.diameter):'—'}</td><td>${esc(t.location||'—')}</td>
+  </tr>`).join('');
+  const html=`<html><head><title>Setup Sheet - ${jobNum}</title>
+  <style>body{font-family:Arial,sans-serif;padding:20px;}
+  h2{margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;font-size:11px;}
+  th{background:#eee;padding:6px 8px;text-align:left;border:1px solid #ccc;font-size:10px;}
+  td{padding:5px 8px;border:1px solid #ddd;}
+  </style></head><body>
+  <h2>Setup Sheet — Part # ${jobNum}</h2>
+  <table><thead><tr><th>#</th><th>Tool ID</th><th>Type</th><th>Description</th><th>Holder</th><th>OOH</th><th>Gage Length</th><th>Cut Ø</th><th>Location</th></tr></thead>
+  <tbody>${rows}</tbody></table></body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(html); w.document.close(); w.print();
+}
 
+// ═══════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════
+function setTypeFilter(type){
+  typeFilter=type;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
+  applyFilters();
+}
+function applyFilters(){
+  if(currentView!=='tools') return;
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const tsc=document.getElementById('f-tsc').checked;
+  const bc=document.getElementById('f-bc').checked;
+  const reduced=document.getElementById('f-reduced').checked;
+  const dMin=parseFloat(document.getElementById('diam-min').value);
+  const dMax=parseFloat(document.getElementById('diam-max').value);
+  const jobF=document.getElementById('job-filter').value;
+  const filtered=library.tools.filter(t=>{
+    if(typeFilter!=='ALL'&&t.type!==typeFilter) return false;
+    if(tsc&&t.tsc!=='Yes') return false;
+    if(bc&&t.bottomCutting==='Non Center Cutting') return false;
+    if(reduced&&t.reducedShank!=='Yes') return false;
+    if(!isNaN(dMin)){const dv=currentUnit==='mm'?(parseFloat(t.diameter||0)*25.4):parseFloat(t.diameter||0);if(isNaN(dv)||dv<dMin) return false;}
+    if(!isNaN(dMax)){const dv=currentUnit==='mm'?(parseFloat(t.diameter||0)*25.4):parseFloat(t.diameter||0);if(isNaN(dv)||dv>dMax) return false;}
+    if(jobF&&!(t.jobs||[]).includes(jobF)) return false;
+    if(q){const hay=[t.id,t.type,t.description,t.toolIdNum,t.location,t.vendor,t.edps||'',(t.jobs||[]).join(' ')].join(' ').toLowerCase();if(!hay.includes(q)) return false;}
+    return true;
+  });
+  renderGrid(filtered);
+  document.getElementById('visibleCount').textContent=filtered.length;
+}
+function renderAll(){
+  updateTypeCounts(); updateJobFilter(); applyFilters();
+  if(currentView==='jobs') renderJobView();
+}
+function updateTypeCounts(){
+  const counts={};
+  TOOL_TYPES.forEach(t=>counts[t]=0);
+  library.tools.forEach(t=>{if(counts[t.type]!==undefined) counts[t.type]++;});
+  const allEl=document.getElementById('cnt-ALL');
+  if(allEl) allEl.textContent=library.tools.length;
+  TOOL_TYPES.forEach(t=>{const el=document.getElementById('cnt-'+t);if(el) el.textContent=counts[t]||0;});
+}
+function updateJobFilter(){
+  const sel=document.getElementById('job-filter');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">All Jobs</option>';
+  (library.jobs||[]).forEach(j=>{const o=document.createElement('option');o.value=j;o.textContent=j;if(j===cur)o.selected=true;sel.appendChild(o);});
+}
+function renderGrid(tools){
+  const grid=document.getElementById('toolsGrid');
+  if(!tools.length){
+    grid.innerHTML=`<div class="empty-state"><span class="empty-state-icon">🔧</span><div class="empty-state-text">No tools found.</div><button class="tb-btn primary" onclick="openAddTool()">+ Add Tool</button></div>`;
+    return;
+  }
+  grid.innerHTML=tools.map(t=>buildToolCard(t)).join('');
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function buildToolCard(t){
+  const photoHTML=t.photo?`<img src="${t.photo}" alt="tool"/>`:`<span class="tc-photo-placeholder">🔧</span>`;
+  const metaLines=[];
+  if(t.diameter) metaLines.push(`Ø <span>${displayDiam(t.diameter)}</span>`);
+  if(t.flutes) metaLines.push(`${esc(t.flutes)}FL`);
+  if(t.loc) metaLines.push(`LOC <span>${displayLen(t.loc)}</span>`);
+  if(t.coating&&t.coating!=='None') metaLines.push(esc(t.coating));
+  if(t.tsc==='Yes') metaLines.push(`<span style="color:var(--green)">TSC</span>`);
   return `<div class="tool-card" onclick="openDetail('${t.id}')">
-    <div class="tc-top">
-      <div class="tc-id">#${esc(t.id)}</div>
-      <div class="tc-type-badge">${esc(t.type)}</div>
-    </div>
+    <div class="tc-top"><div class="tc-id">#${esc(t.id)}</div><div class="tc-type-badge">${esc(t.type)}</div></div>
     <div class="tc-photo">${photoHTML}</div>
-    <div class="tc-name">${esc(t.description || 'Unnamed Tool')}</div>
+    <div class="tc-name">${esc(t.description||'Unnamed Tool')}</div>
     <div class="tc-meta">${metaLines.join(' · ')}</div>
     <div class="tc-footer">
-      <div class="tc-loc">LC <span>${esc(t.location || '—')}</span></div>
+      <div class="tc-loc">LC <span>${esc(t.location||'—')}</span></div>
       <button class="tc-print-btn" onclick="event.stopPropagation();printBinLabel('${t.id}')">🏷 Label</button>
     </div>
   </div>`;
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // DETAIL PANEL
-// ═══════════════════════════════════════════════════════
-function openDetail(id) {
-  activeTool = library.tools.find(t => t.id === id);
-  if (!activeTool) return;
-  dpMode = 'detail';
-  editPhoto = activeTool.photo || null;
-  document.getElementById('dpTitle').textContent = activeTool.description || 'Tool #' + activeTool.id;
-  document.getElementById('dpIdBadge').textContent = '#' + activeTool.id;
+// ═══════════════════════════════════════════
+function openDetail(id){
+  activeTool=library.tools.find(t=>t.id===id); if(!activeTool) return;
+  dpMode='detail'; editPhoto=activeTool.photo||null;
+  document.getElementById('dpTitle').textContent=activeTool.description||'Tool #'+activeTool.id;
+  document.getElementById('dpIdBadge').textContent='#'+activeTool.id;
   renderDpTab();
   document.getElementById('detailOverlay').classList.add('open');
   document.getElementById('detailPanel').classList.add('open');
 }
-
-function closeDetail() {
+function closeDetail(){
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('detailPanel').classList.remove('open');
-  activeTool = null;
+  activeTool=null;
 }
-
-function switchDpTab(tab) {
-  dpMode = tab;
-  document.querySelectorAll('.dp-tab').forEach((t,i) => t.classList.toggle('active', ['detail','jobs','edit'][i] === tab));
+function switchDpTab(tab){
+  dpMode=tab;
+  const tabs=['detail','rtas','jobs','edit'];
+  document.querySelectorAll('.dp-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   renderDpTab();
 }
-
-function renderDpTab() {
-  if (dpMode === 'detail') renderDetailView();
-  else if (dpMode === 'jobs') renderJobsView();
+function renderDpTab(){
+  if(dpMode==='detail') renderDetailView();
+  else if(dpMode==='rtas') renderRtasView();
+  else if(dpMode==='jobs') renderJobsView();
   else renderEditView();
 }
-
-function renderDetailView() {
-  const t = activeTool;
-  const fields = getDetailFields(t);
-
-  const photoHTML = t.photo
-    ? `<img src="${t.photo}" alt="tool" />`
-    : `<div class="detail-photo-placeholder">🔧</div>`;
-
-  const edpHTML = t.edps && t.edps.length
-    ? t.edps.map(e => `<span style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:2px 8px;font-family:var(--mono);font-size:0.78rem;margin-right:6px;margin-bottom:4px;display:inline-block">${esc(e)}</span>`).join('')
-    : '<span style="color:var(--muted);font-family:var(--mono);font-size:0.78rem">None</span>';
-
-  document.getElementById('dpBody').innerHTML = `
+function renderDetailView(){
+  const t=activeTool;
+  const fields=getDetailFields(t);
+  const photoHTML=t.photo?`<img src="${t.photo}" alt="tool"/>`:`<div class="detail-photo-placeholder">🔧</div>`;
+  const edpHTML=(t.edps&&t.edps.length)?t.edps.map(e=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:2px 8px;font-family:var(--mono);font-size:0.75rem;margin-right:6px;margin-bottom:4px;display:inline-block">${esc(e)}</span>`).join(''):`<span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">None</span>`;
+  document.getElementById('dpBody').innerHTML=`
     <div class="detail-photo">${photoHTML}</div>
     <div class="detail-fields">
-      ${fields.map(f => `<div class="detail-field${f.full?' full':''}${f.highlight?' highlight':''}">
-        <div class="detail-field-label">${esc(f.label)}</div>
-        <div class="detail-field-value">${f.value}</div>
-      </div>`).join('')}
-      <div class="detail-field full">
-        <div class="detail-field-label">EDP Numbers</div>
-        <div class="detail-field-value" style="font-weight:400">${edpHTML}</div>
-      </div>
-      ${t.notes ? `<div class="detail-field full">
-        <div class="detail-field-label">Notes</div>
-        <div class="detail-field-value" style="font-weight:400;font-size:0.8rem;line-height:1.5;white-space:pre-wrap">${esc(t.notes)}</div>
-      </div>` : ''}
+      ${fields.map(f=>`<div class="detail-field${f.full?' full':''}${f.highlight?' highlight':''}"><div class="detail-field-label">${esc(f.label)}</div><div class="detail-field-value">${f.value}</div></div>`).join('')}
+      <div class="detail-field full"><div class="detail-field-label">EDP Numbers</div><div class="detail-field-value" style="font-weight:400">${edpHTML}</div></div>
+      ${t.notes?`<div class="detail-field full"><div class="detail-field-label">Notes</div><div class="detail-field-value" style="font-weight:400;font-size:0.78rem;line-height:1.5;white-space:pre-wrap">${esc(t.notes)}</div></div>`:''}
     </div>`;
-
-  document.getElementById('dpActions').innerHTML = `
+  document.getElementById('dpActions').innerHTML=`
     <button class="dp-btn blue" onclick="switchDpTab('edit')">✏ Edit</button>
-    <button class="dp-btn green" onclick="printBinLabel('${t.id}')">🏷 Print Bin Label</button>
-    <button class="dp-btn danger" onclick="deleteTool('${t.id}')">🗑 Delete</button>`;
+    <button class="dp-btn green" onclick="printBinLabel('${t.id}')">🏷 Bin Label</button>
+    <button class="dp-btn danger" onclick="deleteTool('${t.id}')">🗑</button>`;
 }
-
-function getDetailFields(t) {
-  const f = [];
-  f.push({ label: 'Type',        value: esc(t.type||'—'), highlight: true });
-  f.push({ label: 'Pro Shop #',  value: esc(t.proShopNum||'—') });
-  f.push({ label: 'RTA #',       value: esc(t.rtaNum||'—') });
-  f.push({ label: 'Location',    value: esc(t.location||'—') });
-  f.push({ label: 'Holder',      value: esc(t.holder||'—') });
-  f.push({ label: 'Vendor',      value: esc(t.vendor||'—') });
-  f.push({ label: 'Order #',     value: esc(t.orderNum||'—') });
-  f.push({ label: 'Coating',     value: esc(t.coating||'—') });
-  if (t.diameter !== undefined && t.diameter !== '') f.push({ label: 'Diameter', value: displayDiam(t.diameter) });
-  if (t.loc !== undefined && t.loc !== '')           f.push({ label: 'LOC',      value: displayLen(t.loc) });
-  if (t.reach !== undefined && t.reach !== '')       f.push({ label: 'Total Reach', value: displayLen(t.reach) });
-  if (t.flutes)      f.push({ label: 'Flutes',       value: esc(t.flutes) });
-  if (t.helixAngle)  f.push({ label: 'Helix Angle',  value: esc(t.helixAngle) + '°' });
-  if (t.tsc)         f.push({ label: 'TSC',           value: esc(t.tsc) });
-  if (t.reducedShank)f.push({ label: 'Reduced Shank', value: esc(t.reducedShank) });
-  if (t.bottomCutting) f.push({ label: 'Bottom Cutting', value: esc(t.bottomCutting) });
-  if (t.cornerRadius)  f.push({ label: 'Corner Radius', value: displayLen(t.cornerRadius) });
-  if (t.pointAngle)    f.push({ label: 'Point Angle',   value: esc(t.pointAngle) + '°' });
-  if (t.splitPoint)    f.push({ label: 'Split Point',   value: esc(t.splitPoint) });
-  if (t.drillType)     f.push({ label: 'Drill Type',    value: esc(t.drillType) });
-  if (t.includedAngle) f.push({ label: 'Included Angle', value: esc(t.includedAngle) + '°' });
-  if (t.tipFlat)       f.push({ label: 'Tip Flat',       value: displayLen(t.tipFlat) });
-  if (t.tipFlatDiam)   f.push({ label: 'Tip Flat Dia',   value: displayLen(t.tipFlatDiam) });
-  if (t.radius)        f.push({ label: 'Radius',         value: displayLen(t.radius) });
-  if (t.pitch)         f.push({ label: 'Pitch/TPI',      value: esc(t.pitch) });
-  if (t.pitchMin)      f.push({ label: 'Pitch Min',      value: esc(t.pitchMin) });
-  if (t.pitchMax)      f.push({ label: 'Pitch Max',      value: esc(t.pitchMax) });
-  if (t.teethCount)    f.push({ label: 'Teeth Count',    value: esc(t.teethCount) });
-  if (t.tipToThread)   f.push({ label: 'Tip to Thread',  value: displayLen(t.tipToThread) });
-  if (t.tipFlatLen)    f.push({ label: 'Tip Flat Length', value: displayLen(t.tipFlatLen) });
-  if (t.threadIntExt)  f.push({ label: 'Int / Ext',      value: esc(t.threadIntExt) });
-  if (t.tapType)       f.push({ label: 'Tap Type',       value: esc(t.tapType) });
-  if (t.threadStd)     f.push({ label: 'Thread Std',     value: esc(t.threadStd) });
-  if (t.reamType)      f.push({ label: 'Reamer Type',    value: esc(t.reamType) });
-  if (t.cdType)        f.push({ label: 'Center Drill Type', value: esc(t.cdType) });
-  if (t.kerfWidth)     f.push({ label: 'Kerf Width',     value: displayLen(t.kerfWidth) });
-  if (t.arborDiam)     f.push({ label: 'Arbor Diameter', value: displayLen(t.arborDiam) });
-  if (t.minBore)       f.push({ label: 'Min Bore',       value: displayLen(t.minBore) });
-  if (t.maxBore)       f.push({ label: 'Max Bore',       value: displayLen(t.maxBore) });
-  if (t.maxRPM)        f.push({ label: 'Max RPM',        value: esc(t.maxRPM) });
-  if (t.arborBore)     f.push({ label: 'Arbor Bore',     value: displayLen(t.arborBore) });
-  if (t.insertDesig)   f.push({ label: 'ANSI/ISO',       value: esc(t.insertDesig) });
-  if (t.insertGeom)    f.push({ label: 'Geometry',       value: esc(t.insertGeom) });
-  if (t.insertGrade)   f.push({ label: 'Grade',          value: esc(t.insertGrade) });
-  if (t.qtyOnHand !== undefined && t.qtyOnHand !== '') f.push({ label: 'Qty on Hand', value: esc(t.qtyOnHand) });
-  if (t.reorderQty)    f.push({ label: 'Reorder Qty',    value: esc(t.reorderQty) });
-  if (t.compatBodies && t.compatBodies.length) f.push({ label: 'Compatible Bodies', value: esc(t.compatBodies.join(', ')), full: true });
-  if (t.compatInserts && t.compatInserts.length) f.push({ label: 'Compatible Inserts', value: esc(t.compatInserts.join(', ')), full: true });
+function getDetailFields(t){
+  const f=[];
+  f.push({label:'Type',value:esc(t.type||'—'),highlight:true});
+  f.push({label:'Tool ID #',value:esc(t.toolIdNum||'—')});
+  f.push({label:'Location',value:esc(t.location||'—')});
+  f.push({label:'Holder',value:esc(t.holder||'—')});
+  f.push({label:'Vendor',value:esc(t.vendor||'—')});
+  f.push({label:'Order #',value:esc(t.orderNum||'—')});
+  f.push({label:'Coating',value:esc(t.coating||'—')});
+  f.push({label:'TSC',value:esc(t.tsc||'—')});
+  if(t.diameter!==undefined&&t.diameter!=='') f.push({label:'Diameter',value:displayDiam(t.diameter)});
+  if(t.loc!==undefined&&t.loc!=='') f.push({label:'LOC',value:displayLen(t.loc)});
+  if(t.reach!==undefined&&t.reach!=='') f.push({label:'Total Reach',value:displayLen(t.reach)});
+  if(t.flutes) f.push({label:'Flutes',value:esc(t.flutes)});
+  if(t.helixAngle) f.push({label:'Helix Angle',value:esc(t.helixAngle)+'°'});
+  if(t.reducedShank) f.push({label:'Reduced Shank',value:esc(t.reducedShank)});
+  if(t.bottomCutting) f.push({label:'Bottom Cutting',value:esc(t.bottomCutting)});
+  if(t.cornerRadius) f.push({label:'Corner Radius',value:displayLen(t.cornerRadius)});
+  if(t.pointAngle) f.push({label:'Point Angle',value:esc(t.pointAngle)+'°'});
+  if(t.splitPoint) f.push({label:'Split Point',value:esc(t.splitPoint)});
+  if(t.drillType) f.push({label:'Drill Type',value:esc(t.drillType)});
+  if(t.includedAngle) f.push({label:'Included Angle',value:esc(t.includedAngle)+'°'});
+  if(t.tipFlat) f.push({label:'Tip Flat',value:displayLen(t.tipFlat)});
+  if(t.tipFlatDiam) f.push({label:'Tip Flat Dia',value:displayLen(t.tipFlatDiam)});
+  if(t.radius) f.push({label:'Radius',value:displayLen(t.radius)});
+  if(t.pitch) f.push({label:'Pitch/TPI',value:esc(t.pitch)});
+  if(t.pitchMin) f.push({label:'Pitch Min',value:esc(t.pitchMin)});
+  if(t.pitchMax) f.push({label:'Pitch Max',value:esc(t.pitchMax)});
+  if(t.teethCount) f.push({label:'Teeth Count',value:esc(t.teethCount)});
+  if(t.tipToThread) f.push({label:'Tip to Thread',value:displayLen(t.tipToThread)});
+  if(t.tipFlatLen) f.push({label:'Tip Flat Length',value:displayLen(t.tipFlatLen)});
+  if(t.threadIntExt) f.push({label:'Int / Ext',value:esc(t.threadIntExt)});
+  if(t.tapType) f.push({label:'Tap Type',value:esc(t.tapType)});
+  if(t.threadStd) f.push({label:'Thread Std',value:esc(t.threadStd)});
+  if(t.reamType) f.push({label:'Reamer Type',value:esc(t.reamType)});
+  if(t.cdType) f.push({label:'Center Drill Type',value:esc(t.cdType)});
+  if(t.kerfWidth) f.push({label:'Kerf Width',value:displayLen(t.kerfWidth)});
+  if(t.arborDiam) f.push({label:'Arbor Diameter',value:displayLen(t.arborDiam)});
+  if(t.minBore) f.push({label:'Min Bore',value:displayLen(t.minBore)});
+  if(t.maxBore) f.push({label:'Max Bore',value:displayLen(t.maxBore)});
+  if(t.maxRPM) f.push({label:'Max RPM',value:esc(t.maxRPM)});
+  if(t.insertDesig) f.push({label:'ANSI/ISO',value:esc(t.insertDesig)});
+  if(t.insertGeom) f.push({label:'Geometry',value:esc(t.insertGeom)});
+  if(t.insertGrade) f.push({label:'Grade',value:esc(t.insertGrade)});
+  if(t.qtyOnHand!==undefined&&t.qtyOnHand!=='') f.push({label:'Qty on Hand',value:esc(t.qtyOnHand)});
+  if(t.reorderQty) f.push({label:'Reorder Qty',value:esc(t.reorderQty)});
   return f;
 }
 
-function renderJobsView() {
-  const t = activeTool;
-  const jobs = t.jobs || [];
-  document.getElementById('dpBody').innerHTML = `
-    <div class="detail-section-title">Jobs / Part Numbers</div>
+// RTAs tab
+function renderRtasView(){
+  const t=activeTool;
+  const toolRtas=(library.rtas||[]).filter(r=>r.toolId===t.id);
+  document.getElementById('dpBody').innerHTML=`
+    <div class="detail-section-title">RTAs using this tool</div>
+    ${toolRtas.length?toolRtas.map(r=>`<div class="rta-list-item">
+      <div class="rta-list-item-top">${esc(r.name||r.id)} &nbsp;·&nbsp; OOH ${esc(r.ooh||'—')}"</div>
+      <div class="rta-list-item-sub">Holder: ${esc(r.holder||'—')}${r.notes?' · '+esc(r.notes):''}</div>
+    </div>`).join(''):`<div style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);padding:8px 0">No RTAs built with this tool yet.</div>`}`;
+  document.getElementById('dpActions').innerHTML=`
+    <button class="dp-btn blue" onclick="openRtaBuilderForTool('${t.id}')">🔩 Build RTA with this Tool</button>
+    <button class="dp-btn ghost" onclick="switchDpTab('detail')">← Back</button>`;
+}
+function openRtaBuilderForTool(toolId){
+  closeDetail();
+  openModal('rtaModal');
+  setTimeout(()=>{
+    const sel=document.getElementById('rta-tool');
+    if(sel) sel.value=toolId;
+    updateRtaPreview();
+  },100);
+}
+
+// Jobs tab
+function renderJobsView(){
+  const t=activeTool;
+  const jobs=t.jobs||[];
+  const availJobs=(library.jobs||[]);
+  document.getElementById('dpBody').innerHTML=`
+    <div class="detail-section-title">Linked Part Numbers</div>
     <div class="jobs-list" id="toolJobsList">
-      ${jobs.length ? jobs.map(j => `
-        <div class="job-tag">${esc(j)}
-          <button class="job-remove" onclick="removeJobFromTool('${esc(j)}')">✕</button>
-        </div>`).join('') : '<span style="font-family:var(--mono);font-size:0.78rem;color:var(--muted)">No jobs linked yet.</span>'}
+      ${jobs.length?jobs.map(j=>`<div class="job-tag-item">${esc(j)}<button class="job-remove" onclick="removeJobFromTool('${esc(j)}')">✕</button></div>`).join(''):`<span style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">None linked yet.</span>`}
     </div>
-    <div class="job-add-row" style="margin-top:12px">
-      <select class="job-select" id="jobToAdd">
-        <option value="">Select a part number...</option>
-        ${(library.jobs||[]).filter(j => !jobs.includes(j)).map(j => `<option value="${esc(j)}">${esc(j)}</option>`).join('')}
-      </select>
-      <button class="dp-btn blue" style="flex:0;padding:8px 14px" onclick="addJobToTool()">Add</button>
+    <div class="job-add-row">
+      <input class="job-type-input" id="jobTypeInput" list="jobDatalist" placeholder="Type or select part #..." onkeydown="if(event.key==='Enter')addJobToToolFromInput()"/>
+      <datalist id="jobDatalist">${availJobs.filter(j=>!jobs.includes(j)).map(j=>`<option value="${esc(j)}"/>`).join('')}</datalist>
+      <button class="dp-btn blue" style="flex:0;padding:8px 12px;font-size:0.72rem" onclick="addJobToToolFromInput()">Add</button>
     </div>`;
-
-  document.getElementById('dpActions').innerHTML = `
-    <button class="dp-btn blue" onclick="switchDpTab('detail')">← Back to Detail</button>`;
+  document.getElementById('dpActions').innerHTML=`<button class="dp-btn blue" onclick="switchDpTab('detail')">← Back to Detail</button>`;
 }
-
-function addJobToTool() {
-  const sel = document.getElementById('jobToAdd');
-  const j   = sel.value; if (!j) return;
-  if (!activeTool.jobs) activeTool.jobs = [];
-  if (!activeTool.jobs.includes(j)) { activeTool.jobs.push(j); saveLibrary(); renderJobsView(); }
+function addJobToToolFromInput(){
+  const inp=document.getElementById('jobTypeInput');
+  const j=inp.value.trim(); if(!j) return;
+  if(!activeTool.jobs) activeTool.jobs=[];
+  if(!activeTool.jobs.includes(j)){
+    activeTool.jobs.push(j);
+    if(!library.jobs.includes(j)) library.jobs.push(j);
+    saveLibrary(); renderJobsView(); updateJobFilter();
+  }
+  inp.value='';
 }
-
-function removeJobFromTool(j) {
-  if (!activeTool.jobs) return;
-  activeTool.jobs = activeTool.jobs.filter(x => x !== j);
+function removeJobFromTool(j){
+  if(!activeTool.jobs) return;
+  activeTool.jobs=activeTool.jobs.filter(x=>x!==j);
   saveLibrary(); renderJobsView();
 }
 
-// ═══════════════════════════════════════════════════════
-// EDIT / ADD FORM
-// ═══════════════════════════════════════════════════════
-function openAddTool() {
-  activeTool = { id: nextToolId(), type: 'Endmill', jobs: [], edps: [] };
-  dpMode = 'edit';
-  editPhoto = null;
-  document.getElementById('dpTitle').textContent = 'Add New Tool';
-  document.getElementById('dpIdBadge').textContent = '#' + activeTool.id;
-  document.querySelectorAll('.dp-tab').forEach((t,i) => t.classList.toggle('active', i === 2));
+// ═══════════════════════════════════════════
+// EDIT FORM
+// ═══════════════════════════════════════════
+function openAddTool(){
+  activeTool={id:nextToolId(),type:'Endmill',jobs:[],edps:[]};
+  dpMode='edit'; editPhoto=null;
+  document.getElementById('dpTitle').textContent='Add New Tool';
+  document.getElementById('dpIdBadge').textContent='#'+activeTool.id;
+  document.querySelectorAll('.dp-tab').forEach((t,i)=>t.classList.toggle('active',i===3));
   renderEditView();
   document.getElementById('detailOverlay').classList.add('open');
   document.getElementById('detailPanel').classList.add('open');
 }
-
-function renderEditView() {
-  const t = activeTool;
-  editPhoto = editPhoto || t.photo || null;
-
-  const typeFields = getTypeFields(t.type || 'Endmill');
-
-  document.getElementById('dpBody').innerHTML = `
-    <div class="form-grid">
-      <div class="form-section-title">Identity</div>
-
-      <div class="form-group">
-        <label class="form-label">Tool Type</label>
-        <select class="form-input" id="ef-type" onchange="onTypeChange()">
-          ${TOOL_TYPES.map(ty => `<option value="${ty}"${ty===(t.type||'Endmill')?' selected':''}>${ty}</option>`).join('')}
+function nextToolId(){
+  const id=library.nextId||1; library.nextId=id+1;
+  return String(id).padStart(3,'0');
+}
+function renderEditView(){
+  const t=activeTool;
+  editPhoto=editPhoto||t.photo||null;
+  const holderOptions=(library.holders||[]).map(h=>`<option value="${esc(h)}"${h===t.holder?' selected':''}>${esc(h)}</option>`).join('');
+  const typeFields=getTypeFields(t.type||'Endmill');
+  document.getElementById('dpBody').innerHTML=`<div class="form-grid">
+    <div class="form-section-title">Identity</div>
+    <div class="form-group">
+      <label class="form-label">Tool Type</label>
+      <select class="form-input" id="ef-type" onchange="onTypeChange()">
+        ${TOOL_TYPES.map(ty=>`<option value="${ty}"${ty===(t.type||'Endmill')?' selected':''}>${ty}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="ef-desc" type="text" value="${esc(t.description||'')}" placeholder="e.g. 3/8 Endmill 3FL"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tool Identification #</label>
+      <input class="form-input" id="ef-toolid" type="text" value="${esc(t.toolIdNum||'')}" placeholder="e.g. A-13"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Storage Location</label>
+      <input class="form-input" id="ef-loc" type="text" value="${esc(t.location||'')}" placeholder="e.g. 24"/>
+    </div>
+    <div class="form-group full">
+      <label class="form-label">Holder</label>
+      <div class="holder-row">
+        <select class="form-input" id="ef-holder">
+          <option value="">Select holder...</option>
+          ${holderOptions}
         </select>
+        <button class="holder-add-btn" onclick="quickAddHolder()">+ New Holder</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <input class="form-input" id="ef-desc" type="text" value="${esc(t.description||'')}" placeholder="e.g. 3/8 Endmill 3FL" />
+    </div>
+    <div class="form-section-title">Dimensions (inches)</div>
+    <div class="form-group"><label class="form-label">Diameter (in)</label><input class="form-input" id="ef-diam" type="number" step="0.0001" value="${t.diameter||''}"/></div>
+    <div class="form-group"><label class="form-label">LOC (in)</label><input class="form-input" id="ef-loc2" type="number" step="0.0001" value="${t.loc||''}"/></div>
+    <div class="form-group"><label class="form-label">Total Reach (in)</label><input class="form-input" id="ef-reach" type="number" step="0.0001" value="${t.reach||''}"/></div>
+    <div class="form-group"><label class="form-label">Reduced Shank</label>
+      <select class="form-input" id="ef-reduced"><option value="">—</option><option value="Yes"${t.reducedShank==='Yes'?' selected':''}>Yes</option><option value="No"${t.reducedShank==='No'?' selected':''}>No</option></select>
+    </div>
+    <div class="form-section-title">Tool Properties</div>
+    <div class="form-group"><label class="form-label">Coating</label>
+      <select class="form-input" id="ef-coating">${COATINGS.map(c=>`<option value="${c}"${c===(t.coating||'None')?' selected':''}>${c}</option>`).join('')}</select>
+    </div>
+    <div class="form-group"><label class="form-label">TSC</label>
+      <select class="form-input" id="ef-tsc"><option value="">—</option><option value="Yes"${t.tsc==='Yes'?' selected':''}>Yes</option><option value="No"${t.tsc==='No'?' selected':''}>No</option></select>
+    </div>
+    <div id="type-specific-fields" style="display:contents">${typeFields}</div>
+    <div class="form-section-title">Ordering</div>
+    <div class="form-group"><label class="form-label">Vendor</label><input class="form-input" id="ef-vendor" type="text" value="${esc(t.vendor||'')}"/></div>
+    <div class="form-group"><label class="form-label">Order #</label><input class="form-input" id="ef-order" type="text" value="${esc(t.orderNum||'')}"/></div>
+    <div class="form-section-title">EDP Numbers</div>
+    <div class="form-group full">
+      <div class="edp-form-list" id="edp-form-list">
+        ${(t.edps||['']).map((e,i)=>`<div class="edp-form-row"><input class="form-input" type="text" value="${esc(e)}" data-edp-idx="${i}" placeholder="EDP #"/><button class="edp-rm" onclick="removeEdpForm(this)">✕</button></div>`).join('')}
       </div>
-      <div class="form-group">
-        <label class="form-label">Pro Shop Tool #</label>
-        <input class="form-input" id="ef-psnm" type="text" value="${esc(t.proShopNum||'')}" placeholder="e.g. A-13" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">RTA #</label>
-        <input class="form-input" id="ef-rta" type="text" value="${esc(t.rtaNum||'')}" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Storage Location</label>
-        <input class="form-input" id="ef-loc" type="text" value="${esc(t.location||'')}" placeholder="e.g. 24" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Holder</label>
-        <input class="form-input" id="ef-holder" type="text" value="${esc(t.holder||'')}" placeholder="e.g. SK13-120" />
-      </div>
-
-      <div class="form-section-title">Dimensions (inches)</div>
-      <div class="form-group">
-        <label class="form-label">Diameter (in)</label>
-        <input class="form-input" id="ef-diam" type="number" step="0.0001" value="${t.diameter||''}" placeholder="e.g. 0.375" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">LOC (in)</label>
-        <input class="form-input" id="ef-loc2" type="number" step="0.0001" value="${t.loc||''}" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Total Reach (in)</label>
-        <input class="form-input" id="ef-reach" type="number" step="0.0001" value="${t.reach||''}" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Reduced Shank</label>
-        <select class="form-input" id="ef-reduced">
-          <option value="">—</option>
-          <option value="Yes"${t.reducedShank==='Yes'?' selected':''}>Yes</option>
-          <option value="No"${t.reducedShank==='No'?' selected':''}>No</option>
-        </select>
-      </div>
-
-      <div class="form-section-title">Tool Properties</div>
-      <div class="form-group">
-        <label class="form-label">Coating</label>
-        <select class="form-input" id="ef-coating">
-          ${COATINGS.map(c => `<option value="${c}"${c===(t.coating||'None')?' selected':''}>${c}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">TSC</label>
-        <select class="form-input" id="ef-tsc">
-          <option value="">—</option>
-          <option value="Yes"${t.tsc==='Yes'?' selected':''}>Yes</option>
-          <option value="No"${t.tsc==='No'?' selected':''}>No</option>
-        </select>
-      </div>
-
-      <div id="type-specific-fields" style="display:contents">${typeFields}</div>
-
-      <div class="form-section-title">Ordering</div>
-      <div class="form-group">
-        <label class="form-label">Vendor</label>
-        <input class="form-input" id="ef-vendor" type="text" value="${esc(t.vendor||'')}" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Order #</label>
-        <input class="form-input" id="ef-order" type="text" value="${esc(t.orderNum||'')}" />
-      </div>
-
-      <div class="form-section-title">EDP Numbers</div>
-      <div class="form-group full">
-        <div class="edp-form-list" id="edp-form-list">
-          ${(t.edps||['']).map((e,i) => `
-            <div class="edp-form-row">
-              <input class="form-input" type="text" value="${esc(e)}" data-edp-idx="${i}" placeholder="EDP #" />
-              <button class="edp-rm" onclick="removeEdpForm(this)">✕</button>
-            </div>`).join('')}
-        </div>
-        <button class="btn-add-edp-form" onclick="addEdpForm()">+ Add EDP</button>
-      </div>
-
-      <div class="form-section-title">Photo</div>
-      <div class="form-group full">
-        <div class="photo-upload-area" id="photo-upload-area">
-          <input type="file" accept="image/*" id="photo-file-input" />
-          <div id="photo-upload-inner">
-            ${editPhoto
-              ? `<div class="photo-preview-wrap"><img class="photo-preview" src="${editPhoto}" /><button class="photo-clear" onclick="clearEditPhoto(event)">✕</button></div>`
-              : `<span style="font-size:1.4rem;display:block;margin-bottom:6px">📷</span><div class="photo-upload-text">Drop image or click to browse</div>`}
-          </div>
+      <button class="btn-add-edp-form" onclick="addEdpForm()">+ Add EDP</button>
+    </div>
+    <div class="form-section-title">Photo</div>
+    <div class="form-group full">
+      <div class="photo-upload-area" id="photo-upload-area">
+        <input type="file" accept="image/*" id="photo-file-input"/>
+        <div id="photo-upload-inner">
+          ${editPhoto?`<div class="photo-preview-wrap"><img class="photo-preview" src="${editPhoto}"/><button class="photo-clear" onclick="clearEditPhoto(event)">✕</button></div>`:`<span style="font-size:1.4rem;display:block;margin-bottom:6px">📷</span><div class="photo-upload-text">Drop image or click to browse</div>`}
         </div>
       </div>
-
-      <div class="form-section-title">Notes</div>
-      <div class="form-group full">
-        <textarea class="form-input" id="ef-notes" rows="3" placeholder="Any additional notes...">${esc(t.notes||'')}</textarea>
-      </div>
-    </div>`;
-
-  // wire photo upload
-  const pArea  = document.getElementById('photo-upload-area');
-  const pInput = document.getElementById('photo-file-input');
-  pArea.addEventListener('dragover', e => { e.preventDefault(); pArea.classList.add('drag-over'); });
-  pArea.addEventListener('dragleave', () => pArea.classList.remove('drag-over'));
-  pArea.addEventListener('drop', e => {
-    e.preventDefault(); pArea.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f && f.type.startsWith('image/')) loadEditPhoto(f);
-  });
-  pInput.addEventListener('change', e => { if (e.target.files[0]) loadEditPhoto(e.target.files[0]); pInput.value=''; });
-
-  document.getElementById('dpActions').innerHTML = `
+    </div>
+    <div class="form-section-title">Notes</div>
+    <div class="form-group full"><textarea class="form-input" id="ef-notes" rows="3">${esc(t.notes||'')}</textarea></div>
+  </div>`;
+  wirePhotoUpload();
+  document.getElementById('dpActions').innerHTML=`
     <button class="dp-btn blue" onclick="saveTool()">💾 Save Tool</button>
     <button class="dp-btn ghost" onclick="cancelEdit()">Cancel</button>`;
 }
-
-function getTypeFields(type) {
-  const t = activeTool;
-  let html = '';
-
-  const numField = (id, label, val, step='0.0001') =>
-    `<div class="form-group"><label class="form-label">${label}</label><input class="form-input" id="${id}" type="number" step="${step}" value="${val||''}" /></div>`;
-  const txtField = (id, label, val, ph='') =>
-    `<div class="form-group"><label class="form-label">${label}</label><input class="form-input" id="${id}" type="text" value="${esc(val||'')}" placeholder="${ph}" /></div>`;
-  const selField = (id, label, opts, val) =>
-    `<div class="form-group"><label class="form-label">${label}</label><select class="form-input" id="${id}">${opts.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}</select></div>`;
-
-  if (['Endmill','Ball Mill','Bull Nose Mill'].includes(type)) {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-helix','Helix Angle (°)',t.helixAngle,'1');
-    if (type === 'Bull Nose Mill') html += numField('ef-cr','Corner Radius (in)',t.cornerRadius);
-    if (['Endmill','Bull Nose Mill'].includes(type))
-      html += selField('ef-bc','Bottom Cutting',BC_TYPES,t.bottomCutting||BC_TYPES[0]);
+function getTypeFields(type){
+  const t=activeTool;
+  const nf=(id,lbl,val,step='0.0001')=>`<div class="form-group"><label class="form-label">${lbl}</label><input class="form-input" id="${id}" type="number" step="${step}" value="${val||''}"/></div>`;
+  const tf=(id,lbl,val,ph='')=>`<div class="form-group"><label class="form-label">${lbl}</label><input class="form-input" id="${id}" type="text" value="${esc(val||'')}" placeholder="${ph}"/></div>`;
+  const sf=(id,lbl,opts,val)=>`<div class="form-group"><label class="form-label">${lbl}</label><select class="form-input" id="${id}">${opts.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}</select></div>`;
+  let html='';
+  if(['Endmill','Ball Mill','Bull Nose Mill'].includes(type)){
+    html+=tf('ef-flutes','Flutes',t.flutes);
+    html+=nf('ef-helix','Helix Angle (°)',t.helixAngle,'1');
+    if(type==='Bull Nose Mill') html+=nf('ef-cr','Corner Radius (in)',t.cornerRadius);
+    if(['Endmill','Bull Nose Mill'].includes(type)) html+=sf('ef-bc','Bottom Cutting',BC_TYPES,t.bottomCutting||BC_TYPES[0]);
   }
-  if (type === 'Chamfer Mill') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-incang','Included Angle (°)',t.includedAngle,'0.1');
-    html += numField('ef-tipdiam','Tip Diameter (in)',t.tipDiameter);
-    html += numField('ef-tipflatd','Tip Flat Diameter (in)',t.tipFlatDiam);
-  }
-  if (type === 'Corner Rounding') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-radius','Radius (in)',t.radius);
-  }
-  if (type === 'Thread Mill') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-pitchmin','Pitch Min',t.pitchMin,'0.001');
-    html += numField('ef-pitchmax','Pitch Max',t.pitchMax,'0.001');
-    html += txtField('ef-teeth','Teeth Count',t.teethCount);
-    html += numField('ef-tipthread','Tip to Thread Start (in)',t.tipToThread);
-    html += numField('ef-tipflatlen','Tip Flat Length (in)',t.tipFlatLen);
-    html += selField('ef-intext','Internal / External',['Internal','External','Both'],t.threadIntExt||'Internal');
-  }
-  if (type === 'Drill') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');
-    html += selField('ef-splitpt','Split Point',['Yes','No','—'],t.splitPoint||'—');
-    html += selField('ef-drtype','Drill Type',DRILL_TYPES,t.drillType||DRILL_TYPES[0]);
-  }
-  if (type === 'Spot Drill') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += numField('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');
-    html += numField('ef-tipflat','Tip Flat (in)',t.tipFlat);
-  }
-  if (type === 'Center Drill') {
-    html += selField('ef-cdtype','Type',CD_TYPES,t.cdType||CD_TYPES[0]);
-    html += numField('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');
-  }
-  if (type === 'Tap') {
-    html += numField('ef-pitch','Pitch / TPI',t.pitch,'0.001');
-    html += selField('ef-taptype','Tap Type',TAP_TYPES,t.tapType||TAP_TYPES[0]);
-    html += numField('ef-tipthread','Tip to Thread Start (in)',t.tipToThread);
-    html += selField('ef-thrstd','Thread Standard',THREAD_STDS,t.threadStd||THREAD_STDS[0]);
-  }
-  if (type === 'Reamer') {
-    html += txtField('ef-flutes','Flutes',t.flutes);
-    html += selField('ef-reamtype','Reamer Type',REAMER_TYPES,t.reamType||REAMER_TYPES[0]);
-  }
-  if (type === 'Boring Bar') {
-    html += numField('ef-minbore','Min Bore (in)',t.minBore);
-    html += numField('ef-maxbore','Max Bore (in)',t.maxBore);
-  }
-  if (type === 'Saw') {
-    html += txtField('ef-teeth','Teeth Count',t.teethCount);
-    html += numField('ef-kerf','Kerf Width (in)',t.kerfWidth);
-    html += numField('ef-arbor','Arbor Diameter (in)',t.arborDiam);
-  }
-  if (type === 'Insert Mill Body') {
-    html += txtField('ef-maxrpm','Max RPM',t.maxRPM);
-    html += numField('ef-arborbore','Arbor Bore (in)',t.arborBore);
-  }
-  if (type === 'Insert') {
-    html += txtField('ef-insdesig','ANSI/ISO Designation',t.insertDesig,'e.g. APMT1135');
-    html += txtField('ef-insgeom','Geometry',t.insertGeom);
-    html += txtField('ef-insgrade','Grade',t.insertGrade);
-    html += txtField('ef-qtyhand','Qty on Hand',t.qtyOnHand);
-    html += txtField('ef-reorderqty','Reorder Qty',t.reorderQty);
-  }
+  if(type==='Chamfer Mill'){html+=tf('ef-flutes','Flutes',t.flutes);html+=nf('ef-incang','Included Angle (°)',t.includedAngle,'0.1');html+=nf('ef-tipdiam','Tip Diameter (in)',t.tipDiameter);html+=nf('ef-tipflatd','Tip Flat Diameter (in)',t.tipFlatDiam);}
+  if(type==='Corner Rounding'){html+=tf('ef-flutes','Flutes',t.flutes);html+=nf('ef-radius','Radius (in)',t.radius);}
+  if(type==='Thread Mill'){html+=tf('ef-flutes','Flutes',t.flutes);html+=nf('ef-pitchmin','Pitch Min',t.pitchMin,'0.001');html+=nf('ef-pitchmax','Pitch Max',t.pitchMax,'0.001');html+=tf('ef-teeth','Teeth Count',t.teethCount);html+=nf('ef-tipthread','Tip to Thread (in)',t.tipToThread);html+=nf('ef-tipflatlen','Tip Flat Length (in)',t.tipFlatLen);html+=sf('ef-intext','Internal/External',['Internal','External','Both'],t.threadIntExt||'Internal');}
+  if(type==='Drill'){html+=tf('ef-flutes','Flutes',t.flutes);html+=nf('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');html+=sf('ef-splitpt','Split Point',['Yes','No','—'],t.splitPoint||'—');html+=sf('ef-drtype','Drill Type',DRILL_TYPES,t.drillType||DRILL_TYPES[0]);}
+  if(type==='Spot Drill'){html+=tf('ef-flutes','Flutes',t.flutes);html+=nf('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');html+=nf('ef-tipflat','Tip Flat (in)',t.tipFlat);}
+  if(type==='Center Drill'){html+=sf('ef-cdtype','Type',CD_TYPES,t.cdType||CD_TYPES[0]);html+=nf('ef-ptang','Point Angle (°)',t.pointAngle,'0.1');}
+  if(type==='Tap'){html+=nf('ef-pitch','Pitch/TPI',t.pitch,'0.001');html+=sf('ef-taptype','Tap Type',TAP_TYPES,t.tapType||TAP_TYPES[0]);html+=nf('ef-tipthread','Tip to Thread (in)',t.tipToThread);html+=sf('ef-thrstd','Thread Standard',THREAD_STDS,t.threadStd||THREAD_STDS[0]);}
+  if(type==='Reamer'){html+=tf('ef-flutes','Flutes',t.flutes);html+=sf('ef-reamtype','Reamer Type',REAMER_TYPES,t.reamType||REAMER_TYPES[0]);}
+  if(type==='Boring Bar'){html+=nf('ef-minbore','Min Bore (in)',t.minBore);html+=nf('ef-maxbore','Max Bore (in)',t.maxBore);}
+  if(type==='Saw'){html+=tf('ef-teeth','Teeth Count',t.teethCount);html+=nf('ef-kerf','Kerf Width (in)',t.kerfWidth);html+=nf('ef-arbor','Arbor Diameter (in)',t.arborDiam);}
+  if(type==='Insert Mill Body'){html+=tf('ef-maxrpm','Max RPM',t.maxRPM);html+=nf('ef-arborbore','Arbor Bore (in)',t.arborBore);}
+  if(type==='Insert'){html+=tf('ef-insdesig','ANSI/ISO Designation',t.insertDesig,'e.g. APMT1135');html+=tf('ef-insgeom','Geometry',t.insertGeom);html+=tf('ef-insgrade','Grade',t.insertGrade);html+=tf('ef-qtyhand','Qty on Hand',t.qtyOnHand);html+=tf('ef-reorderqty','Reorder Qty',t.reorderQty);}
   return html;
 }
-
-function onTypeChange() {
-  const type = document.getElementById('ef-type').value;
-  activeTool.type = type;
-  // re-render only the type-specific section
-  const container = document.getElementById('type-specific-fields');
-  if (container) container.innerHTML = getTypeFields(type);
+function onTypeChange(){
+  const type=document.getElementById('ef-type').value;
+  activeTool.type=type;
+  const c=document.getElementById('type-specific-fields');
+  if(c) c.innerHTML=getTypeFields(type);
 }
-
-function addEdpForm() {
-  const list = document.getElementById('edp-form-list');
-  const row  = document.createElement('div');
-  row.className = 'edp-form-row';
-  const idx = list.children.length;
-  row.innerHTML = `<input class="form-input" type="text" data-edp-idx="${idx}" placeholder="EDP #" /><button class="edp-rm" onclick="removeEdpForm(this)">✕</button>`;
-  list.appendChild(row);
-  row.querySelector('input').focus();
+function quickAddHolder(){
+  const name=prompt('Enter new holder name:'); if(!name||!name.trim()) return;
+  const h=name.trim();
+  if(!library.holders) library.holders=[];
+  if(!library.holders.includes(h)){library.holders.push(h);saveLibrary();}
+  const sel=document.getElementById('ef-holder');
+  if(sel){const opt=document.createElement('option');opt.value=h;opt.textContent=h;opt.selected=true;sel.appendChild(opt);}
 }
-
-function removeEdpForm(btn) {
-  const rows = document.querySelectorAll('#edp-form-list .edp-form-row');
-  if (rows.length > 1) btn.parentElement.remove();
-  else btn.parentElement.querySelector('input').value = '';
+function addEdpForm(){
+  const list=document.getElementById('edp-form-list');
+  const row=document.createElement('div'); row.className='edp-form-row';
+  const idx=list.children.length;
+  row.innerHTML=`<input class="form-input" type="text" data-edp-idx="${idx}" placeholder="EDP #"/><button class="edp-rm" onclick="removeEdpForm(this)">✕</button>`;
+  list.appendChild(row); row.querySelector('input').focus();
 }
-
-function loadEditPhoto(file) {
-  const reader = new FileReader();
-  reader.onload = ev => {
-    editPhoto = ev.target.result;
-    document.getElementById('photo-upload-inner').innerHTML =
-      `<div class="photo-preview-wrap"><img class="photo-preview" src="${editPhoto}" /><button class="photo-clear" onclick="clearEditPhoto(event)">✕</button></div>`;
+function removeEdpForm(btn){
+  const rows=document.querySelectorAll('#edp-form-list .edp-form-row');
+  if(rows.length>1) btn.parentElement.remove();
+  else btn.parentElement.querySelector('input').value='';
+}
+function wirePhotoUpload(){
+  const pArea=document.getElementById('photo-upload-area');
+  const pInput=document.getElementById('photo-file-input');
+  if(!pArea||!pInput) return;
+  pArea.addEventListener('dragover',e=>{e.preventDefault();pArea.classList.add('drag-over');});
+  pArea.addEventListener('dragleave',()=>pArea.classList.remove('drag-over'));
+  pArea.addEventListener('drop',e=>{e.preventDefault();pArea.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')) loadEditPhoto(f);});
+  pInput.addEventListener('change',e=>{if(e.target.files[0]) loadEditPhoto(e.target.files[0]);pInput.value='';});
+}
+function loadEditPhoto(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    editPhoto=ev.target.result;
+    document.getElementById('photo-upload-inner').innerHTML=`<div class="photo-preview-wrap"><img class="photo-preview" src="${editPhoto}"/><button class="photo-clear" onclick="clearEditPhoto(event)">✕</button></div>`;
   };
   reader.readAsDataURL(file);
 }
-
-function clearEditPhoto(e) {
-  e.stopPropagation();
-  editPhoto = null;
-  document.getElementById('photo-upload-inner').innerHTML =
-    `<span style="font-size:1.4rem;display:block;margin-bottom:6px">📷</span><div class="photo-upload-text">Drop image or click to browse</div>`;
+function clearEditPhoto(e){
+  e.stopPropagation(); editPhoto=null;
+  document.getElementById('photo-upload-inner').innerHTML=`<span style="font-size:1.4rem;display:block;margin-bottom:6px">📷</span><div class="photo-upload-text">Drop image or click to browse</div>`;
 }
-
-function gv(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-function saveTool() {
-  const t = activeTool;
-  t.type         = gv('ef-type') || t.type;
-  t.description  = gv('ef-desc');
-  t.proShopNum   = gv('ef-psnm');
-  t.rtaNum       = gv('ef-rta');
-  t.location     = gv('ef-loc');
-  t.holder       = gv('ef-holder');
-  t.diameter     = gv('ef-diam');
-  t.loc          = gv('ef-loc2');
-  t.reach        = gv('ef-reach');
-  t.reducedShank = gv('ef-reduced');
-  t.coating      = gv('ef-coating');
-  t.tsc          = gv('ef-tsc');
-  t.vendor       = gv('ef-vendor');
-  t.orderNum     = gv('ef-order');
-  t.notes        = gv('ef-notes');
-  t.photo        = editPhoto;
-
-  // type specific
-  t.flutes       = gv('ef-flutes');
-  t.helixAngle   = gv('ef-helix');
-  t.cornerRadius = gv('ef-cr');
-  t.bottomCutting= gv('ef-bc');
-  t.includedAngle= gv('ef-incang');
-  t.tipDiameter  = gv('ef-tipdiam');
-  t.tipFlatDiam  = gv('ef-tipflatd');
-  t.radius       = gv('ef-radius');
-  t.pitchMin     = gv('ef-pitchmin');
-  t.pitchMax     = gv('ef-pitchmax');
-  t.teethCount   = gv('ef-teeth');
-  t.tipToThread  = gv('ef-tipthread');
-  t.tipFlatLen   = gv('ef-tipflatlen');
-  t.threadIntExt = gv('ef-intext');
-  t.pointAngle   = gv('ef-ptang');
-  t.splitPoint   = gv('ef-splitpt');
-  t.drillType    = gv('ef-drtype');
-  t.tipFlat      = gv('ef-tipflat');
-  t.cdType       = gv('ef-cdtype');
-  t.pitch        = gv('ef-pitch');
-  t.tapType      = gv('ef-taptype');
-  t.threadStd    = gv('ef-thrstd');
-  t.reamType     = gv('ef-reamtype');
-  t.minBore      = gv('ef-minbore');
-  t.maxBore      = gv('ef-maxbore');
-  t.kerfWidth    = gv('ef-kerf');
-  t.arborDiam    = gv('ef-arbor');
-  t.maxRPM       = gv('ef-maxrpm');
-  t.arborBore    = gv('ef-arborbore');
-  t.insertDesig  = gv('ef-insdesig');
-  t.insertGeom   = gv('ef-insgeom');
-  t.insertGrade  = gv('ef-insgrade');
-  t.qtyOnHand    = gv('ef-qtyhand');
-  t.reorderQty   = gv('ef-reorderqty');
-
-  // EDPs
-  t.edps = Array.from(document.querySelectorAll('[data-edp-idx]')).map(i => i.value.trim()).filter(Boolean);
-
-  // upsert
-  const idx = library.tools.findIndex(x => x.id === t.id);
-  if (idx >= 0) library.tools[idx] = t;
-  else library.tools.push(t);
-
-  saveLibrary();
-  renderAll();
-  dpMode = 'detail';
-  document.getElementById('dpTitle').textContent = t.description || 'Tool #' + t.id;
-  document.querySelectorAll('.dp-tab').forEach((tb,i) => tb.classList.toggle('active', i === 0));
+function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function saveTool(){
+  const t=activeTool;
+  t.type=gv('ef-type')||t.type; t.description=gv('ef-desc');
+  t.toolIdNum=gv('ef-toolid'); t.location=gv('ef-loc');
+  t.holder=gv('ef-holder'); t.diameter=gv('ef-diam');
+  t.loc=gv('ef-loc2'); t.reach=gv('ef-reach');
+  t.reducedShank=gv('ef-reduced'); t.coating=gv('ef-coating');
+  t.tsc=gv('ef-tsc'); t.vendor=gv('ef-vendor');
+  t.orderNum=gv('ef-order'); t.notes=gv('ef-notes'); t.photo=editPhoto;
+  t.flutes=gv('ef-flutes'); t.helixAngle=gv('ef-helix'); t.cornerRadius=gv('ef-cr');
+  t.bottomCutting=gv('ef-bc'); t.includedAngle=gv('ef-incang');
+  t.tipDiameter=gv('ef-tipdiam'); t.tipFlatDiam=gv('ef-tipflatd');
+  t.radius=gv('ef-radius'); t.pitchMin=gv('ef-pitchmin'); t.pitchMax=gv('ef-pitchmax');
+  t.teethCount=gv('ef-teeth'); t.tipToThread=gv('ef-tipthread');
+  t.tipFlatLen=gv('ef-tipflatlen'); t.threadIntExt=gv('ef-intext');
+  t.pointAngle=gv('ef-ptang'); t.splitPoint=gv('ef-splitpt');
+  t.drillType=gv('ef-drtype'); t.tipFlat=gv('ef-tipflat');
+  t.cdType=gv('ef-cdtype'); t.pitch=gv('ef-pitch');
+  t.tapType=gv('ef-taptype'); t.threadStd=gv('ef-thrstd');
+  t.reamType=gv('ef-reamtype'); t.minBore=gv('ef-minbore');
+  t.maxBore=gv('ef-maxbore'); t.kerfWidth=gv('ef-kerf');
+  t.arborDiam=gv('ef-arbor'); t.maxRPM=gv('ef-maxrpm');
+  t.arborBore=gv('ef-arborbore'); t.insertDesig=gv('ef-insdesig');
+  t.insertGeom=gv('ef-insgeom'); t.insertGrade=gv('ef-insgrade');
+  t.qtyOnHand=gv('ef-qtyhand'); t.reorderQty=gv('ef-reorderqty');
+  t.edps=Array.from(document.querySelectorAll('[data-edp-idx]')).map(i=>i.value.trim()).filter(Boolean);
+  const idx=library.tools.findIndex(x=>x.id===t.id);
+  if(idx>=0) library.tools[idx]=t; else library.tools.push(t);
+  saveLibrary(); renderAll();
+  dpMode='detail';
+  document.getElementById('dpTitle').textContent=t.description||'Tool #'+t.id;
+  document.querySelectorAll('.dp-tab').forEach((tb,i)=>tb.classList.toggle('active',i===0));
   renderDetailView();
 }
-
-function cancelEdit() {
-  const isNew = !library.tools.find(x => x.id === activeTool.id);
-  if (isNew) { closeDetail(); return; }
-  dpMode = 'detail';
-  document.querySelectorAll('.dp-tab').forEach((tb,i) => tb.classList.toggle('active', i === 0));
+function cancelEdit(){
+  const isNew=!library.tools.find(x=>x.id===activeTool.id);
+  if(isNew){closeDetail();return;}
+  dpMode='detail';
+  document.querySelectorAll('.dp-tab').forEach((tb,i)=>tb.classList.toggle('active',i===0));
   renderDetailView();
 }
-
-function deleteTool(id) {
-  if (!confirm('Delete this tool from the library? This cannot be undone.')) return;
-  library.tools = library.tools.filter(t => t.id !== id);
+function deleteTool(id){
+  if(!confirm('Delete this tool? This cannot be undone.')) return;
+  library.tools=library.tools.filter(t=>t.id!==id);
   saveLibrary(); renderAll(); closeDetail();
 }
 
-// ═══════════════════════════════════════════════════════
-// JOBS MODAL
-// ═══════════════════════════════════════════════════════
-function openJobsModal() {
-  renderJobList();
-  document.getElementById('jobsModal').classList.add('open');
+// ═══════════════════════════════════════════
+// JOBS & HOLDERS MODALS
+// ═══════════════════════════════════════════
+function openModal(id){
+  if(id==='jobsModal') renderJobList();
+  if(id==='holdersModal') renderHolderList();
+  if(id==='rtaModal') populateRtaModal();
+  document.getElementById(id).classList.add('open');
 }
-function closeJobsModal() {
-  document.getElementById('jobsModal').classList.remove('open');
-  updateJobFilter();
-  applyFilters();
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='jobsModal'){updateJobFilter();applyFilters();}
 }
-function renderJobList() {
-  const c = document.getElementById('jobListContainer');
-  if (!library.jobs || !library.jobs.length) {
-    c.innerHTML = '<div style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);padding:8px 0">No part numbers added yet.</div>';
-    return;
-  }
-  c.innerHTML = library.jobs.map(j => `
-    <div class="job-list-item">
-      <span class="job-list-item-name">${esc(j)}</span>
-      <button class="job-list-rm" onclick="removeJob('${esc(j)}')">✕ Remove</button>
-    </div>`).join('');
+function renderJobList(){
+  const c=document.getElementById('jobListContainer');
+  if(!library.jobs||!library.jobs.length){c.innerHTML='<div style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);padding:8px 0">No part numbers yet.</div>';return;}
+  c.innerHTML=library.jobs.map(j=>`<div class="list-item"><span class="list-item-name">${esc(j)}</span><button class="list-item-rm" onclick="removeJob('${esc(j)}')">✕ Remove</button></div>`).join('');
 }
-function addJob() {
-  const inp = document.getElementById('newJobInput');
-  const val = inp.value.trim(); if (!val) return;
-  if (!library.jobs) library.jobs = [];
-  if (!library.jobs.includes(val)) { library.jobs.push(val); saveLibrary(); renderJobList(); }
-  inp.value = '';
+function addJob(){
+  const inp=document.getElementById('newJobInput');
+  const val=inp.value.trim(); if(!val) return;
+  if(!library.jobs) library.jobs=[];
+  if(!library.jobs.includes(val)){library.jobs.push(val);saveLibrary();renderJobList();}
+  inp.value='';
 }
-function removeJob(j) {
-  library.jobs = (library.jobs||[]).filter(x => x !== j);
-  library.tools.forEach(t => { if (t.jobs) t.jobs = t.jobs.filter(x => x !== j); });
+function removeJob(j){
+  library.jobs=(library.jobs||[]).filter(x=>x!==j);
+  library.tools.forEach(t=>{if(t.jobs) t.jobs=t.jobs.filter(x=>x!==j);});
   saveLibrary(); renderJobList();
 }
+function renderHolderList(){
+  const c=document.getElementById('holderListContainer');
+  if(!library.holders||!library.holders.length){c.innerHTML='<div style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);padding:8px 0">No holders yet.</div>';return;}
+  c.innerHTML=library.holders.map(h=>`<div class="list-item"><span class="list-item-name">${esc(h)}</span><button class="list-item-rm" onclick="removeHolder('${esc(h)}')">✕ Remove</button></div>`).join('');
+}
+function addHolder(){
+  const inp=document.getElementById('newHolderInput');
+  const val=inp.value.trim(); if(!val) return;
+  if(!library.holders) library.holders=[];
+  if(!library.holders.includes(val)){library.holders.push(val);saveLibrary();renderHolderList();}
+  inp.value='';
+}
+function removeHolder(h){
+  library.holders=(library.holders||[]).filter(x=>x!==h);
+  saveLibrary(); renderHolderList();
+}
+function quickAddHolder(){
+  const name=prompt('New holder name:'); if(!name||!name.trim()) return;
+  const h=name.trim();
+  if(!library.holders) library.holders=[];
+  if(!library.holders.includes(h)){library.holders.push(h);saveLibrary();}
+  const sel=document.getElementById('ef-holder');
+  if(sel){const opt=document.createElement('option');opt.value=h;opt.textContent=h;opt.selected=true;sel.appendChild(opt);}
+}
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// RTA BUILDER
+// ═══════════════════════════════════════════
+function populateRtaModal(){
+  const toolSel=document.getElementById('rta-tool');
+  const holderSel=document.getElementById('rta-holder');
+  toolSel.innerHTML='<option value="">Select tool...</option>'+library.tools.map(t=>`<option value="${t.id}">${esc(t.description||'#'+t.id)} (#${t.id})</option>`).join('');
+  holderSel.innerHTML='<option value="">Select holder...</option>'+(library.holders||[]).map(h=>`<option value="${esc(h)}">${esc(h)}</option>`).join('');
+  document.getElementById('rta-ooh').value='';
+  document.getElementById('rta-name').value='';
+  document.getElementById('rta-notes').value='';
+  updateRtaPreview();
+}
+function updateRtaPreview(){
+  const toolId=document.getElementById('rta-tool')?.value;
+  const holder=document.getElementById('rta-holder')?.value;
+  const ooh=document.getElementById('rta-ooh')?.value;
+  const name=document.getElementById('rta-name')?.value;
+  const tool=library.tools.find(t=>t.id===toolId);
+  const prev=document.getElementById('rtaPreview');
+  if(!prev) return;
+  if(!toolId&&!holder&&!ooh){prev.innerHTML='Fill in the fields above to preview the RTA.';return;}
+  prev.innerHTML=`<strong>${name||'RTA'}</strong> &nbsp;·&nbsp; Tool: ${tool?esc(tool.description||'#'+toolId):'—'} &nbsp;·&nbsp; Holder: ${esc(holder||'—')} &nbsp;·&nbsp; OOH: ${ooh?ooh+'"':'—'}`;
+}
+function saveRTA(){
+  const toolId=document.getElementById('rta-tool').value;
+  const holder=document.getElementById('rta-holder').value;
+  const ooh=document.getElementById('rta-ooh').value.trim();
+  const name=document.getElementById('rta-name').value.trim();
+  const notes=document.getElementById('rta-notes').value.trim();
+  if(!toolId){alert('Please select a tool.');return;}
+  if(!library.rtas) library.rtas=[];
+  const rtaId='RTA-'+String((library.rtas.length||0)+1).padStart(3,'0');
+  library.rtas.push({id:rtaId,name:name||rtaId,toolId,holder,ooh,notes});
+  saveLibrary();
+  closeModal('rtaModal');
+  alert('RTA saved: '+(name||rtaId));
+}
+
+// ═══════════════════════════════════════════
 // PRINT BIN LABEL
-// ═══════════════════════════════════════════════════════
-function printBinLabel(id) {
-  const t = library.tools.find(x => x.id === id); if (!t) return;
-  const edpText = (t.edps||[]).length ? t.edps.map(e => '• ' + e).join('  ') : '';
-  const imgHTML = t.photo ? `<img src="${t.photo}" alt="tool" />` : `<div class="label-img-placeholder">No image</div>`;
-  const label = `<div class="label-card">
-    <div class="label-left">
-      <div class="label-top-row">
-        <div class="label-lc">${esc(t.location||'—')}</div>
-        <div class="label-tool-id">${esc(t.proShopNum||t.id)}</div>
-      </div>
-      <div class="label-desc"><span>${esc(t.description||'')}</span></div>
-      <div class="label-edps">${edpText}</div>
+// ═══════════════════════════════════════════
+function printBinLabel(id){
+  const t=library.tools.find(x=>x.id===id); if(!t) return;
+  const edpText=(t.edps||[]).length?t.edps.map(e=>'• '+e).join('  '):'';
+  const imgHTML=t.photo?`<img src="${t.photo}" alt="tool"/>`:`<div class="label-img-placeholder">No image</div>`;
+  const label=`<div class="label-card"><div class="label-left">
+    <div class="label-top-row">
+      <div class="label-lc">${esc(t.location||'—')}</div>
+      <div class="label-tool-id">${esc(t.toolIdNum||t.id)}</div>
     </div>
-    <div class="label-img-area">${imgHTML}</div>
-  </div>`;
-  document.getElementById('print-container').innerHTML = `<div class="print-page">${label}</div>`;
+    <div class="label-desc"><span>${esc(t.description||'')}</span></div>
+    <div class="label-edps">${edpText}</div>
+  </div><div class="label-img-area">${imgHTML}</div></div>`;
+  document.getElementById('print-container').innerHTML=`<div class="print-page">${label}</div>`;
   window.print();
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+document.getElementById('csvTemplateLink').addEventListener('click',e=>{e.preventDefault();downloadCSVTemplate();});
 loadLibrary();
 renderAll();
 </script>
