@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tool Storage Bin Labeler | American Precision Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --apw-blue:   #0057A8;
+      --apw-dark:   #0a0f1a;
+      --apw-mid:    #111827;
+      --apw-panel:  #1a2234;
+      --apw-border: #243050;
+      --apw-text:   #e8edf5;
+      --apw-muted:  #6b7a99;
+      --apw-accent: #00aaff;
+      --apw-green:  #00e676;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html { font-size: 16px; }
+    body {
+      background: var(--apw-dark);
+      color: var(--apw-text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .site-header a { display: flex; align-items: center; }
+    .site-header img { height: 44px; width: auto; }
+    .header-divider { width: 1px; height: 36px; background: var(--apw-border); }
+    .header-title {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      line-height: 1;
+    }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .back-link {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--apw-accent); }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 77px);
+    }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: var(--apw-mid);
+      border-right: 1px solid var(--apw-border);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-family: var(--display);
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+      color: var(--apw-text);
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--apw-border);
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--apw-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .field-input {
+      background: var(--apw-dark);
+      border: 1px solid var(--apw-border);
+      color: var(--apw-text);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      padding: 9px 12px;
+      outline: none;
+      border-radius: 4px;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .field-input:focus { border-color: var(--apw-accent); }
+    .field-input::placeholder { color: var(--apw-muted); }
+
+    textarea.field-input {
+      resize: vertical;
+      min-height: 72px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* EDP list */
+    .edp-list { display: flex; flex-direction: column; gap: 6px; }
+    .edp-row { display: flex; gap: 8px; align-items: center; }
+    .edp-row .field-input { flex: 1; }
+    .edp-remove {
+      background: transparent;
+      border: 1px solid var(--apw-border);
+      color: var(--apw-muted);
+      font-size: 0.85rem;
+      width: 30px; height: 30px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .edp-remove:hover { border-color: #ff4444; color: #ff4444; }
+    .btn-add-edp {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-accent);
+      background: transparent;
+      border: 1px dashed var(--apw-border);
+      border-radius: 4px;
+      padding: 7px 12px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .btn-add-edp:hover { border-color: var(--apw-accent); background: rgba(0,170,255,0.05); }
+
+    /* Image drop zone */
+    .img-drop {
+      border: 2px dashed var(--apw-border);
+      border-radius: 6px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      background: var(--apw-dark);
+    }
+    .img-drop:hover, .img-drop.drag-over {
+      border-color: var(--apw-accent);
+      background: rgba(0,170,255,0.04);
+    }
+    .img-drop input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .img-drop-text {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+    }
+    .img-drop-icon { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+    .img-preview-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    .img-preview {
+      max-height: 80px;
+      max-width: 100%;
+      border-radius: 4px;
+      display: block;
+      margin: 0 auto;
+    }
+    .img-clear {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 20px; height: 20px;
+      background: #ff4444;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    /* Action buttons */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--apw-border);
+    }
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 4px;
+      padding: 11px 16px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      flex: 1;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--apw-blue); color: #fff; }
+    .btn-green   { background: #00875a; color: #fff; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--apw-muted);
+      border: 1px solid var(--apw-border);
+    }
+    .btn-ghost:hover { color: var(--apw-text); border-color: var(--apw-muted); }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      overflow-y: auto;
+    }
+
+    .preview-section-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--apw-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 14px;
+    }
+
+    /* ── LABEL CARD (screen preview — 2× physical) ── */
+    /* Physical: 3.5" × 1.1" | Preview at ~2.5×: 630px × 198px */
+    .label-card {
+      width: 630px;
+      height: 198px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Left content area */
+    .label-left {
+      flex: 1;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    /* Top row: LC box + Tool ID oval */
+    .label-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .label-lc {
+      font-size: 32px;
+      font-weight: 900;
+      color: #000;
+      border: 3px solid #000;
+      border-radius: 4px;
+      padding: 0px 8px;
+      line-height: 1.1;
+      min-width: 44px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .label-lc.empty { color: #ccc; border-color: #ccc; }
+
+    .label-tool-id {
+      font-size: 28px;
+      font-weight: 900;
+      color: #000;
+      border: 3px solid #000;
+      border-radius: 50px;
+      padding: 1px 14px;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    .label-tool-id.empty { color: #ccc; border-color: #ccc; }
+
+    /* Description */
+    .label-desc {
+      font-size: 18px;
+      font-weight: 700;
+      color: #000;
+      line-height: 1.25;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+      overflow: hidden;
+    }
+    .label-desc span {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .label-desc.empty span { color: #ccc; }
+
+    /* EDPs */
+    .label-edps {
+      font-size: 15px;
+      font-weight: 600;
+      color: #000;
+      line-height: 1.3;
+    }
+    .label-edps.empty { color: #ccc; }
+
+    /* Right image area */
+    .label-img-area {
+      width: 160px;
+      flex-shrink: 0;
+      border-left: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      overflow: hidden;
+    }
+    .label-img-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 6px;
+    }
+    .label-img-placeholder {
+      font-size: 11px;
+      color: #bbb;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      padding: 8px;
+    }
+
+    /* ── BATCH QUEUE ── */
+    .batch-section { margin-top: 8px; }
+    .batch-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .batch-count {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+    }
+    .batch-count span { color: var(--apw-accent); font-weight: 700; }
+    .batch-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .batch-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+    .batch-item-preview {
+      transform: scale(0.28);
+      transform-origin: left center;
+      flex-shrink: 0;
+      width: 176px; /* 630 * 0.28 */
+      height: 56px;  /* 198 * 0.28 */
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .batch-item-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .batch-item-title {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--apw-text);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .batch-item-sub {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--apw-muted);
+      margin-top: 2px;
+    }
+    .batch-item-remove {
+      background: transparent;
+      border: 1px solid var(--apw-border);
+      color: var(--apw-muted);
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--mono);
+      letter-spacing: 0.05em;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .batch-item-remove:hover { border-color: #ff4444; color: #ff4444; }
+
+    .batch-empty {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      padding: 16px;
+      border: 1px dashed var(--apw-border);
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    /* ── PRINT ── */
+    #print-container { display: none; }
+
+    @media print {
+      body > *:not(#print-container) { display: none !important; }
+      #print-container { display: block !important; }
+
+      @page {
+        size: 3.5in 1.1in;
+        margin: 0;
+      }
+
+      .print-page {
+        page-break-after: always;
+        width: 3.5in;
+        height: 1.1in;
+        overflow: hidden;
+      }
+      .print-page:last-child { page-break-after: avoid; }
+
+      .print-page .label-card {
+        width: 3.5in;
+        height: 1.1in;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .print-page .label-left { padding: 5px 6px; }
+      .print-page .label-lc   { font-size: 16px; border-width: 1.5px; padding: 0 4px; min-width: 22px; }
+      .print-page .label-tool-id { font-size: 14px; border-width: 1.5px; border-radius: 25px; padding: 0 7px; }
+      .print-page .label-top-row { gap: 5px; }
+      .print-page .label-desc { font-size: 9px; padding: 2px 0; }
+      .print-page .label-edps { font-size: 8px; }
+      .print-page .label-img-area { width: 80px; border-left-width: 1px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://jcelley.github.io/American-Precision-Works/">
+    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked%E2%80%93blue.png" alt="APW Logo" />
+  </a>
+  <div class="header-divider"></div>
+  <div>
+    <div class="header-title">Tool Storage Bin Labeler</div>
+    <div class="header-sub">Build &amp; Print Tool Bin Labels · Brother QL · 3.5" × 1.1"</div>
+  </div>
+  <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
+</header>
+
+<div class="main">
+
+  <!-- ── FORM PANEL ── -->
+  <div class="form-panel">
+    <div class="panel-title">Label Builder</div>
+
+    <div class="field-group">
+      <label class="field-label">Location / LC #</label>
+      <input class="field-input" id="f-lc" type="text" placeholder="e.g. 24" maxlength="6" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Tool Identifier</label>
+      <input class="field-input" id="f-toolid" type="text" placeholder="e.g. A-13" maxlength="12" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Description</label>
+      <textarea class="field-input" id="f-desc" placeholder="e.g. 2.5&quot; Shell Mill Haas HN25 AL&#10;SEE G-168"></textarea>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">EDP Numbers</label>
+      <div class="edp-list" id="edp-list">
+        <div class="edp-row">
+          <input class="field-input" type="text" placeholder="e.g. 02-0994" data-edp />
+          <button class="edp-remove" onclick="removeEdp(this)" title="Remove">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-edp" id="add-edp-btn">+ Add EDP</button>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Tool Photo</label>
+      <div class="img-drop" id="img-drop">
+        <input type="file" accept="image/*" id="img-input" />
+        <div id="img-drop-inner">
+          <span class="img-drop-icon">📷</span>
+          <div class="img-drop-text">Drop image here or click to browse</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="printSingle()">🖨 Print This Label</button>
+      <button class="btn btn-green"   onclick="addToBatch()">+ Add to Batch</button>
+      <button class="btn btn-ghost"   onclick="clearForm()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <!-- Live preview -->
+    <div>
+      <div class="preview-section-title">Live Preview</div>
+      <div id="live-preview"></div>
+    </div>
+
+    <!-- Batch queue -->
+    <div class="batch-section">
+      <div class="batch-header">
+        <div class="preview-section-title" style="margin-bottom:0">Batch Queue</div>
+        <div class="batch-count"><span id="batch-count">0</span> labels</div>
+        <button class="btn btn-primary" style="flex:0;padding:8px 18px" onclick="printBatch()" id="print-batch-btn" disabled>🖨 Print All</button>
+        <button class="btn btn-ghost"   style="flex:0;padding:8px 14px" onclick="clearBatch()" id="clear-batch-btn">✕ Clear</button>
+      </div>
+      <div class="batch-grid" id="batch-grid">
+        <div class="batch-empty" id="batch-empty">No labels in batch yet. Fill out the form and click "Add to Batch".</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Print container -->
+<div id="print-container"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let photoDataUrl = null;
+let batchItems   = [];
+
+// ── Live preview on input ──────────────────────────────────────────────────
+function getLabelData() {
+  const lc     = document.getElementById('f-lc').value.trim();
+  const toolId = document.getElementById('f-toolid').value.trim();
+  const desc   = document.getElementById('f-desc').value.trim();
+  const edps   = Array.from(document.querySelectorAll('[data-edp]'))
+                      .map(i => i.value.trim()).filter(Boolean);
+  return { lc, toolId, desc, edps, photo: photoDataUrl };
+}
+
+function buildLabelHTML(data, scale) {
+  const lcClass     = data.lc     ? '' : ' empty';
+  const toolIdClass = data.toolId ? '' : ' empty';
+  const descClass   = data.desc   ? '' : ' empty';
+  const edpsClass   = data.edps.length ? '' : ' empty';
+
+  const edpText = data.edps.length
+    ? data.edps.map(e => '• ' + esc(e)).join('  ')
+    : '• EDP #';
+
+  const imgHTML = data.photo
+    ? `<img src="${data.photo}" alt="tool" />`
+    : `<div class="label-img-placeholder">No image</div>`;
+
+  return `<div class="label-card">
+    <div class="label-left">
+      <div class="label-top-row">
+        <div class="label-lc${lcClass}">${esc(data.lc || '—')}</div>
+        <div class="label-tool-id${toolIdClass}">${esc(data.toolId || 'A-00')}</div>
+      </div>
+      <div class="label-desc${descClass}"><span>${esc(data.desc || 'Tool description goes here')}</span></div>
+      <div class="label-edps${edpsClass}">${edpText}</div>
+    </div>
+    <div class="label-img-area">${imgHTML}</div>
+  </div>`;
+}
+
+function updatePreview() {
+  document.getElementById('live-preview').innerHTML = buildLabelHTML(getLabelData());
+}
+
+// Watch all inputs
+document.getElementById('f-lc').addEventListener('input', updatePreview);
+document.getElementById('f-toolid').addEventListener('input', updatePreview);
+document.getElementById('f-desc').addEventListener('input', updatePreview);
+document.getElementById('edp-list').addEventListener('input', updatePreview);
+
+// ── Image handling ─────────────────────────────────────────────────────────
+const imgDrop  = document.getElementById('img-drop');
+const imgInput = document.getElementById('img-input');
+
+imgDrop.addEventListener('dragover', e => { e.preventDefault(); imgDrop.classList.add('drag-over'); });
+imgDrop.addEventListener('dragleave', () => imgDrop.classList.remove('drag-over'));
+imgDrop.addEventListener('drop', e => {
+  e.preventDefault(); imgDrop.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+imgInput.addEventListener('change', e => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+  imgInput.value = '';
+});
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoDataUrl = ev.target.result;
+    document.getElementById('img-drop-inner').innerHTML =
+      `<div class="img-preview-wrap">
+        <img class="img-preview" src="${photoDataUrl}" />
+        <button class="img-clear" onclick="clearImage(event)">✕</button>
+      </div>`;
+    updatePreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(e) {
+  e.stopPropagation();
+  photoDataUrl = null;
+  document.getElementById('img-drop-inner').innerHTML =
+    `<span class="img-drop-icon">📷</span>
+     <div class="img-drop-text">Drop image here or click to browse</div>`;
+  updatePreview();
+}
+
+// ── EDP management ─────────────────────────────────────────────────────────
+document.getElementById('add-edp-btn').addEventListener('click', () => {
+  const list = document.getElementById('edp-list');
+  const row  = document.createElement('div');
+  row.className = 'edp-row';
+  row.innerHTML = `<input class="field-input" type="text" placeholder="e.g. 02-0994" data-edp />
+                   <button class="edp-remove" onclick="removeEdp(this)" title="Remove">✕</button>`;
+  list.appendChild(row);
+  row.querySelector('input').addEventListener('input', updatePreview);
+  row.querySelector('input').focus();
+});
+
+function removeEdp(btn) {
+  const rows = document.querySelectorAll('.edp-row');
+  if (rows.length > 1) { btn.parentElement.remove(); updatePreview(); }
+  else { btn.parentElement.querySelector('input').value = ''; updatePreview(); }
+}
+
+// ── Print single ───────────────────────────────────────────────────────────
+function printSingle() {
+  const data = getLabelData();
+  const pc = document.getElementById('print-container');
+  pc.innerHTML = `<div class="print-page">${buildLabelHTML(data)}</div>`;
+  window.print();
+}
+
+// ── Batch ──────────────────────────────────────────────────────────────────
+function addToBatch() {
+  const data = getLabelData();
+  if (!data.lc && !data.toolId && !data.desc) {
+    alert('Please fill in at least one field before adding to batch.');
+    return;
+  }
+  batchItems.push({ ...data });
+  renderBatch();
+}
+
+function renderBatch() {
+  const grid  = document.getElementById('batch-grid');
+  const empty = document.getElementById('batch-empty');
+  const count = document.getElementById('batch-count');
+  const printBtn = document.getElementById('print-batch-btn');
+  const clearBtn = document.getElementById('clear-batch-btn');
+
+  count.textContent = batchItems.length;
+  printBtn.disabled = batchItems.length === 0;
+
+  if (batchItems.length === 0) {
+    grid.innerHTML = '';
+    grid.appendChild(document.getElementById('batch-empty') || createEmptyEl());
+    if (!document.getElementById('batch-empty')) {
+      const el = document.createElement('div');
+      el.className = 'batch-empty';
+      el.id = 'batch-empty';
+      el.textContent = 'No labels in batch yet. Fill out the form and click "Add to Batch".';
+      grid.appendChild(el);
+    }
+    return;
+  }
+
+  grid.innerHTML = batchItems.map((item, idx) => `
+    <div class="batch-item">
+      <div class="batch-item-preview">${buildLabelHTML(item)}</div>
+      <div class="batch-item-meta">
+        <div class="batch-item-title">${esc(item.toolId || '—')} · ${esc(item.lc || '—')}</div>
+        <div class="batch-item-sub">${esc(item.desc ? item.desc.slice(0,60) + (item.desc.length>60?'…':'') : 'No description')}</div>
+      </div>
+      <button class="batch-item-remove" onclick="removeBatchItem(${idx})">✕ Remove</button>
+    </div>
+  `).join('');
+}
+
+function removeBatchItem(idx) {
+  batchItems.splice(idx, 1);
+  renderBatch();
+}
+
+function clearBatch() {
+  batchItems = [];
+  renderBatch();
+}
+
+function printBatch() {
+  if (!batchItems.length) return;
+  const pc = document.getElementById('print-container');
+  pc.innerHTML = batchItems.map(item =>
+    `<div class="print-page">${buildLabelHTML(item)}</div>`
+  ).join('');
+  window.print();
+}
+
+// ── Clear form ─────────────────────────────────────────────────────────────
+function clearForm() {
+  document.getElementById('f-lc').value    = '';
+  document.getElementById('f-toolid').value = '';
+  document.getElementById('f-desc').value  = '';
+  // Reset EDPs to one blank row
+  document.getElementById('edp-list').innerHTML =
+    `<div class="edp-row">
+       <input class="field-input" type="text" placeholder="e.g. 02-0994" data-edp />
+       <button class="edp-remove" onclick="removeEdp(this)" title="Remove">✕</button>
+     </div>`;
+  document.querySelector('[data-edp]').addEventListener('input', updatePreview);
+  clearImage({ stopPropagation: () => {} });
+  updatePreview();
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Initial render
+updatePreview();
+renderBatch();
+</script>
+</body>
+</html>
