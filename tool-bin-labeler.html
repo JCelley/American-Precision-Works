@@ -285,6 +285,7 @@
       flex-direction: column;
       justify-content: space-between;
       min-width: 0;
+      overflow: hidden;
     }
 
     /* Top row: LC box + Tool ID oval */
@@ -330,12 +331,17 @@
       align-items: center;
       padding: 4px 0;
       overflow: hidden;
+      word-break: break-word;
+      min-width: 0;
     }
     .label-desc span {
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      white-space: normal;
+      word-wrap: break-word;
+      width: 100%;
     }
     .label-desc.empty span { color: #ccc; }
 
@@ -504,6 +510,84 @@
   </div>
   <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
 </header>
+
+<!-- ── INSTRUCTIONS ── -->
+<div class="instructions-bar" id="instructionsBar">
+  <div class="instr-inner">
+    <div class="instr-left">
+      <span class="instr-icon">📋</span>
+      <div>
+        <div class="instr-title">How to Use This Tool</div>
+        <div class="instr-steps-inline">
+          <span>1. Fill in Location, Tool ID, Description, and EDPs</span>
+          <span class="instr-sep">·</span>
+          <span>2. Drag a photo of the tool into the image box</span>
+          <span class="instr-sep">·</span>
+          <span>3. Preview updates live — print one or add to batch</span>
+        </div>
+      </div>
+    </div>
+    <a href="https://www.loom.com/share/81c28c803c784917a7db2e82bee4d0b7" target="_blank" class="btn-loom">▶ Watch Walkthrough</a>
+  </div>
+</div>
+
+<style>
+  .instructions-bar {
+    background: var(--apw-panel);
+    border-bottom: 1px solid var(--apw-border);
+    padding: 14px 32px;
+  }
+  .instr-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .instr-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  .instr-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .instr-title {
+    font-family: var(--display);
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    color: var(--apw-text);
+    margin-bottom: 3px;
+  }
+  .instr-steps-inline {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--apw-muted);
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .instr-sep { color: var(--apw-border); }
+  .btn-loom {
+    background: #625df5;
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 9px 16px;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-loom:hover { opacity: 0.85; }
+</style>
 
 <div class="main">
 
