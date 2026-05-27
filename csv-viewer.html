@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSV Viewer | American Precision Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --apw-blue:   #0057A8;
+      --apw-dark:   #0a0f1a;
+      --apw-mid:    #111827;
+      --apw-panel:  #1a2234;
+      --apw-border: #243050;
+      --apw-text:   #e8edf5;
+      --apw-muted:  #6b7a99;
+      --apw-accent: #00aaff;
+      --apw-green:  #00e676;
+      --apw-warn:   #ffaa00;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html { font-size: 16px; }
+    body {
+      background: var(--apw-dark);
+      color: var(--apw-text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .site-header a { display: flex; align-items: center; }
+    .site-header img { height: 44px; width: auto; }
+    .header-divider { width: 1px; height: 36px; background: var(--apw-border); }
+    .header-title {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      line-height: 1;
+    }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .back-link {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--apw-accent); }
+
+    /* ── MAIN ── */
+    .main { width: 100%; padding: 32px 24px; }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+      border: 2px dashed var(--apw-border);
+      border-radius: 8px;
+      padding: 64px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--apw-panel);
+      position: relative;
+      max-width: 700px;
+      margin: 0 auto 32px;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--apw-accent);
+      background: #1a2234cc;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+    .drop-title {
+      font-family: var(--display);
+      font-size: 1.8rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      margin-bottom: 6px;
+    }
+    .drop-sub {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .drop-zone.hidden { display: none; }
+
+    /* ── VIEWER ── */
+    .viewer { display: none; }
+    .viewer.visible { display: block; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+      max-width: 480px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      color: var(--apw-muted);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      border-radius: 6px;
+      color: var(--apw-text);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      padding: 9px 12px 9px 34px;
+      letter-spacing: 0.04em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: var(--apw-muted); }
+    .search-input:focus { border-color: var(--apw-accent); }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--apw-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      display: none;
+    }
+    .search-clear.visible { display: block; }
+    .search-clear:hover { color: var(--apw-text); }
+
+    .match-count {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .match-count span { color: var(--apw-accent); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--apw-border);
+      color: var(--apw-muted);
+    }
+    .btn-ghost:hover { border-color: var(--apw-muted); color: var(--apw-text); }
+    .btn-primary {
+      background: var(--apw-blue);
+      color: #fff;
+    }
+
+    /* ── FILE META ── */
+    .file-meta {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .meta-chip {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+    }
+    .meta-chip span { color: var(--apw-text); }
+
+    /* ── TABLE WRAPPER ── */
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--apw-border);
+      border-radius: 8px;
+      background: var(--apw-panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    thead tr {
+      background: var(--apw-mid);
+      border-bottom: 2px solid var(--apw-border);
+    }
+
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      color: var(--apw-accent);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    th:hover { color: var(--apw-text); }
+    th .sort-icon {
+      display: inline-block;
+      margin-left: 5px;
+      opacity: 0.4;
+      font-size: 0.65rem;
+    }
+    th.sort-asc .sort-icon,
+    th.sort-desc .sort-icon { opacity: 1; color: var(--apw-accent); }
+
+    tbody tr {
+      border-bottom: 1px solid var(--apw-border);
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1f2d45; }
+    tbody tr.row-hidden { display: none; }
+    tbody tr.row-match td { }
+
+    td {
+      padding: 9px 14px;
+      color: var(--apw-text);
+      vertical-align: top;
+      max-width: 320px;
+      word-break: break-word;
+    }
+
+    td.empty-cell { color: var(--apw-muted); font-style: italic; }
+
+    /* Highlight matched text */
+    .hl {
+      background: rgba(0, 170, 255, 0.25);
+      color: #fff;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* Row number column */
+    td.row-num, th.row-num {
+      color: var(--apw-muted);
+      font-size: 0.68rem;
+      padding-right: 8px;
+      min-width: 36px;
+      text-align: right;
+      user-select: none;
+      cursor: default;
+    }
+    th.row-num { cursor: default; color: var(--apw-muted); }
+
+    /* ── NO RESULTS ── */
+    .no-results {
+      padding: 48px 24px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--apw-muted);
+      display: none;
+    }
+    .no-results.visible { display: block; }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .page-info {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.06em;
+      margin-right: 4px;
+    }
+    .page-info span { color: var(--apw-text); }
+    .page-btn {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      color: var(--apw-muted);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--apw-accent); color: var(--apw-text); }
+    .page-btn.active { border-color: var(--apw-accent); color: var(--apw-accent); }
+    .page-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .rows-per-page {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rows-per-page select {
+      background: var(--apw-panel);
+      border: 1px solid var(--apw-border);
+      color: var(--apw-text);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://jcelley.github.io/American-Precision-Works/">
+    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked%E2%80%93blue.png" alt="APW Logo" />
+  </a>
+  <div class="header-divider"></div>
+  <div>
+    <div class="header-title">CSV Viewer</div>
+    <div class="header-sub">Drop any CSV · Instant readable table · Find anything</div>
+  </div>
+  <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
+</header>
+
+<main class="main">
+
+  <!-- DROP ZONE -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" accept=".csv,.txt" id="csvInput" />
+    <span class="drop-icon">📊</span>
+    <div class="drop-title">Drop your CSV here</div>
+    <div class="drop-sub">or click to browse &nbsp;·&nbsp; any .csv or .txt file</div>
+  </div>
+
+  <!-- VIEWER -->
+  <div class="viewer" id="viewer">
+
+    <!-- FILE META -->
+    <div class="file-meta" id="fileMeta"></div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Find anything…" autocomplete="off" />
+        <button class="search-clear" id="searchClear" title="Clear search">✕</button>
+      </div>
+      <div class="match-count" id="matchCount"></div>
+      <button class="btn btn-primary" id="printBtn">🖨 Print</button>
+      <button class="btn btn-ghost" id="loadNewBtn">↑ Load New File</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+      <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="no-results" id="noResults">No rows match your search.</div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination" id="pagination"></div>
+
+  </div>
+
+</main>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  let allRows = [];
+  let headers = [];
+  let filteredIndices = [];   // indices into allRows that pass the current filter
+  let currentPage = 1;
+  let rowsPerPage = 50;
+  let currentSort = { col: -1, dir: 'asc' };
+  let currentQuery = '';
+  let fileName = '';
+
+  // ── Elements ───────────────────────────────────────────
+  const dropZone    = document.getElementById('dropZone');
+  const csvInput    = document.getElementById('csvInput');
+  const viewer      = document.getElementById('viewer');
+  const tableHead   = document.getElementById('tableHead');
+  const tableBody   = document.getElementById('tableBody');
+  const fileMeta    = document.getElementById('fileMeta');
+  const searchInput = document.getElementById('searchInput');
+  const searchClear = document.getElementById('searchClear');
+  const matchCount  = document.getElementById('matchCount');
+  const noResults   = document.getElementById('noResults');
+  const pagination  = document.getElementById('pagination');
+  const loadNewBtn  = document.getElementById('loadNewBtn');
+  const printBtn    = document.getElementById('printBtn');
+
+  // ── Drag-and-drop ──────────────────────────────────────
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) readFile(file);
+  });
+  csvInput.addEventListener('change', e => {
+    if (e.target.files[0]) readFile(e.target.files[0]);
+  });
+
+  loadNewBtn.addEventListener('click', resetToDropZone);
+  printBtn.addEventListener('click', () => window.print());
+
+  // ── Read file ──────────────────────────────────────────
+  function readFile(file) {
+    fileName = file.name;
+    const reader = new FileReader();
+    reader.onload = e => parseCSV(e.target.result, file);
+    reader.readAsText(file);
+  }
+
+  function parseCSV(text, file) {
+    // Detect delimiter: comma, tab, semicolon, pipe
+    const firstLine = text.split('\n')[0] || '';
+    const counts = {
+      ',': (firstLine.match(/,/g) || []).length,
+      '\t': (firstLine.match(/\t/g) || []).length,
+      ';': (firstLine.match(/;/g) || []).length,
+      '|': (firstLine.match(/\|/g) || []).length,
+    };
+    const delim = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+
+    const lines = text.split(/\r?\n/);
+    const rows = [];
+    for (const line of lines) {
+      if (line.trim() === '') continue;
+      rows.push(parseCSVLine(line, delim));
+    }
+
+    if (rows.length < 1) { alert('Could not parse any rows from this file.'); return; }
+
+    headers = rows[0];
+    allRows = rows.slice(1);
+
+    // File meta
+    const kb = (file.size / 1024).toFixed(1);
+    fileMeta.innerHTML = `
+      <div class="meta-chip">📄 <span>${escHtml(fileName)}</span></div>
+      <div class="meta-chip">Rows: <span>${allRows.length.toLocaleString()}</span></div>
+      <div class="meta-chip">Columns: <span>${headers.length}</span></div>
+      <div class="meta-chip">Size: <span>${kb} KB</span></div>
+    `;
+
+    currentSort = { col: -1, dir: 'asc' };
+    currentPage = 1;
+    currentQuery = '';
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    matchCount.innerHTML = '';
+
+    buildTable();
+    applyFilter('');
+
+    dropZone.classList.add('hidden');
+    viewer.classList.add('visible');
+    searchInput.focus();
+  }
+
+  // Quoted CSV parser
+  function parseCSVLine(line, delim) {
+    const result = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i+1] === '"') { cur += '"'; i++; }
+        else { inQuotes = !inQuotes; }
+      } else if (ch === delim && !inQuotes) {
+        result.push(cur.trim());
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  // ── Build table structure ──────────────────────────────
+  function buildTable() {
+    // Header row
+    const tr = document.createElement('tr');
+    const thNum = document.createElement('th');
+    thNum.className = 'row-num';
+    thNum.textContent = '#';
+    tr.appendChild(thNum);
+
+    headers.forEach((h, i) => {
+      const th = document.createElement('th');
+      th.dataset.col = i;
+      th.innerHTML = escHtml(h || `Column ${i+1}`) + ' <span class="sort-icon">⇅</span>';
+      th.addEventListener('click', () => sortBy(i));
+      tr.appendChild(th);
+    });
+    tableHead.innerHTML = '';
+    tableHead.appendChild(tr);
+  }
+
+  // ── Filter ─────────────────────────────────────────────
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value;
+    searchClear.classList.toggle('visible', q.length > 0);
+    currentPage = 1;
+    applyFilter(q);
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    currentPage = 1;
+    applyFilter('');
+    searchInput.focus();
+  });
+
+  function applyFilter(query) {
+    currentQuery = query.toLowerCase().trim();
+    if (!currentQuery) {
+      filteredIndices = allRows.map((_, i) => i);
+    } else {
+      filteredIndices = [];
+      allRows.forEach((row, i) => {
+        if (row.some(cell => cell.toLowerCase().includes(currentQuery))) {
+          filteredIndices.push(i);
+        }
+      });
+    }
+    renderPage();
+  }
+
+  // ── Sort ───────────────────────────────────────────────
+  function sortBy(col) {
+    if (currentSort.col === col) {
+      currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.col = col;
+      currentSort.dir = 'asc';
+    }
+
+    // Update header classes
+    tableHead.querySelectorAll('th[data-col]').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+      const icon = th.querySelector('.sort-icon');
+      icon.textContent = '⇅';
+    });
+    const activeTh = tableHead.querySelector(`th[data-col="${col}"]`);
+    if (activeTh) {
+      activeTh.classList.add(currentSort.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      activeTh.querySelector('.sort-icon').textContent = currentSort.dir === 'asc' ? '↑' : '↓';
+    }
+
+    // Sort allRows
+    allRows.sort((a, b) => {
+      const va = (a[col] || '').trim();
+      const vb = (b[col] || '').trim();
+      const na = parseFloat(va), nb = parseFloat(vb);
+      let cmp;
+      if (!isNaN(na) && !isNaN(nb)) {
+        cmp = na - nb;
+      } else {
+        cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
+      }
+      return currentSort.dir === 'asc' ? cmp : -cmp;
+    });
+
+    currentPage = 1;
+    applyFilter(searchInput.value);
+  }
+
+  // ── Render page ────────────────────────────────────────
+  function renderPage() {
+    const total = filteredIndices.length;
+    const totalPages = Math.max(1, Math.ceil(total / rowsPerPage));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end   = Math.min(start + rowsPerPage, total);
+    const pageIndices = filteredIndices.slice(start, end);
+
+    // Match count
+    if (currentQuery) {
+      matchCount.innerHTML = `<span>${total.toLocaleString()}</span> match${total !== 1 ? 'es' : ''}`;
+    } else {
+      matchCount.innerHTML = '';
+    }
+
+    // No results
+    noResults.classList.toggle('visible', total === 0);
+
+    // Build rows
+    tableBody.innerHTML = '';
+    pageIndices.forEach((rowIdx) => {
+      const row = allRows[rowIdx];
+      const tr = document.createElement('tr');
+
+      // Row number cell
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-num';
+      tdNum.textContent = rowIdx + 1;
+      tr.appendChild(tdNum);
+
+      headers.forEach((_, colIdx) => {
+        const td = document.createElement('td');
+        const raw = row[colIdx] !== undefined ? row[colIdx] : '';
+        if (raw === '') {
+          td.className = 'empty-cell';
+          td.textContent = '—';
+        } else if (currentQuery) {
+          td.innerHTML = highlightText(escHtml(raw), currentQuery);
+        } else {
+          td.textContent = raw;
+        }
+        tr.appendChild(td);
+      });
+
+      tableBody.appendChild(tr);
+    });
+
+    // Pagination
+    renderPagination(totalPages, total, start, end);
+  }
+
+  function highlightText(html, query) {
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return html.replace(new RegExp(`(${escaped})`, 'gi'), '<span class="hl">$1</span>');
+  }
+
+  // ── Pagination ─────────────────────────────────────────
+  function renderPagination(totalPages, total, start, end) {
+    pagination.innerHTML = '';
+    if (total === 0) return;
+
+    const info = document.createElement('div');
+    info.className = 'page-info';
+    info.innerHTML = `Showing <span>${start+1}–${end}</span> of <span>${total.toLocaleString()}</span> rows`;
+    pagination.appendChild(info);
+
+    if (totalPages > 1) {
+      // Prev
+      const prev = pageBtn('← Prev', currentPage === 1);
+      prev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderPage(); } });
+      pagination.appendChild(prev);
+
+      // Page numbers (smart windowing)
+      const pages = smartPageNums(currentPage, totalPages);
+      let lastWasEllipsis = false;
+      pages.forEach(p => {
+        if (p === '…') {
+          if (!lastWasEllipsis) {
+            const el = document.createElement('span');
+            el.className = 'page-btn';
+            el.textContent = '…';
+            el.style.cursor = 'default';
+            pagination.appendChild(el);
+          }
+          lastWasEllipsis = true;
+          return;
+        }
+        lastWasEllipsis = false;
+        const btn = pageBtn(p, false);
+        if (p === currentPage) btn.classList.add('active');
+        btn.addEventListener('click', () => { currentPage = p; renderPage(); });
+        pagination.appendChild(btn);
+      });
+
+      // Next
+      const next = pageBtn('Next →', currentPage === totalPages);
+      next.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderPage(); } });
+      pagination.appendChild(next);
+    }
+
+    // Rows per page
+    const rppWrap = document.createElement('div');
+    rppWrap.className = 'rows-per-page';
+    rppWrap.innerHTML = `Rows/page:`;
+    const sel = document.createElement('select');
+    [25, 50, 100, 250, 500].forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      if (n === rowsPerPage) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', () => {
+      rowsPerPage = parseInt(sel.value);
+      currentPage = 1;
+      renderPage();
+    });
+    rppWrap.appendChild(sel);
+    pagination.appendChild(rppWrap);
+  }
+
+  function pageBtn(label, disabled) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn';
+    btn.textContent = label;
+    btn.disabled = disabled;
+    return btn;
+  }
+
+  function smartPageNums(cur, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    const pages = new Set([1, total, cur]);
+    for (let i = Math.max(1, cur-1); i <= Math.min(total, cur+1); i++) pages.add(i);
+    const sorted = [...pages].sort((a,b) => a-b);
+    const result = [];
+    let prev = 0;
+    for (const p of sorted) {
+      if (p - prev > 1) result.push('…');
+      result.push(p);
+      prev = p;
+    }
+    return result;
+  }
+
+  // ── Reset ──────────────────────────────────────────────
+  function resetToDropZone() {
+    viewer.classList.remove('visible');
+    dropZone.classList.remove('hidden');
+    csvInput.value = '';
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
+    fileMeta.innerHTML = '';
+    pagination.innerHTML = '';
+    matchCount.innerHTML = '';
+    searchInput.value = '';
+    allRows = [];
+    headers = [];
+  }
+
+  // ── Escape HTML ────────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>

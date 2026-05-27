@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSV Compare | American Precision Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --apw-blue:   #0057A8;
+      --apw-dark:   #0a0f1a;
+      --apw-mid:    #111827;
+      --apw-panel:  #1a2234;
+      --apw-border: #243050;
+      --apw-text:   #e8edf5;
+      --apw-muted:  #6b7a99;
+      --apw-accent: #00aaff;
+      --apw-green:  #00e676;
+      --apw-warn:   #ffaa00;
+      --apw-red:    #ff4d4d;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--apw-dark);
+      color: var(--apw-text);
+      font-family: var(--sans);
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+      height: 60px;
+    }
+    .site-header a { display: flex; align-items: center; }
+    .site-header img { height: 38px; width: auto; }
+    .header-divider { width: 1px; height: 30px; background: var(--apw-border); }
+    .header-title {
+      font-family: var(--display);
+      font-size: 1.5rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+      line-height: 1;
+    }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .back-link {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--apw-accent); }
+
+    /* ── LAYOUT ── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px);
+      overflow: hidden;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      background: var(--apw-mid);
+      border-bottom: 1px solid var(--apw-border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .diff-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--apw-muted);
+    }
+    .diff-toggle input[type="checkbox"] {
+      accent-color: var(--apw-accent);
+      width: 14px; height: 14px;
+      cursor: pointer;
+    }
+    .diff-toggle label { cursor: pointer; }
+
+    .stats-strip {
+      display: flex;
+      gap: 18px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--apw-muted);
+      letter-spacing: 0.05em;
+    }
+    .stat-chip span { font-weight: 700; }
+    .stat-chip.diff-stat span { color: var(--apw-warn); }
+    .stat-chip.add-stat span  { color: var(--apw-green); }
+    .stat-chip.del-stat span  { color: var(--apw-red); }
+    .stat-chip.same-stat span { color: var(--apw-accent); }
+
+    /* ── DROP SCREEN ── */
+    .drop-screen {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 32px 24px;
+      overflow: hidden;
+    }
+    .drop-screen.hidden { display: none; }
+
+    .drop-panel {
+      flex: 1;
+      max-width: 520px;
+      border: 2px dashed var(--apw-border);
+      border-radius: 10px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--apw-panel);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .drop-panel:hover, .drop-panel.drag-over {
+      border-color: var(--apw-accent);
+      background: #1a2234dd;
+    }
+    .drop-panel.loaded {
+      border-color: var(--apw-green);
+      border-style: solid;
+    }
+    .drop-panel input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--apw-accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .drop-label.b-label { color: var(--apw-warn); }
+    .drop-icon { font-size: 2.2rem; }
+    .drop-title {
+      font-family: var(--display);
+      font-size: 1.5rem;
+      letter-spacing: 0.06em;
+      color: var(--apw-text);
+    }
+    .drop-sub {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--apw-muted);
+    }
+    .drop-loaded-name {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--apw-green);
+      word-break: break-all;
+    }
+
+    .vs-divider {
+      font-family: var(--display);
+      font-size: 2rem;
+      color: var(--apw-border);
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+    }
+
+    /* ── COMPARE VIEW ── */
+    .compare-view {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .compare-view.visible { display: flex; }
+
+    /* Column labels */
+    .col-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      padding: 0 0 0 0;
+      flex-shrink: 0;
+    }
+    .col-label {
+      padding: 8px 16px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--apw-mid);
+      border-bottom: 2px solid var(--apw-border);
+    }
+    .col-label.a-label { border-bottom-color: var(--apw-accent); color: var(--apw-accent); }
+    .col-label.b-label { border-bottom-color: var(--apw-warn);   color: var(--apw-warn); }
+    .col-filename {
+      font-size: 0.72rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 280px;
+    }
+    .col-meta { color: var(--apw-muted); font-weight: 400; }
+
+    /* The two-pane scroll area */
+    .panes-row {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      overflow: hidden;
+      border-top: none;
+    }
+
+    .pane {
+      overflow: auto;
+      position: relative;
+      border-right: 1px solid var(--apw-border);
+    }
+    .pane:last-child { border-right: none; }
+
+    /* Hide native scrollbar on pane-b vertical (driven by pane-a) */
+    #paneB::-webkit-scrollbar-vertical { display: none; }
+    #paneB { scrollbar-width: none; } /* Firefox hides all scrollbars */
+    /* But we DO want horizontal scrollbar visible on pane-b for UX */
+    /* We'll show it only on pane-a for vertical, and both for horizontal via the sync bar */
+
+    /* Shared horizontal scroll bar at bottom */
+    .h-scroll-track {
+      height: 14px;
+      background: var(--apw-mid);
+      border-top: 1px solid var(--apw-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-shrink: 0;
+    }
+    .h-scroll-inner {
+      overflow-x: auto;
+      overflow-y: hidden;
+      height: 14px;
+      border-right: 1px solid var(--apw-border);
+    }
+    .h-scroll-inner:last-child { border-right: none; }
+    .h-scroll-sizer { height: 1px; }
+
+    table {
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      white-space: nowrap;
+    }
+
+    thead tr {
+      background: var(--apw-mid);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    th {
+      padding: 9px 14px;
+      text-align: left;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--apw-border);
+      border-right: 1px solid var(--apw-border);
+      white-space: nowrap;
+    }
+    .pane-a th { color: var(--apw-accent); }
+    .pane-b th { color: var(--apw-warn); }
+    th:last-child { border-right: none; }
+
+    tbody tr { border-bottom: 1px solid rgba(36,48,80,0.6); }
+    tbody tr:hover td { background: #1f2d45 !important; }
+
+    td {
+      padding: 7px 14px;
+      border-right: 1px solid rgba(36,48,80,0.4);
+      color: var(--apw-text);
+      vertical-align: top;
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    td:last-child { border-right: none; }
+
+    td.row-num {
+      color: var(--apw-muted);
+      font-size: 0.65rem;
+      text-align: right;
+      min-width: 36px;
+      padding-right: 10px;
+      user-select: none;
+    }
+    th.row-num { color: var(--apw-muted); cursor: default; min-width: 36px; }
+
+    /* ── DIFF HIGHLIGHTING ── */
+    tr.row-diff-a td   { background: rgba(255, 170, 0, 0.06); }
+    tr.row-diff-b td   { background: rgba(255, 170, 0, 0.06); }
+    tr.row-added td    { background: rgba(0, 230, 118, 0.07); }
+    tr.row-removed td  { background: rgba(255, 77, 77, 0.07); }
+    tr.row-empty td    { background: transparent; color: transparent; user-select: none; }
+
+    td.cell-diff {
+      background: rgba(255, 170, 0, 0.18) !important;
+      color: var(--apw-warn);
+    }
+    td.cell-added   { background: rgba(0,230,118,0.15) !important; color: var(--apw-green); }
+    td.cell-removed { background: rgba(255,77,77,0.15) !important; color: var(--apw-red); }
+
+    .diff-badge {
+      display: inline-block;
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.06em;
+    }
+    .badge-diff { background: rgba(255,170,0,0.2); color: var(--apw-warn); }
+    .badge-add  { background: rgba(0,230,118,0.2); color: var(--apw-green); }
+    .badge-del  { background: rgba(255,77,77,0.2); color: var(--apw-red); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 7px 14px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.82; }
+    .btn-accent  { background: var(--apw-accent); color: #000; }
+    .btn-ghost   { background: transparent; border: 1px solid var(--apw-border); color: var(--apw-muted); }
+    .btn-ghost:hover { border-color: var(--apw-muted); color: var(--apw-text); }
+
+    /* ── EMPTY PANE (one side not yet loaded) ── */
+    .pane-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--apw-muted);
+    }
+
+    /* ── SCROLLBAR STYLING ── */
+    .pane::-webkit-scrollbar { width: 8px; height: 8px; }
+    .pane::-webkit-scrollbar-track { background: var(--apw-dark); }
+    .pane::-webkit-scrollbar-thumb { background: var(--apw-border); border-radius: 4px; }
+    .pane::-webkit-scrollbar-thumb:hover { background: var(--apw-muted); }
+
+    .h-scroll-inner::-webkit-scrollbar { height: 8px; }
+    .h-scroll-inner::-webkit-scrollbar-track { background: var(--apw-mid); }
+    .h-scroll-inner::-webkit-scrollbar-thumb { background: var(--apw-border); border-radius: 4px; }
+    .h-scroll-inner::-webkit-scrollbar-thumb:hover { background: var(--apw-muted); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="https://jcelley.github.io/American-Precision-Works/">
+    <img src="https://jcelley.github.io/American-Precision-Works/apw-logo-stacked%E2%80%93blue.png" alt="APW Logo" />
+  </a>
+  <div class="header-divider"></div>
+  <div>
+    <div class="header-title">CSV Compare</div>
+    <div class="header-sub">Side-by-side · Synced scroll · Diff highlighting</div>
+  </div>
+  <a href="https://jcelley.github.io/American-Precision-Works/" class="back-link">← All Tools</a>
+</header>
+
+<div class="app">
+
+  <!-- TOOLBAR (shown after both loaded) -->
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <label class="diff-toggle">
+      <input type="checkbox" id="diffToggle" checked />
+      <label for="diffToggle">Highlight differences</label>
+    </label>
+    <label class="diff-toggle" style="margin-left:8px;">
+      <input type="checkbox" id="diffOnlyToggle" />
+      <label for="diffOnlyToggle">Show diff rows only</label>
+    </label>
+    <div class="stats-strip" id="statsStrip"></div>
+    <button class="btn btn-ghost" id="resetBtn">↑ Load New Files</button>
+  </div>
+
+  <!-- DROP SCREEN -->
+  <div class="drop-screen" id="dropScreen">
+    <div class="drop-panel" id="dropA">
+      <input type="file" accept=".csv,.txt" id="inputA" />
+      <div class="drop-label">File A</div>
+      <span class="drop-icon">📄</span>
+      <div class="drop-title">Drop CSV Here</div>
+      <div class="drop-sub">or click to browse · the base file</div>
+    </div>
+
+    <div class="vs-divider">VS</div>
+
+    <div class="drop-panel" id="dropB">
+      <input type="file" accept=".csv,.txt" id="inputB" />
+      <div class="drop-label b-label">File B</div>
+      <span class="drop-icon">📄</span>
+      <div class="drop-title">Drop CSV Here</div>
+      <div class="drop-sub">or click to browse · the comparison file</div>
+    </div>
+  </div>
+
+  <!-- COMPARE VIEW -->
+  <div class="compare-view" id="compareView">
+
+    <!-- Column labels -->
+    <div class="col-labels">
+      <div class="col-label a-label">
+        <span>A</span>
+        <span class="col-filename" id="labelA">—</span>
+        <span class="col-meta" id="metaA"></span>
+      </div>
+      <div class="col-label b-label">
+        <span>B</span>
+        <span class="col-filename" id="labelB">—</span>
+        <span class="col-meta" id="metaB"></span>
+      </div>
+    </div>
+
+    <!-- Panes -->
+    <div class="panes-row">
+      <div class="pane" id="paneA">
+        <table id="tableA" class="pane-a">
+          <thead id="headA"></thead>
+          <tbody id="bodyA"></tbody>
+        </table>
+      </div>
+      <div class="pane" id="paneB">
+        <table id="tableB" class="pane-b">
+          <thead id="headB"></thead>
+          <tbody id="bodyB"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Shared horizontal scroll bar -->
+    <div class="h-scroll-track" id="hScrollTrack">
+      <div class="h-scroll-inner" id="hScrollA"><div class="h-scroll-sizer" id="sizerA"></div></div>
+      <div class="h-scroll-inner" id="hScrollB"><div class="h-scroll-sizer" id="sizerB"></div></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  const state = {
+    a: null,  // { name, headers, rows }
+    b: null,
+  };
+  let diffMode    = true;
+  let diffOnly    = false;
+  let diffResults = null; // computed diff rows
+  let syncLock    = false;
+
+  // ── Elements ───────────────────────────────────────────
+  const dropScreen  = document.getElementById('dropScreen');
+  const compareView = document.getElementById('compareView');
+  const toolbar     = document.getElementById('toolbar');
+  const dropA       = document.getElementById('dropA');
+  const dropB       = document.getElementById('dropB');
+  const inputA      = document.getElementById('inputA');
+  const inputB      = document.getElementById('inputB');
+  const paneA       = document.getElementById('paneA');
+  const paneB       = document.getElementById('paneB');
+  const headA       = document.getElementById('headA');
+  const headB       = document.getElementById('headB');
+  const bodyA       = document.getElementById('bodyA');
+  const bodyB       = document.getElementById('bodyB');
+  const hScrollA    = document.getElementById('hScrollA');
+  const hScrollB    = document.getElementById('hScrollB');
+  const sizerA      = document.getElementById('sizerA');
+  const sizerB      = document.getElementById('sizerB');
+  const diffToggle  = document.getElementById('diffToggle');
+  const diffOnlyToggle = document.getElementById('diffOnlyToggle');
+  const statsStrip  = document.getElementById('statsStrip');
+  const resetBtn    = document.getElementById('resetBtn');
+  const labelA      = document.getElementById('labelA');
+  const labelB      = document.getElementById('labelB');
+  const metaA       = document.getElementById('metaA');
+  const metaB       = document.getElementById('metaB');
+
+  // ── File loading ───────────────────────────────────────
+  function setupDrop(panel, input, side) {
+    panel.addEventListener('dragover', e => { e.preventDefault(); panel.classList.add('drag-over'); });
+    panel.addEventListener('dragleave', () => panel.classList.remove('drag-over'));
+    panel.addEventListener('drop', e => {
+      e.preventDefault();
+      panel.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) loadFile(file, side);
+    });
+    input.addEventListener('change', e => {
+      if (e.target.files[0]) loadFile(e.target.files[0], side);
+    });
+  }
+  setupDrop(dropA, inputA, 'a');
+  setupDrop(dropB, inputB, 'b');
+
+  function loadFile(file, side) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const parsed = parseCSV(e.target.result);
+      state[side] = { name: file.name, headers: parsed.headers, rows: parsed.rows };
+      markDropLoaded(side, file.name);
+      if (state.a && state.b) runCompare();
+    };
+    reader.readAsText(file);
+  }
+
+  function markDropLoaded(side, name) {
+    const panel = side === 'a' ? dropA : dropB;
+    panel.classList.add('loaded');
+    // swap content
+    panel.querySelector('.drop-icon').textContent = '✅';
+    panel.querySelector('.drop-title').textContent = 'Loaded';
+    let sub = panel.querySelector('.drop-sub');
+    sub.textContent = name;
+    sub.style.color = 'var(--apw-green)';
+  }
+
+  // ── CSV parse ──────────────────────────────────────────
+  function parseCSV(text) {
+    const firstLine = text.split('\n')[0] || '';
+    const counts = {
+      ',':  (firstLine.match(/,/g)  || []).length,
+      '\t': (firstLine.match(/\t/g) || []).length,
+      ';':  (firstLine.match(/;/g)  || []).length,
+      '|':  (firstLine.match(/\|/g) || []).length,
+    };
+    const delim = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+    const rows  = lines.map(l => parseCSVLine(l, delim));
+    return { headers: rows[0] || [], rows: rows.slice(1) };
+  }
+
+  function parseCSVLine(line, delim) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (ch === delim && !inQ) {
+        result.push(cur.trim()); cur = '';
+      } else cur += ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  // ── Diff engine ────────────────────────────────────────
+  // Returns array of { type: 'same'|'diff'|'added'|'removed', rowA, rowB, cellDiffs[] }
+  function computeDiff(a, b) {
+    const maxLen = Math.max(a.rows.length, b.rows.length);
+    const results = [];
+    let diffCount = 0, addCount = 0, delCount = 0, sameCount = 0;
+
+    // Align columns: union of both header sets, preserving A order then B extras
+    const allHeaders = [...a.headers];
+    b.headers.forEach(h => { if (!allHeaders.includes(h)) allHeaders.push(h); });
+
+    for (let i = 0; i < maxLen; i++) {
+      const rowA = a.rows[i];
+      const rowB = b.rows[i];
+
+      if (!rowA && rowB) {
+        addCount++;
+        results.push({ type: 'added', rowA: null, rowB, cellDiffs: [] });
+      } else if (rowA && !rowB) {
+        delCount++;
+        results.push({ type: 'removed', rowA, rowB: null, cellDiffs: [] });
+      } else {
+        // Compare cell by cell across all columns
+        const cellDiffs = [];
+        let hasDiff = false;
+        allHeaders.forEach((h, ci) => {
+          const ai = a.headers.indexOf(h);
+          const bi = b.headers.indexOf(h);
+          const va = ai >= 0 ? (rowA[ai] || '') : '';
+          const vb = bi >= 0 ? (rowB[bi] || '') : '';
+          if (va !== vb) { hasDiff = true; cellDiffs.push(ci); }
+        });
+        if (hasDiff) diffCount++;
+        else sameCount++;
+        results.push({ type: hasDiff ? 'diff' : 'same', rowA, rowB, cellDiffs });
+      }
+    }
+
+    return { results, allHeaders, diffCount, addCount, delCount, sameCount };
+  }
+
+  // ── Run compare ────────────────────────────────────────
+  function runCompare() {
+    diffResults = computeDiff(state.a, state.b);
+
+    // Labels
+    labelA.textContent = state.a.name;
+    labelB.textContent = state.b.name;
+    metaA.textContent  = `${state.a.rows.length} rows · ${state.a.headers.length} cols`;
+    metaB.textContent  = `${state.b.rows.length} rows · ${state.b.headers.length} cols`;
+
+    // Show compare view
+    dropScreen.classList.add('hidden');
+    toolbar.style.display = 'flex';
+    compareView.classList.add('visible');
+
+    renderTables();
+    updateStats();
+    setupScrollSync();
+  }
+
+  // ── Render tables ──────────────────────────────────────
+  function renderTables() {
+    const { results, allHeaders } = diffResults;
+    const showDiff = diffMode;
+
+    // Build headers
+    const makeHead = (pane, isA) => {
+      const tr = document.createElement('tr');
+      const thN = document.createElement('th');
+      thN.className = 'row-num';
+      thN.textContent = '#';
+      tr.appendChild(thN);
+      allHeaders.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h || '—';
+        tr.appendChild(th);
+      });
+      pane.innerHTML = '';
+      pane.appendChild(tr);
+    };
+    makeHead(headA, true);
+    makeHead(headB, false);
+
+    // Build body rows
+    bodyA.innerHTML = '';
+    bodyB.innerHTML = '';
+
+    let displayedCount = 0;
+
+    results.forEach((r, i) => {
+      if (diffOnly && r.type === 'same') return;
+      displayedCount++;
+
+      const rowNum = i + 1;
+      const trA = document.createElement('tr');
+      const trB = document.createElement('tr');
+
+      // Row class
+      if (showDiff) {
+        if (r.type === 'diff')    { trA.className = 'row-diff-a'; trB.className = 'row-diff-b'; }
+        if (r.type === 'added')   { trA.className = 'row-empty';  trB.className = 'row-added'; }
+        if (r.type === 'removed') { trA.className = 'row-removed'; trB.className = 'row-empty'; }
+      }
+
+      // Row number cells
+      const tdNumA = document.createElement('td');
+      const tdNumB = document.createElement('td');
+      tdNumA.className = 'row-num';
+      tdNumB.className = 'row-num';
+      tdNumA.textContent = r.rowA ? rowNum : '';
+      tdNumB.textContent = r.rowB ? rowNum : '';
+      trA.appendChild(tdNumA);
+      trB.appendChild(tdNumB);
+
+      // Data cells
+      allHeaders.forEach((h, ci) => {
+        const tdA = document.createElement('td');
+        const tdB = document.createElement('td');
+
+        const aiIdx = state.a.headers.indexOf(h);
+        const biIdx = state.b.headers.indexOf(h);
+
+        const valA = r.rowA ? (aiIdx >= 0 ? (r.rowA[aiIdx] || '') : '') : '';
+        const valB = r.rowB ? (biIdx >= 0 ? (r.rowB[biIdx] || '') : '') : '';
+
+        tdA.textContent = valA || (r.type === 'added' ? '' : valA);
+        tdB.textContent = valB;
+
+        if (showDiff) {
+          if (r.type === 'diff' && r.cellDiffs.includes(ci)) {
+            tdA.className = 'cell-diff';
+            tdB.className = 'cell-diff';
+          }
+          if (r.type === 'added')   tdB.className = 'cell-added';
+          if (r.type === 'removed') tdA.className = 'cell-removed';
+        }
+
+        trA.appendChild(tdA);
+        trB.appendChild(tdB);
+      });
+
+      bodyA.appendChild(trA);
+      bodyB.appendChild(trB);
+    });
+
+    // Update scroll sizers after render (use timeout to let layout settle)
+    requestAnimationFrame(() => updateScrollSizers());
+  }
+
+  // ── Stats ──────────────────────────────────────────────
+  function updateStats() {
+    const { diffCount, addCount, delCount, sameCount } = diffResults;
+    statsStrip.innerHTML = `
+      <div class="stat-chip same-stat">Same: <span>${sameCount}</span></div>
+      <div class="stat-chip diff-stat">Changed: <span>${diffCount}</span></div>
+      <div class="stat-chip add-stat">Added: <span>${addCount}</span></div>
+      <div class="stat-chip del-stat">Removed: <span>${delCount}</span></div>
+    `;
+  }
+
+  // ── Synced scroll ──────────────────────────────────────
+  function setupScrollSync() {
+    // Vertical sync: paneA drives paneB
+    paneA.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      paneB.scrollTop = paneA.scrollTop;
+      syncLock = false;
+    });
+    paneB.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      paneA.scrollTop = paneB.scrollTop;
+      syncLock = false;
+    });
+
+    // Horizontal sync: each pane ↔ its scroll bar
+    // paneA horizontal ↔ hScrollA
+    paneA.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      hScrollA.scrollLeft = paneA.scrollLeft;
+      syncLock = false;
+    });
+    hScrollA.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      paneA.scrollLeft = hScrollA.scrollLeft;
+      syncLock = false;
+    });
+
+    // paneB horizontal ↔ hScrollB
+    paneB.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      hScrollB.scrollLeft = paneB.scrollLeft;
+      syncLock = false;
+    });
+    hScrollB.addEventListener('scroll', () => {
+      if (syncLock) return;
+      syncLock = true;
+      paneB.scrollLeft = hScrollB.scrollLeft;
+      syncLock = false;
+    });
+  }
+
+  function updateScrollSizers() {
+    // Match sizer width to actual table width so the scrollbar thumb is correct
+    const tA = document.getElementById('tableA');
+    const tB = document.getElementById('tableB');
+    if (tA) sizerA.style.width = tA.scrollWidth + 'px';
+    if (tB) sizerB.style.width = tB.scrollWidth + 'px';
+  }
+
+  // ── Toggle handlers ────────────────────────────────────
+  diffToggle.addEventListener('change', () => {
+    diffMode = diffToggle.checked;
+    renderTables();
+  });
+  diffOnlyToggle.addEventListener('change', () => {
+    diffOnly = diffOnlyToggle.checked;
+    renderTables();
+  });
+
+  // ── Reset ──────────────────────────────────────────────
+  resetBtn.addEventListener('click', () => {
+    state.a = null; state.b = null;
+    diffResults = null;
+
+    // Reset drop panels
+    [dropA, dropB].forEach((p, i) => {
+      p.classList.remove('loaded', 'drag-over');
+      p.querySelector('.drop-icon').textContent = '📄';
+      p.querySelector('.drop-title').textContent = 'Drop CSV Here';
+      const sub = p.querySelector('.drop-sub');
+      sub.textContent = i === 0 ? 'or click to browse · the base file' : 'or click to browse · the comparison file';
+      sub.style.color = '';
+    });
+    inputA.value = ''; inputB.value = '';
+
+    dropScreen.classList.remove('hidden');
+    toolbar.style.display = 'none';
+    compareView.classList.remove('visible');
+    headA.innerHTML = ''; headB.innerHTML = '';
+    bodyA.innerHTML = ''; bodyB.innerHTML = '';
+  });
+
+  // ── Window resize: keep sizers in sync ────────────────
+  window.addEventListener('resize', () => {
+    if (diffResults) updateScrollSizers();
+  });
+</script>
+</body>
+</html>
