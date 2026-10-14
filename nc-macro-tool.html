@@ -407,13 +407,14 @@ function splitCodeComment(line) {
   return { code: line.slice(0, start), comment: line.slice(start) };
 }
 
-// Detect tool change — M6/M06 on its own line, or G100 with a T word
+// Detect tool change — M6/M06, or G100 with a T word. Works on packed code
+// like "T1M6" / "N10T1M06" (\b fails there), and ignores text in comments.
 function isToolChange(line) {
-  const code = line.trim().toUpperCase();
+  const code = splitCodeComment(line).code.toUpperCase();
   // Standard M6 tool change
-  if (/\bM0?6\b/.test(code)) return true;
+  if (/(?<![A-Z])M0*6(?![\d.])/.test(code)) return true;
   // Brother G100 tool call (has both G100 and T##)
-  if (/\bG100\b/.test(code) && /\bT\d+\b/.test(code)) return true;
+  if (/(?<![A-Z])G100(?![\d.])/.test(code) && /(?<![A-Z])T\d+/.test(code)) return true;
   return false;
 }
 
@@ -428,15 +429,15 @@ function isHomingLine(line) {
 
 // End of program
 function isEndOfProgram(line) {
-  return /^\s*(M30|M02|%)\s*(\(.*\))?\s*$/.test(line.trim());
+  return /^\s*(N\d+\s*)?(M30|M0?2|%)\s*(\(.*\))?\s*$/i.test(line.trim());
 }
 
 // Substitute axis values
 function substituteAxes(code, xM, yM, zM) {
   let r = { x: 0, y: 0, z: 0 }, c = code;
-  if (xM) c = c.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, (_, v) => { r.x++; return `X[${v}+#${xM}]`; });
-  if (yM) c = c.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g,     (_, v) => { r.y++; return `Y[${v}+#${yM}]`; });
-  if (zM) c = c.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g,        (_, v) => { r.z++; return `Z[${v}+#${zM}]`; });
+  if (xM) c = c.replace(/(?<![A-WY-Za-wy-z])X([+-]?(?:\d+\.?\d*|\.\d+))/g, (_, v) => { r.x++; return `X[${v}+#${xM}]`; });
+  if (yM) c = c.replace(/(?<![A-XZa-xz])Y([+-]?(?:\d+\.?\d*|\.\d+))/g,     (_, v) => { r.y++; return `Y[${v}+#${yM}]`; });
+  if (zM) c = c.replace(/(?<![A-Ya-y])Z([+-]?(?:\d+\.?\d*|\.\d+))/g,        (_, v) => { r.z++; return `Z[${v}+#${zM}]`; });
   return { result: c, replaced: r };
 }
 
@@ -584,9 +585,9 @@ function highlightOrig(line) {
   if (!line) return '';
   const { code, comment } = splitCodeComment(line);
   let h = esc(code);
-  h = h.replace(/(?<![A-WY-Za-wy-z])X([+-]?\d*\.?\d+)/g, m => `<span class="hx">${esc(m)}</span>`);
-  h = h.replace(/(?<![A-XZa-xz])Y([+-]?\d*\.?\d+)/g,     m => `<span class="hy">${esc(m)}</span>`);
-  h = h.replace(/(?<![A-Ya-y])Z([+-]?\d*\.?\d+)/g,        m => `<span class="hz">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-WY-Za-wy-z])X([+-]?(?:\d+\.?\d*|\.\d+))/g, m => `<span class="hx">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-XZa-xz])Y([+-]?(?:\d+\.?\d*|\.\d+))/g,     m => `<span class="hy">${esc(m)}</span>`);
+  h = h.replace(/(?<![A-Ya-y])Z([+-]?(?:\d+\.?\d*|\.\d+))/g,        m => `<span class="hz">${esc(m)}</span>`);
   if (comment) h += `<span class="comment">${esc(comment)}</span>`;
   return h;
 }
@@ -728,12 +729,12 @@ function updateSearchActive() {
 
 searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
 document.getElementById('searchNext').addEventListener('click', () => {
-  if (!searchMatches.length) { runSearch(); return; }
-  searchIndex = (searchIndex + 1) % searchMatches.length; updateSearchActive();
+  if (!matchIndices.length) { runSearch(); return; }
+  searchIndex = (searchIndex + 1) % matchIndices.length; updateSearchActive();
 });
 document.getElementById('searchPrev').addEventListener('click', () => {
-  if (!searchMatches.length) { runSearch(); return; }
-  searchIndex = (searchIndex - 1 + searchMatches.length) % searchMatches.length; updateSearchActive();
+  if (!matchIndices.length) { runSearch(); return; }
+  searchIndex = (searchIndex - 1 + matchIndices.length) % matchIndices.length; updateSearchActive();
 });
 document.getElementById('searchClear').addEventListener('click', () => { searchInput.value = ''; clearSearch(); });
 
